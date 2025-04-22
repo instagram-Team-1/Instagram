@@ -39,7 +39,7 @@ const Page = () => {
           <FbLogin />
           <SeparatorOr />
 
-          <form onSubmit={formik.handleSubmit} className='w-full flex flex-col gap-[10px]'>
+          <form onSubmit={formik.handleSubmit} className='w-full flex flex-col gap-[10px] text-white'>
        
 
           <div className='relative'>
@@ -91,7 +91,7 @@ const Page = () => {
             </Button>
           </form>
 
-          <div className='text-center text-[12px] flex flex-col gap-[10px]'>
+          <div className='text-center text-[12px] flex flex-col gap-[10px] text-white/50'>
             <p>
               People who use our service may have uploaded your contact information to Pentagram.{' '}
               <span className='text-blue-100 cursor-pointer hover:underline'>Learn more</span> .
