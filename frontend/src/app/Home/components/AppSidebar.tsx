@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -6,7 +5,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
 import {
   Home,
   Compass,
@@ -16,9 +14,7 @@ import {
   Heart,
   PlusSquare,
   CircleUserRound,
-
   AlignJustify,
-
 } from "lucide-react";
 import { DarkModeButton } from "./DarkModeButton";
 import {
@@ -32,7 +28,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { parseJwt } from "../../../utils/JwtParse";
+import axios from "axios";
 
 const items = [
   { title: "Home", url: "#", icon: Home },
@@ -45,16 +44,33 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const router = useRouter();
+  const [username, setUsername] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<
     "none" | "search" | "messages" | "notifications"
   >("none");
 
+ useEffect(() => {
+   const fetchUser = async () => {
+     try {
+       const res = await axios.get("http://localhost:9000/api/auth/me", {
+         withCredentials: true, 
+       });
+       setUsername(res.data.username);
+     } catch (err) {
+       console.error("User fetch error:", err);
+     }
+   };
+
+   fetchUser();
+ }, []);
+
   const togglePanel = (panel: "search" | "messages" | "notifications") => {
-    setActivePanel((prev) => (prev === panel ? "none" : panel)); // Toggle panel: close if already open, open if not
+    setActivePanel((prev) => (prev === panel ? "none" : panel));
   };
 
   return (
-    <div className={`flex h-screen`}>
+    <div className={`flex h-screen z-40`}>
       <Sidebar
         className={`transition-all duration-300 ${
           activePanel === "search" ||
@@ -82,6 +98,10 @@ export function AppSidebar() {
                             togglePanel("messages");
                           } else if (item.title === "Notifications") {
                             togglePanel("notifications");
+                          } else if (item.title === "Profile" && username) {
+                            router.push(`/Home/profile/${username}`);
+                          } else if (item.title === "Home" ) {
+                            router.push(`/Home`);
                           }
                         }}
                       >
@@ -107,6 +127,7 @@ export function AppSidebar() {
           </div>
 
           <DarkModeButton />
+
           <div>
             <SidebarMenu>
               <SidebarMenuItem className="w-[300px] h-[50px]">
@@ -129,7 +150,7 @@ export function AppSidebar() {
         </SidebarContent>
       </Sidebar>
 
-      <div
+    <div
         className={`${
           activePanel === "search"
             ? "translate-y-0 opacity-100"
@@ -180,95 +201,8 @@ export function AppSidebar() {
           </ul>
         </div>
       </div>
+     
     </div>
-
-
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Explore",
-    url: "#",
-    icon: Compass,
-  },
-  {
-    title: "Messages",
-    url: "#",
-    icon: MessageCircleHeart,
-  },
-
-  {
-    title: "Notifications",
-    url: "#",
-    icon: Heart,
-  },
-  {
-    title: "Create",
-    url: "#",
-    icon: PlusSquare,
-  },
-  {
-    title: "Profile",
-    url: "#",
-    icon: CircleUserRound,
-  },
-];
-
-export function AppSidebar() {
-  return (
-    <Sidebar className="w-[336px] h-screen ">
-      <SidebarContent className="flex flex-col justify-between h-full py-[35px] px-[20px]">
-        <div>
-          <SidebarGroup>
-            <SidebarGroupLabel>Instagram</SidebarGroupLabel>
-
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {items.map((item) => (
-                  <SidebarMenuItem className=" " key={item.title}>
-                    <SidebarMenuButton
-                      className="w-[300px] h-[50px] hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                      asChild
-                    >
-                      <a href={item.url}>
-                        <item.icon style={{ width: "25px", height: "25px" }} />
-                        <span className="text-[15px] font-bold">
-                          {item.title}
-                        </span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </div>
-        <DarkModeButton />
-        <div>
-          <SidebarMenu>
-            <SidebarMenuItem className="w-[300px] h-[50px]">
-              <SidebarMenuButton
-                className="w-[300px] h-[50px] hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                asChild
-              >
-                <a href="#settings" className="flex items-center gap-3 px-4">
-                  <Settings style={{ width: "25px", height: "25px" }} />
-                  <span className="text-[15px] font-bold">Settings</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </div>
-      </SidebarContent>
-    </Sidebar>
-
+    
   );
 }

@@ -2,12 +2,14 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRouter from '../src/routers/authRoute'
+import cookieParser from "cookie-parser";
 const app = express();
 const port = 9000;
 import cors from 'cors'
 dotenv.config();
 
 app.use(express.json());
+app.use(cookieParser());
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
@@ -16,7 +18,12 @@ if (!mongoConnectionString) {
     "MONGO_CONNECTION_STRING is not defined in the environment variables"
   );
 }
-app.use(cors())
+app.use(cors({
+  origin: (origin, callback) => {
+    callback(null, origin || "*");
+  },
+  credentials: true,
+}))
 app.use('/api/auth', authRouter)
 mongoose.connect(mongoConnectionString).then(() => {
   console.log("Database connected");

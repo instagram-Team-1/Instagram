@@ -1,8 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
-import { User } from '../../models/userModel';
-import bcrypt from 'bcryptjs';
+import { Request, Response, NextFunction } from "express";
+import { User } from "../../models/userModel";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-const loginAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+const loginAccount = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const { login, password } = req.body;
 
   try {
@@ -11,18 +16,33 @@ const loginAccount = async (req: Request, res: Response, next: NextFunction): Pr
     });
 
     if (!user) {
-      res.status(404).send({ message: 'User not found' });
+      res.status(404).send({ message: "User not found" });
       return;
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      res.status(401).send({ message: 'Invalid password' });
+      res.status(401).send({ message: "Invalid password" });
       return;
     }
 
-    res.status(200).send({ message: 'Login successful', user });
+    const token = jwt.sign(
+      { id: user.id, email: user.email , username : user.username , phone : user.phone },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: "6h",
+      }
+    );
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 6 * 60 * 60 * 1000, // 6 цаг
+    });
+
+    res.status(200).send({ message: "Login successful"});
   } catch (error) {
     next(error);
   }

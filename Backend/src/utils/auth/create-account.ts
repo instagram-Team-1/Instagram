@@ -3,12 +3,11 @@ import { User } from '../../models/userModel';
 import bcrypt from 'bcryptjs';
 
 const createAccount = async (req: Request, res: Response)=> {
-    console.log(1);
     
   try {
-    const { username, fullname, password, email, phone } = req.body;
+    const { username, fullname, password, email } = req.body;
 
-    if (!username || !fullname || !password || (!email && !phone)) {
+    if (!username || !fullname || !password || (!email)) {
        res.json({ message: "Missing required fields" });
     }
 
@@ -24,16 +23,10 @@ const createAccount = async (req: Request, res: Response)=> {
       }
     }
 
-    if (phone) {
-      const existingPhone = await User.findOne({ phone });
-      if (existingPhone) {
-         res.json({ message: "Phone number already exists" });
-      }
-    }
 
     const Hashedpassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({ username, fullname, password: Hashedpassword, email, phone });
+    const newUser = new User({ username, fullname, password: Hashedpassword, email });
 
     await newUser.save();
 
