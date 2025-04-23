@@ -1,9 +1,12 @@
+
 import { StoriesBar } from "@/components/ui/stories-section";
 import { PostCard } from "@/components/ui/post-card";
 import { SuggestionsSidebar } from "@/components/ui/suggested-sidebar";
 
+
 export default function FeedPage() {
   return (
+
     <div className="flex justify-center bg-black min-h-screen px-4 lg:px-8">
       <div className="w-full max-w-[630px]">
         <StoriesBar />
@@ -17,6 +20,10 @@ export default function FeedPage() {
           <SuggestionsSidebar />
         </div>
       </div>
-    </div>
+
+    <div>
+
+
+   
   );
 }
