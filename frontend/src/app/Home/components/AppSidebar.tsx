@@ -55,9 +55,7 @@ export function AppSidebar() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-
         const res = await axios.get(API + "/api/auth/me", {
-
           withCredentials: true,
         });
         setUsername(res.data.username);
