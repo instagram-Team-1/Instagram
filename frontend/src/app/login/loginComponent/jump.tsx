@@ -20,7 +20,7 @@ const Jump = ({ pageName }: { pageName: string }) => {
           className='text-blue-500 hover:text-white cursor-pointer'
           onClick={jumpTo}
         >
-          {pageName === 'login' ? 'Sign up' : 'Login'}
+          {pageName === 'login' ? 'Login' : 'Sign up'}
         </p>
       </div>
     </div>
