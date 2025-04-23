@@ -9,8 +9,11 @@ import FbLogin from './loginComponent/fbLogin'
 import SeparatorOr from './loginComponent/SeparatorOr'
 import Jump from './loginComponent/jump'
 import loginSchema from './loginComponent/loginSchema'
-import { Formik, useFormik } from 'formik'
+import { useFormik } from 'formik'
 import Image from 'next/image'
+import axios from 'axios'
+import { ToastContainer, toast } from 'react-toastify';
+
 const Page = () => {
   const formik = useFormik({
     initialValues: {
@@ -18,20 +21,28 @@ const Page = () => {
       password: ''
     },
     validationSchema: loginSchema,
-    onSubmit: (values) => {
-      console.log(values);
+    onSubmit: async (values) => {
+      try {
+        const res = await axios.post('http://localhost:9000/api/auth/login', values)
+        console.log(values);
+        
+        toast.success(res.data.message); 
+      } catch (error) {
+        toast.error("Login failed"); // Show an error toast
+      }
     }
   });
+
   return (
     <div className="bg-black w-full h-[100vh]">
       <div className="h-full flex items-center justify-center flex-col gap-[10px]">
         <div className="border border-white/50 w-full max-w-[500px] flex flex-col items-center gap-8 px-6 py-14 rounded-xl">
-        <div className="w-full p-6 relative">
-    <Image src={Logo} alt="Logo" objectFit="contain" layout="responsive"/>
-  </div>
+          <div className="w-full p-6 relative">
+            <Image src={Logo} alt="Logo" objectFit="contain" layout="responsive"/>
+          </div>
           <div className="flex flex-col gap-5 w-full">
             <form onSubmit={formik.handleSubmit} className="w-full flex flex-col gap-3">
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 text-white">
                 <Input
                   placeholder="Phone number, username, or email"
                   name="login"
@@ -58,7 +69,7 @@ const Page = () => {
                 type="submit"
                 variant="ghost"
                 className="bg-blue-500 w-full py-2"
-                disabled={formik.isSubmitting }
+                disabled={formik.isSubmitting}
               >
                 Login
               </Button>
@@ -69,6 +80,20 @@ const Page = () => {
         </div>
         <Jump pageName="signUp" />
       </div>
+
+      {/* Toast Container for displaying notifications */}
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={true}
+        newestOnTop={true}
+        closeOnClick={true}
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={true}
+        pauseOnHover={false}
+        theme="dark"
+      />
     </div>
   );
 };

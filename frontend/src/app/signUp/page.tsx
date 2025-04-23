@@ -8,8 +8,11 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Jump from '../login/loginComponent/jump'
 import * as Yup from 'yup'
-
 import signSchema from './signComponent/signSchema'
+import axios from 'axios'
+import { ToastContainer, toast } from 'react-toastify';
+
+
 const Page = () => {
   const formik = useFormik({
     initialValues: {
@@ -19,30 +22,31 @@ const Page = () => {
       fullname: ''
     },
     validationSchema: signSchema,
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2)) 
+    onSubmit: async (values) => {
+      const sendUser =async()=>{
+       const res = await axios.post('http://localhost:9000/api/auth/register', values)
+       
+        const notify = () => toast(res.data.message);
+        notify()
+      }
+      sendUser()
+      }
     }
-  })
-
+  )
   return (
-    <div className='bg-black w-full h-[100vh]'>
+    <div className='w-full h-[100vh]'>
       <div className='bg-black h-full w-full flex items-center justify-center flex-col gap-[10px]'>
         <div className='border border-white/50 w-full max-w-[500px] flex flex-col items-center gap-8 px-[30px] py-14 rounded-xl'>
           <div className='w-full flex justify-center items-center bg-white p-6'>
             {/* <Logo className='w-32 h-auto text-black' /> */}
           </div>
-
           <p className='text-center text-white/50'>
             Sign up to see photos and videos <br /> from your friends
           </p>
-
           <FbLogin />
           <SeparatorOr />
-
-          <form onSubmit={formik.handleSubmit} className='w-full flex flex-col gap-[10px] text-white'>
-       
-
-          <div className='relative'>
+          <form onSubmit={formik.handleSubmit} className='w-full flex flex-col gap-[15px] text-white'>
+            <div className='relative'>
               <Input
                 placeholder='Mobile number or email'
                 name='email'
@@ -75,7 +79,6 @@ const Page = () => {
             {formik.errors.fullname && formik.touched.fullname && (
               <div className='text-red-500'>{formik.errors.fullname}</div>
             )}
-
             <Input
               placeholder='Username'
               name='username'
@@ -85,12 +88,14 @@ const Page = () => {
             {formik.errors.username && formik.touched.username && (
               <div className='text-red-500'>{formik.errors.username}</div>
             )}
-
-            <Button type='submit' className='bg-blue-500 w-full' disabled={formik.isSubmitting}>
+            <Button type='submit' className='bg-blue-500 w-full' disabled={formik.isSubmitting} >
               <p>Sign up</p>
             </Button>
+            <ToastContainer
+              theme="dark"
+              position='top-center'
+            />
           </form>
-
           <div className='text-center text-[12px] flex flex-col gap-[10px] text-white/50'>
             <p>
               People who use our service may have uploaded your contact information to Pentagram.{' '}
@@ -104,11 +109,9 @@ const Page = () => {
             </p>
           </div>
         </div>
-
         <Jump pageName='login' />
       </div>
     </div>
   )
 }
-
 export default Page
