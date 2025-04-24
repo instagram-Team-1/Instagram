@@ -15,7 +15,6 @@ export function middleware(request: NextRequest) {
       jwt.verify(token, process.env.JWT_SECRET!);
       return NextResponse.redirect(new URL("/Home", request.url));
     } catch (err) {
-
     }
   }
 

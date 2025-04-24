@@ -42,7 +42,7 @@ const loginAccount = async (
       maxAge: 6 * 60 * 60 * 1000, // 6 цаг
     });
 
-    res.status(200).send({ message: "Login successful"});
+    res.status(200).send({ message: "Login successful" , token});
   } catch (error) {
     next(error);
   }

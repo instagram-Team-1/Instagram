@@ -15,11 +15,16 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import { parseJwt } from "../../utils/JwtParse";
 import { useRouter } from "next/navigation";
+import {API} from "../../utils/api"
 
-import { API } from "../../utils/api";
+
 
 const Page = () => {
   const router = useRouter();
+
+  if (localStorage.getItem("token")) {
+    router.push("/Home");
+  }
 
   const formik = useFormik({
     initialValues: {
@@ -32,11 +37,12 @@ const Page = () => {
         const res = await axios.post(
           API + "/api/auth/login",
 
-          values,
-          { withCredentials: true }
+          values
         );
 
         const token = res.data.token;
+
+        localStorage.setItem("token", token);
 
         const payload = parseJwt(token);
 
