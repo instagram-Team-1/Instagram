@@ -28,6 +28,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+
 import {
   Dialog,
   DialogTrigger,
@@ -41,6 +42,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { parseJwt } from "../../../utils/JwtParse";
 import axios from "axios";
+
 import CreatePostDialog from "./AppSidebarCreatePostDialog"; // CreatePostDialog-ийг оруулж байна
 
 const items = [
@@ -59,19 +61,28 @@ export function AppSidebar() {
   const [activePanel, setActivePanel] = useState<
     "none" | "search" | "messages" | "notifications"
   >("none");
-  const [isCreateOpen, setIsCreateOpen] = useState(false); // CreatePostDialog-г нээх тохиргоо
+
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get("http://localhost:9000/api/auth/me", {
-          withCredentials: true,
-        });
-        setUsername(res.data.username);
-      } catch (err) {
-        console.error("User fetch error:", err);
-      }
-    };
+   const fetchUser = async () => {
+     try {
+       const token = localStorage.getItem("token");
+
+       if (token) {
+         const payload = parseJwt(token);
+         if (payload?.username) {
+           setUsername(payload.username);
+           return; 
+         }
+       }
+
+
+   
+     } catch (err) {
+       console.error("User fetch error:", err);
+     }
+   };
+
 
     fetchUser();
   }, []);
@@ -79,6 +90,17 @@ export function AppSidebar() {
   const togglePanel = (panel: "search" | "messages" | "notifications") => {
     setActivePanel((prev) => (prev === panel ? "none" : panel));
   };
+
+
+  const logout = async () => {
+    try {
+      localStorage.removeItem("token")
+      router.push ("/login")
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
 
   return (
     <div className={`flex h-screen z-40`}>
@@ -115,6 +137,7 @@ export function AppSidebar() {
                             router.push(`/Home`);
                           } else if (item.title === "Create") {
                             setIsCreateOpen(true); // Create товчлуурыг дарсан үед CreatePostDialog-ийг нээж байна
+
                           }
                         }}
                       >
@@ -176,8 +199,7 @@ export function AppSidebar() {
                         <DarkModeButton />
                         <span>Mode</span>
                       </div>
-
-                      <button className="flex items-center gap-2 p-2 rounded hover:bg-red-100 dark:hover:bg-red-900 w-full text-left text-red-600 dark:text-red-400">
+                      <button className="flex items-center gap-2 p-2 rounded hover:bg-red-100 dark:hover:bg-red-900 w-full text-left text-red-600 dark:text-red-400" onClick={logout}>
                         <span>Log out</span>
                       </button>
                     </PopoverContent>
@@ -243,6 +265,7 @@ export function AppSidebar() {
 
       {/* CreatePostDialog-г энд дуудаж байна */}
       <CreatePostDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+
     </div>
   );
 }

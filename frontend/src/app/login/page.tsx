@@ -16,8 +16,22 @@ import { ToastContainer, toast } from "react-toastify";
 import { parseJwt } from "../../utils/JwtParse";
 import { useRouter } from "next/navigation";
 
+import {API} from "../../utils/api"
+
+import { useEffect } from "react";
+
+
 const Page = () => {
   const router = useRouter();
+
+
+
+ useEffect(() => {
+   const token = localStorage.getItem("token");
+   if (token) {
+     router.push("/Home");
+   }
+ }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -27,14 +41,17 @@ const Page = () => {
     validationSchema: loginSchema,
     onSubmit: async (values) => {
       try {
-       const res = await axios.post(
-         "http://localhost:9000/api/auth/login",
-         values,
-         { withCredentials: true } // <<< нэмж оруулна
-       );
+
+        const res = await axios.post(
+          API + "/api/auth/login",
+
+          values
+        );
 
         const token = res.data.token;
-  
+
+        localStorage.setItem("token", token);
+
         const payload = parseJwt(token);
 
         if (payload) {

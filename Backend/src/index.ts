@@ -11,6 +11,7 @@ dotenv.config();
 app.use(express.json());
 app.use(cookieParser());
 
+
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
 if (!mongoConnectionString) {
@@ -18,12 +19,25 @@ if (!mongoConnectionString) {
     "MONGO_CONNECTION_STRING is not defined in the environment variables"
   );
 }
-app.use(cors({
-  origin: (origin, callback) => {
-    callback(null, origin || "*");
-  },
-  credentials: true,
-}))
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://instagram-yourdomain.com",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 app.use('/api/auth', authRouter)
 mongoose.connect(mongoConnectionString).then(() => {
   console.log("Database connected");
