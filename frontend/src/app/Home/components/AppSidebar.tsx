@@ -33,6 +33,8 @@ import { useRouter } from "next/navigation";
 import { parseJwt } from "../../../utils/JwtParse";
 import axios from "axios";
 
+import { API } from "../../../utils/api";
+
 const items = [
   { title: "Home", url: "#", icon: Home },
   { title: "Search", url: "#", icon: Search },
@@ -53,7 +55,9 @@ export function AppSidebar() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:9000/api/auth/me", {
+
+        const res = await axios.get(API + "/api/auth/me", {
+
           withCredentials: true,
         });
         setUsername(res.data.username);
