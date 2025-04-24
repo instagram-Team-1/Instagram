@@ -36,7 +36,7 @@ const loginAccount = async (
     );
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       sameSite: "strict",
       path: "/",
       maxAge: 6 * 60 * 60 * 1000, // 6 цаг
