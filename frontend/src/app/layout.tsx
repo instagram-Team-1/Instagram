@@ -3,9 +3,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "./components/Theme-provider";
+import { ThemeProvider } from "./Home/components/Theme-provider";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "./components/AppSidebar";
+import { AppSidebar } from "./Home/components/AppSidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,20 +28,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SidebarProvider>
-            <AppSidebar />
-              <SidebarTrigger />
-              {children}
-          </SidebarProvider>
-        </ThemeProvider>
+    <html lang="en" suppressHydrationWarning={true}>
+      <body suppressHydrationWarning={true}>
+   
+            {children}
+       
       </body>
     </html>
   );
