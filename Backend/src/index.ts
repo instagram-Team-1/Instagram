@@ -18,7 +18,6 @@ if (!mongoConnectionString) {
     "MONGO_CONNECTION_STRING is not defined in the environment variables"
   );
 }
-
 const allowedOrigins = [
   "http://localhost:3000",
   "https://instagram-yourdomain.com",
@@ -36,7 +35,6 @@ app.use(
     credentials: true,
   })
 );
-
 app.use('/api/auth', authRouter)
 mongoose.connect(mongoConnectionString).then(() => {
   console.log("Database connected");
