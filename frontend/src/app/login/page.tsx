@@ -17,14 +17,19 @@ import { parseJwt } from "../../utils/JwtParse";
 import { useRouter } from "next/navigation";
 import {API} from "../../utils/api"
 
+import { useEffect } from "react";
+
 
 
 const Page = () => {
   const router = useRouter();
 
-  if (localStorage.getItem("token")) {
-    router.push("/Home");
-  }
+ useEffect(() => {
+   const token = localStorage.getItem("token");
+   if (token) {
+     router.push("/Home");
+   }
+ }, []);
 
   const formik = useFormik({
     initialValues: {

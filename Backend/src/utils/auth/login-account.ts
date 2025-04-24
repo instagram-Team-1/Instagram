@@ -34,13 +34,6 @@ const loginAccount = async (
         expiresIn: "6h",
       }
     );
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 6 * 60 * 60 * 1000, // 6 цаг
-    });
 
     res.status(200).send({ message: "Login successful" , token});
   } catch (error) {
