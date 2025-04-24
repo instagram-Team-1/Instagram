@@ -3,6 +3,7 @@ import { User } from '../../models/userModel';
 import bcrypt from 'bcryptjs';
 
 const createAccount = async (req: Request, res: Response)=> {
+
     
   try {
     const { username, fullname, password, email } = req.body;

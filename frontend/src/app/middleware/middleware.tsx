@@ -6,15 +6,14 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("token")?.value;
 
-  const protectedPaths = ["/Home", "/profile", "/settings"];
+  const protectedPaths = ["/Home", "/profile", "/Home/*"];
 
-  // Login хийсэн хэрэглэгч login page руу орж болохгүй
   if (pathname === "/login" && token) {
     try {
       jwt.verify(token, process.env.JWT_SECRET!);
       return NextResponse.redirect(new URL("/Home", request.url));
     } catch (err) {
-      // Token expired or invalid -> зөвшөөрнө
+     
     }
   }
 

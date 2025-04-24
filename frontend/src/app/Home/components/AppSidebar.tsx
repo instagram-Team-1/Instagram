@@ -33,6 +33,8 @@ import { useRouter } from "next/navigation";
 import { parseJwt } from "../../../utils/JwtParse";
 import axios from "axios";
 
+import { API } from "../../../utils/api";
+
 const items = [
   { title: "Home", url: "#", icon: Home },
   { title: "Search", url: "#", icon: Search },
@@ -50,20 +52,20 @@ export function AppSidebar() {
     "none" | "search" | "messages" | "notifications"
   >("none");
 
- useEffect(() => {
-   const fetchUser = async () => {
-     try {
-       const res = await axios.get("http://localhost:9000/api/auth/me", {
-         withCredentials: true, 
-       });
-       setUsername(res.data.username);
-     } catch (err) {
-       console.error("User fetch error:", err);
-     }
-   };
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(API + "/api/auth/me", {
+          withCredentials: true,
+        });
+        setUsername(res.data.username);
+      } catch (err) {
+        console.error("User fetch error:", err);
+      }
+    };
 
-   fetchUser();
- }, []);
+    fetchUser();
+  }, []);
 
   const togglePanel = (panel: "search" | "messages" | "notifications") => {
     setActivePanel((prev) => (prev === panel ? "none" : panel));
@@ -100,7 +102,7 @@ export function AppSidebar() {
                             togglePanel("notifications");
                           } else if (item.title === "Profile" && username) {
                             router.push(`/Home/profile/${username}`);
-                          } else if (item.title === "Home" ) {
+                          } else if (item.title === "Home") {
                             router.push(`/Home`);
                           }
                         }}
@@ -150,7 +152,7 @@ export function AppSidebar() {
         </SidebarContent>
       </Sidebar>
 
-    <div
+      <div
         className={`${
           activePanel === "search"
             ? "translate-y-0 opacity-100"
@@ -201,8 +203,6 @@ export function AppSidebar() {
           </ul>
         </div>
       </div>
-     
     </div>
-    
   );
 }

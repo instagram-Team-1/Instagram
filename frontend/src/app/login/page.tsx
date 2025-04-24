@@ -15,6 +15,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import { parseJwt } from "../../utils/JwtParse";
 import { useRouter } from "next/navigation";
+import {API} from "../../utils/api"
 
 const Page = () => {
   const router = useRouter();
@@ -28,7 +29,7 @@ const Page = () => {
     onSubmit: async (values) => {
       try {
        const res = await axios.post(
-         "http://localhost:9000/api/auth/login",
+         API + "/api/auth/login",
          values,
          { withCredentials: true } // <<< нэмж оруулна
        );
