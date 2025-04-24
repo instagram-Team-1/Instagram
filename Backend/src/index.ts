@@ -2,14 +2,13 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRouter from '../src/routers/authRoute'
-import cookieParser from "cookie-parser";
 const app = express();
 const port = 9000;
 import cors from 'cors'
 dotenv.config();
 
 app.use(express.json());
-app.use(cookieParser());
+
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 

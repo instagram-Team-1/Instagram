@@ -22,6 +22,10 @@ import {API} from "../../utils/api"
 const Page = () => {
   const router = useRouter();
 
+  if (localStorage.getItem("token")) {
+    router.push("/Home");
+  }
+
   const formik = useFormik({
     initialValues: {
       login: "",
@@ -33,11 +37,12 @@ const Page = () => {
         const res = await axios.post(
           API + "/api/auth/login",
 
-          values,
-          { withCredentials: true }
+          values
         );
 
         const token = res.data.token;
+
+        localStorage.setItem("token", token);
 
         const payload = parseJwt(token);
 

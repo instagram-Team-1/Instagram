@@ -33,7 +33,7 @@ import { useRouter } from "next/navigation";
 import { parseJwt } from "../../../utils/JwtParse";
 import axios from "axios";
 
-import { API } from "../../../utils/api";
+
 
 const items = [
   { title: "Home", url: "#", icon: Home },
@@ -53,22 +53,39 @@ export function AppSidebar() {
   >("none");
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(API + "/api/auth/me", {
-          withCredentials: true,
-        });
-        setUsername(res.data.username);
-      } catch (err) {
-        console.error("User fetch error:", err);
-      }
-    };
+   const fetchUser = async () => {
+     try {
+       const token = localStorage.getItem("token");
+
+       if (token) {
+         const payload = parseJwt(token);
+         if (payload?.username) {
+           setUsername(payload.username);
+           return; 
+         }
+       }
+
+
+   
+     } catch (err) {
+       console.error("User fetch error:", err);
+     }
+   };
 
     fetchUser();
   }, []);
 
   const togglePanel = (panel: "search" | "messages" | "notifications") => {
     setActivePanel((prev) => (prev === panel ? "none" : panel));
+  };
+
+  const logout = async () => {
+    try {
+      localStorage.removeItem("token")
+      router.push ("/login")
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
@@ -166,7 +183,7 @@ export function AppSidebar() {
                         <span>Mode</span>
                       </div>
 
-                      <button className="flex items-center gap-2 p-2 rounded hover:bg-red-100 dark:hover:bg-red-900 w-full text-left text-red-600 dark:text-red-400">
+                      <button className="flex items-center gap-2 p-2 rounded hover:bg-red-100 dark:hover:bg-red-900 w-full text-left text-red-600 dark:text-red-400" onClick={logout}>
                         <span>Log out</span>
                       </button>
                     </PopoverContent>
