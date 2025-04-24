@@ -62,6 +62,8 @@ export function AppSidebar() {
     "none" | "search" | "messages" | "notifications"
   >("none");
 
+  const [isCreateOpen , setIsCreateOpen] = useState(false)
+
 
   useEffect(() => {
    const fetchUser = async () => {
