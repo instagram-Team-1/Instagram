@@ -55,7 +55,9 @@ export function AppSidebar() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
+
         const res = await axios.get(API + "/api/auth/me", {
+
           withCredentials: true,
         });
         setUsername(res.data.username);
@@ -82,7 +84,7 @@ export function AppSidebar() {
             : "w-[336px]"
         } h-screen fixed left-0 top-0`}
       >
-        <SidebarContent className="flex flex-col justify-between h-full py-[35px] px-[20px]">
+        <SidebarContent className="flex flex-col justify-between h-full py-[35px] px-[20px] overflow-hidden">
           <div>
             <SidebarGroup>
               <SidebarGroupLabel>Instagram</SidebarGroupLabel>
@@ -128,8 +130,6 @@ export function AppSidebar() {
             </SidebarGroup>
           </div>
 
-          <DarkModeButton />
-
           <div>
             <SidebarMenu>
               <SidebarMenuItem className="w-[300px] h-[50px]">
@@ -138,11 +138,39 @@ export function AppSidebar() {
                   asChild
                 >
                   <Popover>
-                    <PopoverTrigger>
-                      <AlignJustify style={{ width: "25px", height: "25px" }} />
+                    <PopoverTrigger className="p-4" asChild>
+                      <button className="flex items-center gap-5 w-[300px] h-[50px] hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                        <AlignJustify
+                          style={{ width: "25px", height: "25px" }}
+                        />
+                        <span className="text-[15px] font-bold">More</span>
+                      </button>
                     </PopoverTrigger>
-                    <PopoverContent>
-                      Place content for the popover here.
+
+                    <PopoverContent className="w-52 p-2 space-y-2 dark:bg-zinc-900">
+                      <button className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 w-full text-left">
+                        <Settings size={20} />
+                        <span>Settings</span>
+                      </button>
+
+                      <button className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 w-full text-left">
+                        <Heart size={20} />
+                        <span>Saved</span>
+                      </button>
+
+                      <button className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 w-full text-left">
+                        <CircleUserRound size={20} />
+                        <span>Switch account</span>
+                      </button>
+
+                      <div className="flex items-center gap-2">
+                        <DarkModeButton />
+                        <span>Mode</span>
+                      </div>
+
+                      <button className="flex items-center gap-2 p-2 rounded hover:bg-red-100 dark:hover:bg-red-900 w-full text-left text-red-600 dark:text-red-400">
+                        <span>Log out</span>
+                      </button>
                     </PopoverContent>
                   </Popover>
                 </SidebarMenuButton>
