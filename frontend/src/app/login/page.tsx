@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import Logo from "./loginComponent/asd.svg";
 import FbLogin from "./loginComponent/fbLogin";
 import SeparatorOr from "./loginComponent/SeparatorOr";
@@ -12,19 +11,16 @@ import loginSchema from "./loginComponent/loginSchema";
 import { useFormik } from "formik";
 import Image from "next/image";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import { parseJwt } from "../../utils/JwtParse";
 import { useRouter } from "next/navigation";
-import {API} from "../../utils/api"
-
-
+import { API } from "../../utils/api";
 
 const Page = () => {
-  const router = useRouter();
+  const [errormsg, setErrormsg] = useState({
+    password: "",
+    user: "",
+  });
 
-  if (localStorage.getItem("token")) {
-    router.push("/Home");
-  }
+  const router = useRouter();
 
   const formik = useFormik({
     initialValues: {
@@ -34,27 +30,22 @@ const Page = () => {
     validationSchema: loginSchema,
     onSubmit: async (values) => {
       try {
-        const res = await axios.post(
-          API + "/api/auth/login",
+        const res = await axios.post(API + "/api/auth/login", values, {
+          withCredentials: true,
+        });
 
-          values
-        );
+        // if (res.status === 200) {
+        //   router.push("/Home");
+        // }
 
-        const token = res.data.token;
+        setErrormsg({
+          password: res.data.errPassword || "",
+          user: res.data.errUser || "",
+        });
 
-        localStorage.setItem("token", token);
-
-        const payload = parseJwt(token);
-
-        if (payload) {
-          console.log("Decoded JWT:", payload);
-          console.log("User ID:", payload.userId);
-        }
-
-        toast.success(res.data.message);
-        router.push("/Home");
-      } catch (error) {
-        toast.error("Login failed");
+        localStorage.setItem("token", res.data);
+      } finally {
+        console.log(1);
       }
     },
   });
@@ -62,7 +53,7 @@ const Page = () => {
   return (
     <div className="bg-black w-full h-[100vh]">
       <div className="h-full flex items-center justify-center flex-col gap-[10px]">
-        <div className="border border-white/50 w-full max-w-[500px] flex flex-col items-center gap-8 px-6 py-14 rounded-xl">
+        <div className="w-full max-w-[350px] flex flex-col items-center gap-8 px-6 py-14">
           <div className="w-full p-6 relative">
             <Image
               src={Logo}
@@ -78,17 +69,26 @@ const Page = () => {
             >
               <div className="flex flex-col gap-3 text-white">
                 <Input
-                  placeholder="Phone number, username, or email"
+                  placeholder="username, or email"
                   name="login"
                   value={formik.values.login}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
+                  className={`${
+                    formik.errors.login && formik.touched.login
+                      ? "border-red-500"
+                      : "border-white/50"
+                  }`}
                 />
                 {formik.errors.login && formik.touched.login && (
                   <div className="text-red-500 text-xs">
                     {formik.errors.login}
                   </div>
                 )}
+                {errormsg.user && (
+                  <div className="text-red-500 text-xs">{errormsg.user}</div>
+                )}
+
                 <Input
                   placeholder="Password"
                   name="password"
@@ -96,13 +96,24 @@ const Page = () => {
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
+                  className={`${
+                    formik.errors.password && formik.touched.password
+                      ? "border-red-500"
+                      : "border-white/50"
+                  }`}
                 />
                 {formik.errors.password && formik.touched.password && (
                   <div className="text-red-500 text-xs">
                     {formik.errors.password}
                   </div>
                 )}
+                {errormsg.password && (
+                  <div className="text-red-500 text-xs">
+                    {errormsg.password}
+                  </div>
+                )}
               </div>
+
               <Button
                 type="submit"
                 variant="ghost"
@@ -118,18 +129,6 @@ const Page = () => {
         </div>
         <Jump pageName="signUp" />
       </div>
-      <ToastContainer
-        position="top-center"
-        autoClose={5000}
-        hideProgressBar={true}
-        newestOnTop={true}
-        closeOnClick={true}
-        rtl={false}
-        pauseOnFocusLoss={false}
-        draggable={true}
-        pauseOnHover={false}
-        theme="dark"
-      />
     </div>
   );
 };

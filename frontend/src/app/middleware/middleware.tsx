@@ -7,6 +7,7 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
 
 
+
   const protectedPaths = ["/Home", "/profile", "/Home/*"];
 
 
@@ -15,8 +16,10 @@ export function middleware(request: NextRequest) {
       jwt.verify(token, process.env.JWT_SECRET!);
       return NextResponse.redirect(new URL("/Home", request.url));
     } catch (err) {
+
     }
   }
+
 
   if (protectedPaths.some((path) => pathname.startsWith(path)) && !token) {
     return NextResponse.redirect(new URL("/login", request.url));

@@ -8,8 +8,11 @@ import PostsGrid from "../_components/PostsGrid";
 
 
 
+
 export default function ProfilePage( ) {
+
   const [showHighlightModal, setShowHighlightModal] = useState(false);
+
 
 
   return (
@@ -61,7 +64,9 @@ export default function ProfilePage( ) {
             <div
               role="tab"
               className="w-[89px] flex flex-col items-center cursor-pointer"
+
               onClick={() => setShowHighlightModal(true)}
+
             >
               <div className="w-[89px] h-[89px] rounded-full border border-gray-400 flex items-center justify-center">
                 <div className="w-[77px] h-[77px] rounded-full bg-gray-900 flex items-center justify-center">
@@ -70,6 +75,7 @@ export default function ProfilePage( ) {
               </div>
               <div>New</div>
             </div>
+
             {showHighlightModal && (
               <div className="fixed inset-0 bg-black bg-opacity-100 flex items-center justify-center z-50">
                 <div className="bg-gray-700 p-6 rounded-xl shadow-lg w-[300px]">
@@ -100,6 +106,7 @@ export default function ProfilePage( ) {
               </div>
             )}
 
+
           </div>
         </div>
 
@@ -116,9 +123,11 @@ export default function ProfilePage( ) {
             <a
               aria-selected="false"
               role="tab"
+
               className="text-[16px] font-medium text-gray-500 hover:text-white hover:border-t border-t-[var(--foreground)]"
             >
               <p className="mt-[20px]">Saved</p>
+
             </a>
             <a
               aria-selected="false"

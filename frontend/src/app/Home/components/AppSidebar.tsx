@@ -28,12 +28,22 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { parseJwt } from "../../../utils/JwtParse";
 import axios from "axios";
 
-
+import CreatePostDialog from "./AppSidebarCreatePostDialog"; // CreatePostDialog-ийг оруулж байна
 
 const items = [
   { title: "Home", url: "#", icon: Home },
@@ -51,6 +61,9 @@ export function AppSidebar() {
   const [activePanel, setActivePanel] = useState<
     "none" | "search" | "messages" | "notifications"
   >("none");
+
+  const [isCreateOpen , setIsCreateOpen] = useState(false)
+
 
   useEffect(() => {
    const fetchUser = async () => {
@@ -72,12 +85,14 @@ export function AppSidebar() {
      }
    };
 
+
     fetchUser();
   }, []);
 
   const togglePanel = (panel: "search" | "messages" | "notifications") => {
     setActivePanel((prev) => (prev === panel ? "none" : panel));
   };
+
 
   const logout = async () => {
     try {
@@ -87,6 +102,7 @@ export function AppSidebar() {
       console.error("Logout failed:", error);
     }
   };
+
 
   return (
     <div className={`flex h-screen z-40`}>
@@ -121,6 +137,9 @@ export function AppSidebar() {
                             router.push(`/Home/profile/${username}`);
                           } else if (item.title === "Home") {
                             router.push(`/Home`);
+                          } else if (item.title === "Create") {
+                            setIsCreateOpen(true); // Create товчлуурыг дарсан үед CreatePostDialog-ийг нээж байна
+
                           }
                         }}
                       >
@@ -182,7 +201,6 @@ export function AppSidebar() {
                         <DarkModeButton />
                         <span>Mode</span>
                       </div>
-
                       <button className="flex items-center gap-2 p-2 rounded hover:bg-red-100 dark:hover:bg-red-900 w-full text-left text-red-600 dark:text-red-400" onClick={logout}>
                         <span>Log out</span>
                       </button>
@@ -246,6 +264,10 @@ export function AppSidebar() {
           </ul>
         </div>
       </div>
+
+      {/* CreatePostDialog-г энд дуудаж байна */}
+      <CreatePostDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+
     </div>
   );
 }
