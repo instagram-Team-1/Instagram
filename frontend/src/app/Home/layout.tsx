@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/AppSidebar";
+import { ThemeProvider } from "./components/Theme-provider";
 
 type DecodedToken = {
   userId: string;
@@ -46,10 +47,19 @@ export default function HomeLayout({
   if (loading) return <p>Loading...</p>;
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarTrigger />
-      {children}
-    </SidebarProvider>
+    <>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarTrigger />
+          {children}
+        </SidebarProvider>
+      </ThemeProvider>
+    </>
   );
 }
