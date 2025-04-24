@@ -16,14 +16,14 @@ const loginAccount = async (
     });
 
     if (!user) {
-      res.status(404).send({ message: "User not found" });
+      res.send({ errUser: "User not found" });
       return;
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      res.status(401).send({ message: "Invalid password" });
+      res.send({ errPassword: "Invalid password" });
       return;
     }
 
@@ -34,9 +34,24 @@ const loginAccount = async (
         expiresIn: "6h",
       }
     );
-
-    res.status(200).send({ message: "Login successful" , token});
-
+    console.log(token);
+    
+    
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "strict",
+    //   path: "/",
+    //   maxAge: 6 * 60 * 60 * 1000, // 6 цаг
+    // });
+    // res.cookie("token", token, {
+    //   httpOnly: true, // Security: Prevent JavaScript access to the cookie
+    //   secure: process.env.NODE_ENV === "production", // Only over HTTPS in production
+    //   sameSite: "strict", // Prevent cross-site request forgery
+    //   path: "/", // Accessible from all routes
+    //   maxAge: 6 * 60 * 60 * 1000, // 6 hours
+    // });
+    res.status(200).send(token);
   } catch (error) {
     next(error);
   }
