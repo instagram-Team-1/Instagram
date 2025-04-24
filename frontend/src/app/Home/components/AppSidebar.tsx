@@ -27,23 +27,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-
-
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { parseJwt } from "../../../utils/JwtParse";
-import axios from "axios";
-
-import CreatePostDialog from "./AppSidebarCreatePostDialog"; // CreatePostDialog-ийг оруулж байна
+import CreatePostDialog from "./AppSidebarCreatePostDialog";
+import Image from "next/image"; 
 
 const items = [
   { title: "Home", url: "#", icon: Home },
@@ -118,7 +106,23 @@ export function AppSidebar() {
         <SidebarContent className="flex flex-col justify-between h-full py-[35px] px-[20px] overflow-hidden">
           <div>
             <SidebarGroup>
-              <SidebarGroupLabel>Instagram</SidebarGroupLabel>
+            {activePanel === "none" ? (
+              <div className="flex items-center w-[200px] h-[40px] mb-6 text-2xl">
+  Instagram
+              </div>
+  
+  ) : (
+    <div className="flex items-center w-[200px] h-[40px] mb-6">
+      <Image
+        src="/img/instaLogo.png"
+        alt="Logo"
+        width={140}
+        height={40}
+        className="h-[40px] w-auto object-contain"
+        priority
+      />
+    </div>
+  )}
               <SidebarGroupContent>
                 <SidebarMenu>
                   {items.map((item) => (
@@ -138,7 +142,7 @@ export function AppSidebar() {
                           } else if (item.title === "Home") {
                             router.push(`/Home`);
                           } else if (item.title === "Create") {
-                            setIsCreateOpen(true); // Create товчлуурыг дарсан үед CreatePostDialog-ийг нээж байна
+                            setIsCreateOpen(true); 
 
                           }
                         }}
@@ -265,7 +269,6 @@ export function AppSidebar() {
         </div>
       </div>
 
-      {/* CreatePostDialog-г энд дуудаж байна */}
       <CreatePostDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
 
     </div>
