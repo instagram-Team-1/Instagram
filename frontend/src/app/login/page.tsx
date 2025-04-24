@@ -16,6 +16,8 @@ import { ToastContainer, toast } from "react-toastify";
 import { parseJwt } from "../../utils/JwtParse";
 import { useRouter } from "next/navigation";
 
+import { API } from "../../utils/api";
+
 const Page = () => {
   const router = useRouter();
 
@@ -27,14 +29,15 @@ const Page = () => {
     validationSchema: loginSchema,
     onSubmit: async (values) => {
       try {
-       const res = await axios.post(
-         "http://localhost:9000/api/auth/login",
-         values,
-         { withCredentials: true } // <<< нэмж оруулна
-       );
+        const res = await axios.post(
+          API + "/api/auth/login",
+
+          values,
+          { withCredentials: true }
+        );
 
         const token = res.data.token;
-  
+
         const payload = parseJwt(token);
 
         if (payload) {
