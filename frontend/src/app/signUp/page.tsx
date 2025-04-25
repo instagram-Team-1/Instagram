@@ -39,7 +39,7 @@ const Page = () => {
 
   return (
     <div className='w-full h-[100vh]'>
-      <div className='bg-black h-full w-full flex items-center justify-center flex-col gap-[10px]'>
+      <div className={`bg-black h-full w-full flex items-center justify-center flex-col gap-[10px] ${!isDialogVisible ? "none" : "hidden"}`}>
         <div className='border border-white/50 w-full max-w-[350px] flex flex-col items-center gap-8 px-[30px] py-14 rounded-xl'>
           <div className='w-full flex justify-center items-center bg-white p-6'>
             {/* <Logo className='w-32 h-auto text-black' /> */}
@@ -101,9 +101,7 @@ const Page = () => {
               position='top-center'
             />
           </form>
-          <div className={`${isDialogVisible ? "none" : "hidden"} `}>
-          <MailVerify />
-          </div>
+         
           
      
           <div className='text-center text-[12px] flex flex-col gap-[10px] text-white/50'>
@@ -121,6 +119,9 @@ const Page = () => {
         </div>
         <Jump pageName='login' />
       </div>
+      <div className={`${isDialogVisible ? "none" : "hidden"}`}>
+          <MailVerify />
+          </div>
     </div>
   )
 }

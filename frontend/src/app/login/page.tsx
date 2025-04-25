@@ -13,8 +13,11 @@ import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { API } from "../../utils/api";
+import { Eye } from 'lucide-react';
+import { EyeOff } from 'lucide-react';
 const Page = () => {
   const [errormsg, setErrormsg] = useState('')
+  const [isShow, setIsshow] = useState(false)
   const router = useRouter();
   const formik = useFormik({
     initialValues: {
@@ -27,23 +30,28 @@ const Page = () => {
         const res = await axios.post(API + "/api/auth/login", values, {
           withCredentials: false,
         });
-        const token  = res.data;
-   if (res.status === 200) {
-   
-    
-    router.push("/Home");
-  localStorage.setItem('token', token)
-   }
+        const token = res.data;
+        if (res.status === 200) {
+          router.push("/Home");
+          localStorage.setItem('token', token)
+        }
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           setErrormsg(error.response.data);
         } else {
           setErrormsg("An unexpected error occurred");
         }
-      } 
       }
-    },
+    }
+  },
   );
+  const toggle = () => {
+    if (isShow === false) {
+      setIsshow(true)
+    } else {
+      setIsshow(false)
+    }
+  }
   return (
     <div className="bg-black w-full h-[100vh]">
       <div className="h-full flex items-center justify-center flex-col gap-[10px]">
@@ -60,32 +68,32 @@ const Page = () => {
                   value={formik.values.login}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className={`${
-                    formik.errors.login && formik.touched.login ? "border-red-500" : "border-white/50"
-                  }`}
+                  className={`${formik.errors.login && formik.touched.login ? "border-red-500" : "border-white/50"
+                    }`}
                 />
                 {formik.errors.login && formik.touched.login && (
                   <div className="text-red-500 text-xs">{formik.errors.login}</div>
                 )}
                 {errormsg === "User not found" && <div className="text-red-500 text-xs">User not found</div>}
-
-                <Input
-                  placeholder="Password"
-                  name="password"
-                  type="password"
-                  value={formik.values.password}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className={`${
-                    formik.errors.password && formik.touched.password ? "border-red-500" : "border-white/50"
-                  }`}
-                />
+                <div className={`${formik.errors.password && formik.touched.password ? "border-red-500" : "border-white/50"}  border-1 flex items-center rounded-md`}>
+                  <Input
+                    placeholder="Password"
+                    name="password"
+                    type={isShow ? 'text' : 'password'}
+                    value={formik.values.password}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className='border-0 bg-transparent'
+                  />
+                  <div onClick={toggle} className="px-3 py-1">
+                    {isShow ? <Eye /> : <EyeOff />}
+                  </div>
+                </div>
                 {formik.errors.password && formik.touched.password && (
                   <div className="text-red-500 text-xs">{formik.errors.password}</div>
                 )}
                 {errormsg === "Invalid password" && <div className="text-red-500 text-xs">Invalid password</div>}
               </div>
-
               <Button
                 type="submit"
                 variant="ghost"
@@ -104,5 +112,4 @@ const Page = () => {
     </div>
   );
 };
-
 export default Page;
