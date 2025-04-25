@@ -27,7 +27,7 @@ const Page = () => {
         const res = await axios.post(API + "/api/auth/login", values, {
           withCredentials: true,
         });
-        const { token } = res.data;
+        const token  = res.data;
    if (res.status === 200) {
    
     
@@ -35,7 +35,11 @@ const Page = () => {
   localStorage.setItem('token', token)
    }
       } catch (error) {
-        setErrormsg(error.response.data)
+        if (axios.isAxiosError(error) && error.response) {
+          setErrormsg(error.response.data);
+        } else {
+          setErrormsg("An unexpected error occurred");
+        }
       } 
       }
     },
