@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { useFormik } from 'formik'
 import Logo from '@/app/login/loginComponent/logo.svg'
 import FbLogin from '../login/loginComponent/fbLogin'
@@ -11,9 +11,10 @@ import * as Yup from 'yup'
 import signSchema from './signComponent/signSchema'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify';
-
-
+import { DialogTrigger,Dialog,DialogContent } from '@/components/ui/dialog'
+import MailVerify from './signComponent/mailVerify'
 const Page = () => {
+  const [resp,setResp]= useState('')
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -27,12 +28,15 @@ const Page = () => {
        const res = await axios.post('http://localhost:9000/api/auth/register', values)
        
         const notify = () => toast(res.data.message);
+        setResp(res.data.message)
         notify()
       }
       sendUser()
       }
     }
   )
+  const isDialogVisible = resp && resp.includes('Verification code sent to email');
+
   return (
     <div className='w-full h-[100vh]'>
       <div className='bg-black h-full w-full flex items-center justify-center flex-col gap-[10px]'>
@@ -88,14 +92,20 @@ const Page = () => {
             {formik.errors.username && formik.touched.username && (
               <div className='text-red-500'>{formik.errors.username}</div>
             )}
-            <Button type='submit' className='bg-blue-500 w-full' disabled={formik.isSubmitting} >
+          <Button type='submit' className='bg-blue-500 w-full' disabled={formik.isSubmitting} >
               <p>Sign up</p>
-            </Button>
+             
+           </Button>
             <ToastContainer
               theme="dark"
               position='top-center'
             />
           </form>
+          <div className={`${isDialogVisible ? "none" : "hidden"} `}>
+          <MailVerify />
+          </div>
+          
+     
           <div className='text-center text-[12px] flex flex-col gap-[10px] text-white/50'>
             <p>
               People who use our service may have uploaded your contact information to Pentagram.{' '}
