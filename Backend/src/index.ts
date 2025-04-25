@@ -1,16 +1,15 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import authRouter from '../src/routers/authRoute'
+import authRouter from "../src/routers/authRoute";
 import cookieParser from "cookie-parser";
 const app = express();
 const port = 9000;
-import cors from 'cors'
+import cors from "cors";
 dotenv.config();
 
 app.use(express.json());
 app.use(cookieParser());
-
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
@@ -21,7 +20,7 @@ if (!mongoConnectionString) {
 }
 
 const allowedOrigins = [
-  "http://localhost:3000",
+  "http://localhost:3001",
   "https://instagram-yourdomain.com",
 ];
 
@@ -38,7 +37,7 @@ app.use(
   })
 );
 
-app.use('/api/auth', authRouter)
+app.use("/api/auth", authRouter);
 mongoose.connect(mongoConnectionString).then(() => {
   console.log("Database connected");
 });
