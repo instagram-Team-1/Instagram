@@ -13,15 +13,9 @@ import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { API } from "../../utils/api";
-
 const Page = () => {
-  const [errormsg, setErrormsg] = useState({
-    password: "",
-    user: "",
-  });
-
+  const [errormsg, setErrormsg] = useState('')
   const router = useRouter();
-
   const formik = useFormik({
     initialValues: {
       login: "",
@@ -33,40 +27,30 @@ const Page = () => {
         const res = await axios.post(API + "/api/auth/login", values, {
           withCredentials: true,
         });
-
-        // if (res.status === 200) {
-        //   router.push("/Home");
-        // }
-
-        setErrormsg({
-          password: res.data.errPassword || "",
-          user: res.data.errUser || "",
-        });
-
-        localStorage.setItem("token", res.data);
-      } finally {
-        console.log(1);
+        const token  = res.data;
+   if (res.status === 200) {
+    router.push("/Home");
+  localStorage.setItem('token', token)
+   }
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+          setErrormsg(error.response.data);
+        } else {
+          setErrormsg("An unexpected error occurred");
+        }
+      } 
       }
     },
-  });
-
+  );
   return (
     <div className="bg-black w-full h-[100vh]">
       <div className="h-full flex items-center justify-center flex-col gap-[10px]">
         <div className="w-full max-w-[350px] flex flex-col items-center gap-8 px-6 py-14">
           <div className="w-full p-6 relative">
-            <Image
-              src={Logo}
-              alt="Logo"
-              objectFit="contain"
-              layout="responsive"
-            />
+            <Image src={Logo} alt="Logo" objectFit="contain" layout="responsive" />
           </div>
           <div className="flex flex-col gap-5 w-full">
-            <form
-              onSubmit={formik.handleSubmit}
-              className="w-full flex flex-col gap-3"
-            >
+            <form onSubmit={formik.handleSubmit} className="w-full flex flex-col gap-3">
               <div className="flex flex-col gap-3 text-white">
                 <Input
                   placeholder="username, or email"
@@ -75,19 +59,13 @@ const Page = () => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   className={`${
-                    formik.errors.login && formik.touched.login
-                      ? "border-red-500"
-                      : "border-white/50"
+                    formik.errors.login && formik.touched.login ? "border-red-500" : "border-white/50"
                   }`}
                 />
                 {formik.errors.login && formik.touched.login && (
-                  <div className="text-red-500 text-xs">
-                    {formik.errors.login}
-                  </div>
+                  <div className="text-red-500 text-xs">{formik.errors.login}</div>
                 )}
-                {errormsg.user && (
-                  <div className="text-red-500 text-xs">{errormsg.user}</div>
-                )}
+                {errormsg === "User not found" && <div className="text-red-500 text-xs">User not found</div>}
 
                 <Input
                   placeholder="Password"
@@ -97,21 +75,13 @@ const Page = () => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   className={`${
-                    formik.errors.password && formik.touched.password
-                      ? "border-red-500"
-                      : "border-white/50"
+                    formik.errors.password && formik.touched.password ? "border-red-500" : "border-white/50"
                   }`}
                 />
                 {formik.errors.password && formik.touched.password && (
-                  <div className="text-red-500 text-xs">
-                    {formik.errors.password}
-                  </div>
+                  <div className="text-red-500 text-xs">{formik.errors.password}</div>
                 )}
-                {errormsg.password && (
-                  <div className="text-red-500 text-xs">
-                    {errormsg.password}
-                  </div>
-                )}
+                {errormsg === "Invalid password" && <div className="text-red-500 text-xs">Invalid password</div>}
               </div>
 
               <Button

@@ -36,7 +36,7 @@ const Page = () => {
   return (
     <div className='w-full h-[100vh]'>
       <div className='bg-black h-full w-full flex items-center justify-center flex-col gap-[10px]'>
-        <div className='border border-white/50 w-full max-w-[500px] flex flex-col items-center gap-8 px-[30px] py-14 rounded-xl'>
+        <div className='border border-white/50 w-full max-w-[350px] flex flex-col items-center gap-8 px-[30px] py-14 rounded-xl'>
           <div className='w-full flex justify-center items-center bg-white p-6'>
             {/* <Logo className='w-32 h-auto text-black' /> */}
           </div>
