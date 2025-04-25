@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRouter from '../src/routers/authRoute'
 import cookieParser from "cookie-parser";
+
+import PostRouter from "./routers/PostRouter"
 const app = express();
 const port = 9000;
 import cors from 'cors'
@@ -38,10 +40,13 @@ app.use(
   })
 );
 
-app.use('/api/auth', authRouter)
+app.use('/api/auth', authRouter);
+app.use(`/api`, PostRouter);
 mongoose.connect(mongoConnectionString).then(() => {
   console.log("Database connected");
 });
+
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
