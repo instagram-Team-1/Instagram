@@ -37,7 +37,7 @@ export function SuggestionsSidebar() {
     <div className="hidden lg:block w-[300px] px-4 py-6 text-white">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
-          <Avatar.Root className="h-10 w-10 rounded-full overflow-hidden">
+          <Avatar.Root className="h-10 w-10 rounded-full overflow-hidden text-[#8E8E8E]">
             <Avatar.Image
               src={currentUser.image}
               alt={currentUser.name}
@@ -49,21 +49,21 @@ export function SuggestionsSidebar() {
           </Avatar.Root>
           <div className="flex flex-col leading-4">
             <span className="text-sm font-semibold">{currentUser.name}</span>
-            <span className="text-xs text-gray-400">
+            <span className="text-sm text-[#B3B3B3]">
               {currentUser.subtitle}
             </span>
           </div>
         </div>
-        <button className="text-blue-400 text-sm font-medium hover:text-white">
+        <button className="text-[#0095F6] text-xs font-bold hover:text-white">
           Switch
         </button>
       </div>
 
       <div className="flex justify-between items-center mb-4">
-        <span className="text-sm text-gray-400 font-semibold">
+        <span className="text-sm text-[#B3B3B3] font-semibold">
           Suggested for you
         </span>
-        <button className="text-white text-sm font-medium hover:text-gray-400">
+        <button className="text-white text-xs font-medium hover:text-gray-400">
           See All
         </button>
       </div>
@@ -84,19 +84,19 @@ export function SuggestionsSidebar() {
               </Avatar.Root>
               <div className="flex flex-col leading-4">
                 <span className="text-sm font-semibold">{user.name}</span>
-                <span className="text-xs text-gray-400 max-w-[160px] truncate">
+                <span className="text-xs text-[#B3B3B3] max-w-[160px] truncate">
                   {user.subtitle}
                 </span>
               </div>
             </div>
-            <button className="text-blue-400 text-sm font-medium hover:text-white">
+            <button className="text-[#0095F6] text-xs font-bold hover:text-white">
               Follow
             </button>
           </div>
         ))}
       </div>
 
-      <div className="mt-8 text-[11px] text-gray-500 leading-5 space-y-1">
+      <div className="mt-8 text-xs text-[11px] text-[#8E8E8E] leading-5 space-y-1 ">
         <p className="text-wrap space-x-2">
           {["About", "Help", "Press", "API", "Jobs", "Privacy", "Terms"].map(
             (text, i) => (
@@ -114,7 +114,7 @@ export function SuggestionsSidebar() {
           ))}
         </p>
 
-        <p className="mt-2">© 2025 INSTAGRAM FROM META</p>
+        <p className="mt-4">© 2025 INSTAGRAM FROM META</p>
       </div>
     </div>
   );

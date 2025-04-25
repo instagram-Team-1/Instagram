@@ -4,10 +4,10 @@ import { Heart, MessageCircle, Bookmark, Send } from "lucide-react";
 export function PostCard() {
   return (
     <div className=" rounded-md bg-black max-w-md mx-auto my-6">
-      <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center justify-between py-3">
         <div className="flex items-center gap-4">
           <div className="w-8 h-8 bg-gray-500 rounded-full" />
-          <span className="text-white text-sm font-medium">username</span>
+          <span className="text-white text-sm font-medium">Hwasa97</span>
         </div>
         <button className="text-white text-lg">•••</button>
       </div>
