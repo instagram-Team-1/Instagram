@@ -3,7 +3,7 @@ import { Heart, MessageCircle, Bookmark, Send } from "lucide-react";
 
 export function PostCard() {
   return (
-    <div className=" rounded-md bg-black max-w-md mx-auto my-6">
+    <div className=" rounded-md bg-white dark:bg-black max-w-md mx-auto my-6">
       <div className="flex items-center justify-between py-3">
         <div className="flex items-center gap-4">
           <div className="w-8 h-8 bg-gray-500 rounded-full" />

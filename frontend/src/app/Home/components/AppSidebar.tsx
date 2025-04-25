@@ -94,7 +94,7 @@ export function AppSidebar() {
             : "w-[280px]"
         } h-screen fixed left-0 top-0`}
       >
-        <SidebarContent className="flex flex-col justify-between h-full py-[35px] px-[20px] overflow-hidden dark:bg-black">
+        <SidebarContent className="flex flex-col border-r-[1px] border-gray-400 justify-between h-full py-[35px] px-[20px] overflow-hidden dark:bg-black">
           <div>
             <SidebarGroup>
               <div className="relative w-[200px] h-[40px] mb-6">
