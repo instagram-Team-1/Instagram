@@ -10,7 +10,7 @@ const port = 9000;
 dotenv.config();
 
 app.use(express.json());
-app.use(cors({  origin: "*" }));
+app.use(cors());
 
 
 

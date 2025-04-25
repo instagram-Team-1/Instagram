@@ -17,8 +17,8 @@ const MailVerify = () => {
         code: mailcode,
       });
 
-      toast.success(res.data.message || "Account created successfully!");
-      router.push('/home')
+      toast.success(res.data.message || "Account created successfully!")
+      router.push('/Home')
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Verification failed.");
     }
