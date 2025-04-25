@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "ts-node src/index.ts",
     "start": "nodemon src/index.ts"
+
   },
   "author": "",
   "license": "ISC",
