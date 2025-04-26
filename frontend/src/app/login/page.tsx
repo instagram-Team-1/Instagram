@@ -67,7 +67,7 @@ const Page = () => {
                 {formik.errors.login && formik.touched.login && (
                   <div className="text-red-500 text-xs">{formik.errors.login}</div>
                 )}
-                {errormsg === "User not found" && <div className="text-red-500 text-xs">User not found</div>}
+                {errormsg === "User not found" && <div className="text-red-500 text-xs">User not Found</div>}
 
                 <Input
                   placeholder="Password"
