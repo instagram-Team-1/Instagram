@@ -3,15 +3,77 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Camera } from "lucide-react";
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PostsGrid from "../_components/PostsGrid";
+import { jwtDecode } from 'jwt-decode'; 
 
+export type UserDataType = {
+  username: String,
+  fullname: String,
+  email: String,
+  phone: String,
+  password: String,
+  bio: String,
+  avatar: String,
+  followers: string[];
+  following: string[];
+  posts: string[];
+  createdAt: Date,
+  updateAt: Date,
+}; 
 
-
-
-export default function ProfilePage( ) {
+export default function ProfilePage() {
 
   const [showHighlightModal, setShowHighlightModal] = useState(false);
+  // const [userData, setUserData] = useState<UserDataType>({
+  //   username: "",
+  //   fullname: "",
+  //   email: "",
+  //   phone: "",
+  //   password: "",
+  //   bio: "",
+  //   avatar: "",
+  //   followers: [""],
+  //   following: [""],
+  //   posts: [""],
+  //   createdAt: new Date(),
+  //   updateAt: new Date(),
+  // });
+  // const [userId, setUserId] = useState<string>("");
+  // const [user, setUser] = useState<UserDataType | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [tokenData, setTokenData] = useState<UserDataType  | null>(null);
+
+  console.log("tokenData", tokenData);
+  
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setTokenData(decoded);
+        console.log(decoded);
+        
+      } catch (err) {
+        console.error('Invalid token:', err);
+      }
+    } else {
+      console.warn('No token found in localStorage');
+    }
+  }, []);
+  
+  useEffect(() => {
+    setLoading(true);
+  }, []);
+    
+  // return (
+  //   <div>
+  //     {tokenData?.id ? `User ID: ${tokenData.id}` : 'No user data found'}
+  //     {tokenData?.username ? `User name: ${tokenData.username}` : 'No user data found'}
+  //     {tokenData?.email ?  `User email: ${tokenData.email}` : 'No user data found'}
+  //   </div>
+  // );
 
 
 
@@ -41,7 +103,7 @@ export default function ProfilePage( ) {
             </div>
             <div className="flex flex-col ml-[20px] gap-[30px]">
               <div className="text-[20px] font-normal flex flex-row items-center gap-[8px]">
-                <div>@username</div>
+                <div>{tokenData?.username ? `${tokenData.username}` : 'No user data found'}</div>
                 <Button
                   variant="secondary"
                   onClick={() => (window.location.href = "/accounts/edit/")}
