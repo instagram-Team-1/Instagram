@@ -6,7 +6,7 @@ import authRouter from "../src/routers/authRoute";
 import PostRouter from "./routers/PostRouter";
 
 const app = express();
-const port = 9000;
+const port = process.env.PORT || 4000;
 dotenv.config();
 
 app.use(express.json());
