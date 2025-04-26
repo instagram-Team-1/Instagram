@@ -35,15 +35,19 @@ const MailVerify = () => {
         placeholder="Enter your code"
         className="text-white"
       />
-      
+      <div className='flex justify-between'>
+         <button  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
+        back
+      </button>
+
       <button
         onClick={handleSubmit}
         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
       >
         Verify Code
       </button>
-
-      {/* Toast container */}
+      </div>
+     
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
