@@ -51,7 +51,8 @@ export default function ProfilePage() {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decoded = jwtDecode(token);
+        const decoded = jwtDecode<UserDataType>(token);
+
         setTokenData(decoded);
         console.log(decoded);
         
