@@ -1,37 +1,36 @@
 import { Request, Response } from 'express';
 import { User } from '../../models/userModel';
+import memoryStore from './memoryStore';
 import bcrypt from 'bcryptjs';
 
-const createAccount = async (req: Request, res: Response)=> {
+const createAccount = async (req: Request, res: Response) => {
   try {
-    const { username, fullname, password, email } = req.body;
-
-    if (!username || !fullname || !password || (!email)) {
-       res.json({ message: "Missing required fields" });
+    const {code} = req.body;
+    const storedRaw = memoryStore.get('prechecked');
+    const stored = typeof storedRaw === 'string' ? JSON.parse(storedRaw) : storedRaw;
+    if (!stored) {
+       res.status(400).json({ message: "No pending verification found" });
+       return
     }
-
-    const existingUsername = await User.findOne({ username });
-    if (existingUsername) {
-       res.json({ message: "Username already exists" });
+    if (stored.code != code) {   
+       res.status(400).json({ message: "Invalid verification code" });
+       return
     }
-
-    if (email) {
-      const existingEmail = await User.findOne({ email });
-      if (existingEmail) {
-         res.json({ message: "Email already exists" });
-      }
-    }
-
-
-    const Hashedpassword = await bcrypt.hash(password, 10);
-
-    const newUser = new User({ username, fullname, password: Hashedpassword, email });
-
-    await newUser.save();
-
-     res.json({ message: "Account created successfully", user: newUser });
+    const hashedPassword = await bcrypt.hash(stored.password, 10);
+    const newUser = new User({
+      username: stored.username,
+      fullname: stored.fullname,
+      password: hashedPassword,
+      email: stored.email,
+    });
+    await newUser.save();   
+    memoryStore.delete('prechecked');
+     res.status(201).json({ message: "Account created successfully", user: newUser });
+     return
   } catch (error) {
-     res.json({ message: "Internal server error" });
+    console.error(error);
+     res.status(500).json({ message: "Internal server error" });
+     return
   }
 };
 

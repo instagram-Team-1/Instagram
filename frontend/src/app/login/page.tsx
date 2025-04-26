@@ -25,10 +25,12 @@ const Page = () => {
     onSubmit: async (values) => {
       try {
         const res = await axios.post(API + "/api/auth/login", values, {
-          withCredentials: true,
+          withCredentials: false,
         });
         const token  = res.data;
    if (res.status === 200) {
+   
+    
     router.push("/Home");
   localStorage.setItem('token', token)
    }
