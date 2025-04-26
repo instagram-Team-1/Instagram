@@ -1,5 +1,5 @@
 export function parseJwt(token?: string) {
-  if (!token) return null; // token байхгүй бол null буцаана
+  if (!token) return null; 
 
   try {
     const base64Url = token.split(".")[1];
