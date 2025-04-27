@@ -11,19 +11,26 @@ const preCheck = async (req: Request, res: Response)=> {
 
     if (!username || !fullname || !password || (!email)) {
        res.json({ message: "Missing required fields" });
+       return
+   
     }
 
     const existingUsername = await User.findOne({ username });
     if (existingUsername) {
        res.json({ message: "Username already exists" });
+       return
+    
     }
 
     if (email) {
       const existingEmail = await User.findOne({ email });
       if (existingEmail) {
          res.json({ message: "Email already exists" });
+         return
       }
+ 
     }
+   
     const code = Math.floor(100000 + Math.random() * 900000);
     await sendVerificationEmail(email, code);
     const data = {
@@ -32,8 +39,7 @@ const preCheck = async (req: Request, res: Response)=> {
     };
     console.log(code);
     
-    console.log(data);
-    
+   
     await memoryStore.set(`prechecked`, JSON.stringify(data));
 
 

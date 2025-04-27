@@ -13,7 +13,9 @@ import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify';
 import { DialogTrigger,Dialog,DialogContent } from '@/components/ui/dialog'
 import MailVerify from './signComponent/mailVerify'
+import {API} from '@/utils/api'
 const Page = () => {
+
   const [resp,setResp]= useState('')
   const formik = useFormik({
     initialValues: {
@@ -25,7 +27,9 @@ const Page = () => {
     validationSchema: signSchema,
     onSubmit: async (values) => {
       const sendUser =async()=>{
-       const res = await axios.post('http://localhost:9000/api/auth/register', values)
+
+       const res = await axios.post( API+'/api/auth/register', values)
+
        
         const notify = () => toast(res.data.message);
         setResp(res.data.message)
