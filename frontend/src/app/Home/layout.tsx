@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "./components/AppSidebar";
+import { AppSidebar } from "./components/appsider/AppSidebar";
 import { ThemeProvider } from "./components/Theme-provider";
 
 type DecodedToken = {
