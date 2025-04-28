@@ -8,9 +8,12 @@ import PostsGrid from "../../profile/_components/PostsGrid";
 import { useParams } from "next/navigation";
 import { fetchUser } from "@/lib/api";
 import { UserDataType } from "@/lib/types";
+import { PostType } from "@/lib/types";
 
 export default function ProfilePage() {
-    const {username} = useParams()
+  const {username} = useParams()
+  const [userPosts, setUserPosts] = useState<PostType[]>([]);
+
 
   const [showHighlightModal, setShowHighlightModal] = useState(false);
   const [user, setUser] = useState<UserDataType | null>(null);
@@ -30,6 +33,22 @@ export default function ProfilePage() {
     };
     getUser();
   }, [username]);
+
+  useEffect(() => {
+    const fetchUserPosts = async () => {
+      try {
+        if (typeof username !== "string") return;
+        const res = await fetch(`/api/posts/user/username/${username}`);
+        const data = await res.json();
+        setUserPosts(data.posts);
+      } catch (error) {
+        console.error("Failed to fetch user posts", error);
+      }
+    };
+  
+    fetchUserPosts();
+  }, [username]);
+  
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -84,13 +103,13 @@ export default function ProfilePage() {
             >
               <div className="w-[89px] h-[89px] rounded-full border border-gray-300 flex items-center justify-center">
                 <div className="w-[77px] h-[77px] rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                  <Plus className="w-16"/>
+                  {/* <Plus className="w-16"/> */}
                 </div>
               </div>
               <div>New</div>
             </div>
 
-            {showHighlightModal && (
+            {/* {showHighlightModal && (
               <div className="fixed inset-0 bg-black bg-opacity-100 flex items-center justify-center z-50">
                 <div className="bg-gray-700 p-6 rounded-xl shadow-lg w-[300px]">
                   <h2 className="text-lg font-semibold mb-4">New Highlight</h2>
@@ -118,14 +137,14 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
 
 
           </div>
         </div>
 
         <div className="flex flex-col mt-[30px]">
-          <div className="flex flex-row justify-center gap-[30px] border-t border-gray-200 dark:border-gray-400">
+          <div className="flex flex-row justify-center gap-[30px] border-t border-gray-200 dark:border-gray-600">
             <a
               aria-selected="true"
               role="tab"
@@ -152,7 +171,7 @@ export default function ProfilePage() {
             </a>
           </div>
           <div className="mt-[20px]">
-            <PostsGrid/>
+            <PostsGrid posts={userPosts}/>
           </div>
         </div>
 

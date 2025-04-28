@@ -1,20 +1,24 @@
 import { Request, Response } from 'express'
+
+interface AuthenticatedRequest extends Request {
+  user?: { id: string }
+}
 import {User} from '../../models/userModel'
 import mongoose from 'mongoose'
 
 // // GET /api/users/:username
-const getUserByUsername = async (req: Request, res: Response): Promise<void> => {
-  const { username } = req.params
-  try {
-    const user = await User.findOne({ username })
-    if (!user) res.status(404).json({ message: 'User not found' })
-    res.json(user)
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' })
-  }
-}
+// const getUserByUsername = async (req: Request, res: Response): Promise<void> => {
+//   const { username } = req.params
+//   try {
+//     const user = await User.findOne({ username })
+//     if (!user) res.status(404).json({ message: 'User not found' })
+//     res.json(user)
+//   } catch (err) {
+//     res.status(500).json({ message: 'Server error' })
+//   }
+// }
 
-export default getUserByUsername
+// export default getUserByUsername
 
 // // GET /api/users/:id/followers
 // export const getUserFollowers = async (req: Request, res: Response) => {
@@ -61,46 +65,61 @@ export default getUserByUsername
 //     res.json(user)
 //   } catch (err) {
 //     res.status(500).json({ message: 'Server error' })
-//   }
+// export const followUser = async (req: AuthenticatedRequest, res: Response) => {
 // }
 
-// // POST /api/users/:id/follow
-// export const followUser = async (req: Request, res: Response) => {
-//   const currentUserId = req.user?.id
-//   const { id } = req.params
 
-//   if (!currentUserId) {
-//     return res.status(401).json({ message: 'Unauthorized' })
-//   }
+// POST /api/users/:id/follow
+const followUser = async (req: AuthenticatedRequest, res: Response) => {
+  const currentUserId = req.user?.id;
+  const { id } = req.params;
 
-//   if (currentUserId === id) {
-//     return res.status(400).json({ message: "Can't follow yourself" })
-//   }
+  if (!currentUserId) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
 
-//   try {
-//     const [userToFollow, currentUser] = await Promise.all([
-//       User.findById(id),
-//       User.findById(currentUserId),
-//     ])
+  if (currentUserId === id) {
+    return res.status(400).json({ message: "Can't follow yourself" });
+  }
 
-//     if (!userToFollow || !currentUser) {
-//       return res.status(404).json({ message: 'User not found' })
-//     }
+  try {
+    const [userToFollow, currentUser] = await Promise.all([
+      User.findById(id),
+      User.findById(currentUserId),
+    ]);
 
-//     if (!userToFollow.followers.includes(currentUserId)) {
-//       userToFollow.followers.push(currentUserId)
-//       currentUser.following.push(userToFollow._id)
-//       await Promise.all([userToFollow.save(), currentUser.save()])
-//     }
-//     console.log('currentUserId:', currentUserId)
-//     console.log('id param:', id)
+    if (!userToFollow || !currentUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!Array.isArray(userToFollow.followers)) {
+      userToFollow.followers = [];
+    }
+    if (!Array.isArray(currentUser.following)) {
+      currentUser.following = [];
+    }
+
+    const alreadyFollowing = userToFollow.followers.some(
+      (followerId) => followerId.toString() === currentUserId
+    );
+
+    if (!alreadyFollowing) {
+      userToFollow.followers.push(new mongoose.Types.ObjectId(currentUserId));
+      currentUser.following.push(userToFollow._id as mongoose.Types.ObjectId);
+
+      await Promise.all([userToFollow.save(), currentUser.save()]);
+    }
+
+    res.json({ message: 'Followed successfully' });
+  } catch (err) {
+    console.error('Follow user error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 
-//     res.json({ message: 'Followed successfully' })
-//   } catch (err) {
-//     res.status(500).json({ message: 'Server error' })
-//   }
-// }
+export default followUser;
+
 
 
 // // DELETE /api/users/:id/unfollow
