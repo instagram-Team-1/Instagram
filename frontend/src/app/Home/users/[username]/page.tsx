@@ -171,7 +171,7 @@ export default function ProfilePage() {
             </a>
           </div>
           <div className="mt-[20px]">
-            <PostsGrid posts={userPosts}/>
+            <PostsGrid />
           </div>
         </div>
 

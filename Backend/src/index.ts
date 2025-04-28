@@ -4,7 +4,6 @@ import cors from "cors";
 import mongoose from "mongoose";
 import authRouter from "../src/routers/authRoute";
 import PostRouter from "./routers/PostRouter";
-import cookieParser from "cookie-parser";
 import userRouter from '../src/routers/userRouter'
 const app = express();
 const port = process.env.PORT || 9000;

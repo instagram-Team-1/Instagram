@@ -1,61 +1,114 @@
-import { PostType } from "@/lib/types";
-import { API } from "@/utils/api";
-import { jwtDecode } from "jwt-decode";
 import { useState, useEffect } from "react";
+import { CldImage } from "next-cloudinary";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import { API } from "@/utils/api";
 
-type PostsGridProps = {
-  posts: PostType[];
-};
+interface DecodedToken {
+  id: string;
+  email: string;
+}
 
+interface Post {
+  _id: string;
+  userId: string;
+  caption: string;
+  imageUrl: string;
+  likes: any[];
+  shares: number;
+  comments: any[];
+  createdAt: string;
+}
 
+export default function PostsGrid() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export default function PostsGrid({}: PostsGridProps) {
-
-  const [posts, setPosts] = useState<PostType[]>([]);
-
-  const token = localStorage.getItem("token");
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    console.log("Token:", token); // Токеныг шалгах
     if (!token) {
-      console.error("Token not found!");
+      setError("No token found. Please log in.");
+      setLoading(false);
       return;
     }
 
-    interface DecodedToken {
-      id: string;
-      email: string;
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      console.log("Decoded Token:", decoded); // Декодлогдсон токеныг шалгах
+      setUserId(decoded.id);
+    } catch (err) {
+      console.error("Invalid token:", err);
+      setError("Invalid token. Please log in again.");
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!userId) {
+      console.log("No userId, skipping fetch");
+      return;
     }
 
-    const decoded = jwtDecode<DecodedToken>(token);
-    const userId = decoded.id;
-
-  // Fetch posts from the backend when the component mounts
-  useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch(API+`/api/posts/user/${userId}`); // Adjust the URL to match your API
-        if (response.ok) {
-          const data = await response.json();
-          setPosts(data); // Store posts in the state
-        } else {
-          console.error("Failed to fetch posts");
-        }
+        setLoading(true);
+        const response = await axios.get(`${API}/api/posts/user/${userId}`);
+        console.log("API Response:", response.data); // API хариуг шалгах
+        setPosts(response.data.posts || response.data); // Зөв өгөгдлийг авах
       } catch (error) {
         console.error("Error fetching posts:", error);
+        setError("Failed to fetch posts. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchPosts();
-  }, []);
+  }, [userId]);
+
+  if (loading) {
+    return (
+      <p className="col-span-3 text-center text-gray-500">Ачааллаж байна...</p>
+    );
+  }
+
+  if (error) {
+    return <p className="col-span-3 text-center text-red-500">{error}</p>;
+  }
+
   return (
     <div className="grid grid-cols-3 gap-4">
-      {posts.map((post) => (
-        <div key={post.id} className="w-full h-60 bg-gray-200">
-          <img
-            src={post.image}
-            alt={post.caption || "Post image"}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      ))}
+      {posts.length > 0 ? (
+        posts.map((post) => (
+          <div
+            key={post._id}
+            className="w-full h-80 bg-gray-200 overflow-hidden rounded-lg"
+          >
+            {post.imageUrl ? (
+              <>
+                <CldImage
+                  src={post.imageUrl}
+                  alt={post.caption || "Post image"}
+                  className="w-full h-full object-cover"
+                  width={400}
+                  height={400}
+                />
+                {/* Image URL-г шалгахын тулд console-д хэвлэх */}
+                {console.log("Rendering Image URL:", post.imageUrl)}
+              </>
+            ) : (
+              <p className="text-center text-gray-500">Зураг байхгүй</p>
+            )}
+          </div>
+        ))
+      ) : (
+        <p className="col-span-3 text-center text-gray-500">
+          Яг одоо пост алга...
+        </p>
+      )}
     </div>
   );
 }
