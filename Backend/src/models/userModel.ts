@@ -46,8 +46,8 @@ const userSchema: Schema<IUser> = new Schema<IUser>({
   },
   bio: { type: String },
   avatarImage: { type: String },
-  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
 }, {
   timestamps: true,
