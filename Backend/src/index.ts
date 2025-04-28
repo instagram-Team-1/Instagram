@@ -4,14 +4,18 @@ import cors from "cors";
 import mongoose from "mongoose";
 import authRouter from "../src/routers/authRoute";
 import PostRouter from "./routers/PostRouter";
-
+import cookieParser from "cookie-parser";
+import userRouter from '../src/routers/userRouter'
 const app = express();
 const port = process.env.PORT || 9000;
 dotenv.config();
 
 app.use(express.json());
+
 // app.use(cors());
 app.use(cors({ origin: "http://localhost:3000" }));
+
+
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
@@ -23,6 +27,7 @@ if (!mongoConnectionString) {
 
 app.use("/api/auth", authRouter);
 app.use(`/api`, PostRouter);
+app.use("/api/users", userRouter);
 
 mongoose.connect(mongoConnectionString).then(() => {
   console.log("Database connected");

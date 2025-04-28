@@ -1,52 +1,39 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Camera } from "lucide-react";
+import { Plus } from "lucide-react";
 import React from "react";
 import { useState, useEffect } from "react";
-import PostsGrid from "../_components/PostsGrid";
-import { jwtDecode } from 'jwt-decode'; 
+import PostsGrid from "../../profile/_components/PostsGrid";
+import { useParams } from "next/navigation";
+import { fetchUser } from "@/lib/api";
 import { UserDataType } from "@/lib/types";
 
 export default function ProfilePage() {
+    const {username} = useParams()
 
   const [showHighlightModal, setShowHighlightModal] = useState(false);
+  const [user, setUser] = useState<UserDataType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tokenData, setTokenData] = useState<UserDataType  | null>(null);
-
-  console.log("tokenData", tokenData);
   
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
+    const getUser = async () => {
       try {
-        const decoded = jwtDecode<UserDataType>(token);
-        setTokenData(decoded);
-        console.log(decoded);
-        
-      } catch (err) {
-        console.error('Invalid token:', err);
+        if (typeof username === "string") {
+          const userData = await fetchUser(username);
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } else {
-      console.warn('No token found in localStorage');
-    }
-  }, []);
-  
-  useEffect(() => {
-    setLoading(true);
-  }, []);
+    };
+    getUser();
+  }, [username]);
 
-    
-  // return (
-  //   <div>
-  //     {tokenData?.id ? `User ID: ${tokenData.id}` : 'No user data found'}
-  //     {tokenData?.username ? `User name: ${tokenData.username}` : 'No user data found'}
-  //     {tokenData?.email ?  `User email: ${tokenData.email}` : 'No user data found'}
-  //   </div>
-  // );
-
-
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+  if (!user) return <div>User not found</div>;
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
@@ -55,33 +42,27 @@ export default function ProfilePage() {
           <div className="flex flex-row">
             {/* profile image */}
             <div className="w-[283.67px] h-[181px] ">
-              <div className="w-[51.12px] h-[42px] bg-gray-700 flex justify-center items-center rounded-md text-xs text-gray-400">
-                Note...{" "}
-              </div>
               <div 
                 className="relative w-[150px] h-[150px] bg-gray-300 box-border rounded-full overflow-hidden group bg-cover bg-center" 
                 // style={{ backgroundImage: `url(https://shorturl.at/y2FNH)`, backgroundSize: 'cover', backgroundPosition: 'center' }}
                 style={{
-                  backgroundImage: `url(https://i.pinimg.com/originals/0f/78/5d/0f785d55cea2a407ac8c1d0c6ef19292.jpg
+                  backgroundImage: `url(https://i.pinimg.com/originals/0f/78/5d/0f785d55cea2a407ac8c1d0c6ef19292.jpg 
                   )`,
                 }}
               >
-                <div className="absolute w-full h-full opacity-0 flex justify-center items-center bg-[var(--foreground)]/40 group-hover:opacity-100 transition-all cursor-pointer">
-                  <Camera width={20} className="stroke-[var(--background)]" />
-                </div>
               </div>
-
             </div>
             <div className="flex flex-col ml-[20px] gap-[30px]">
               <div className="text-[20px] font-normal flex flex-row items-center gap-[8px]">
-                <div>{tokenData?.username ? `${tokenData.username}` : 'No user data found'}</div>
+                <div>{user.username}</div>
                 <Button
                   variant="secondary"
-                  onClick={() => (window.location.href = "/accounts/edit/")}
+                  // onClick={() => (window.location.href = "/accounts/edit/")}
+                  className="bg-blue-400 text-white hover:bg-blue-500"
                 >
-                  Edit profile
+                  Follow
                 </Button>
-                <Button variant="secondary">View archive</Button>
+                <Button variant="secondary" className="hover:bg-gray-200">Message</Button>
               </div>
               <div className="text-[16px] text-gray-400 flex flex-row gap-[30px]">
                 <div>posts</div>
@@ -101,9 +82,9 @@ export default function ProfilePage() {
               onClick={() => setShowHighlightModal(true)}
 
             >
-              <div className="w-[89px] h-[89px] rounded-full border border-gray-400 flex items-center justify-center">
-                <div className="w-[77px] h-[77px] rounded-full bg-gray-900 flex items-center justify-center">
-                  <Plus />
+              <div className="w-[89px] h-[89px] rounded-full border border-gray-300 flex items-center justify-center">
+                <div className="w-[77px] h-[77px] rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+                  <Plus className="w-16"/>
                 </div>
               </div>
               <div>New</div>
@@ -144,11 +125,11 @@ export default function ProfilePage() {
         </div>
 
         <div className="flex flex-col mt-[30px]">
-          <div className="flex flex-row justify-center gap-[30px] border-t border-gray-500">
+          <div className="flex flex-row justify-center gap-[30px] border-t border-gray-200 dark:border-gray-400">
             <a
               aria-selected="true"
               role="tab"
-              className="text-[16px] font-medium text-gray-500 hover:text-white hover:border-t border-t-[var(--foreground)]"
+              className="text-[16px] font-medium text-gray-500 hover:text-gray-600 dark:hover:text-white hover:border-t border-t-[var(--foreground)]"
 
             >
               <p className="mt-[20px]">Posts</p>
@@ -157,7 +138,7 @@ export default function ProfilePage() {
               aria-selected="false"
               role="tab"
 
-              className="text-[16px] font-medium text-gray-500 hover:text-white hover:border-t border-t-[var(--foreground)]"
+              className="text-[16px] font-medium text-gray-500 hover:text-gray-600 dark:hover:text-white hover:border-t border-t-[var(--foreground)]"
             >
               <p className="mt-[20px]">Saved</p>
 
@@ -165,7 +146,7 @@ export default function ProfilePage() {
             <a
               aria-selected="false"
               role="tab"
-              className="text-[16px] font-medium text-gray-500 hover:text-white hover:border-t border-t-[var(--foreground)]"
+              className="text-[16px] font-medium text-gray-500 hover:text-gray-600 dark:hover:text-white hover:border-t border-t-[var(--foreground)]"
             >
               <p className="mt-[20px]">Tagged</p>
             </a>

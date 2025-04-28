@@ -6,6 +6,13 @@ interface IUser extends Document {
   email?: string;
   phone?: string;
   password: string;
+  bio?: string;
+  avatarImage?: string;
+  followers?: mongoose.Types.ObjectId[];
+  following?: mongoose.Types.ObjectId[];
+  posts?: mongoose.Types.ObjectId[];
+  createdAt: Date;
+  updateAt: Date;
 }
 
 const userSchema: Schema<IUser> = new Schema<IUser>({
@@ -37,6 +44,11 @@ const userSchema: Schema<IUser> = new Schema<IUser>({
     type: String,
     required: true
   },
+  bio: { type: String },
+  avatarImage: { type: String },
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
 }, {
   timestamps: true,
 });
