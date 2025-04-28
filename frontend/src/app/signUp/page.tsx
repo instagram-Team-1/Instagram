@@ -51,10 +51,10 @@ const Page = () => {
       )}
 
       <div className="bg-black h-full w-full flex items-center justify-center flex-col gap-[10px]">
-        <div className="border border-white/50 w-full max-w-[350px] flex flex-col items-center gap-8 px-[30px] py-14 rounded-xl">
-          <div className="w-full flex justify-center items-center bg-white p-6">
-          </div>
-          <p className="text-center">
+        <div className="border border-white/50 w-full max-w-[350px] flex flex-col items-center gap-[10px] px-[30px] py-14 rounded-xl">
+       
+
+          <p className="text-center text-white">
             Sign up to see photos and videos <br /> from your friends
           </p>
 

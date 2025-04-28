@@ -7,11 +7,15 @@ import PostRouter from "./routers/PostRouter";
 import cookieParser from "cookie-parser";
 import userRouter from '../src/routers/userRouter'
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 9000;
 dotenv.config();
 
 app.use(express.json());
-app.use(cors());
+
+// app.use(cors());
+app.use(cors({ origin: "http://localhost:3000" }));
+
+
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 
