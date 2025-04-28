@@ -14,7 +14,6 @@ const createPost = async (req: Request, res: Response) => {
     const newPost = new Post({
       userId,
       caption,
-      imageUrl, 
       likes: 0,
       shares: 0,
       comments: [],
