@@ -1,17 +1,20 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IPost extends Document {
+  userId: string;
+  caption?: string;
+  imageUrl: string;
+  likes: Array<{
     userId: string;
-    caption?: string;
-    imageUrl: string;
     likes: number;
-    shares: number;
-    comments: Array<{
-        userId: string;
-        comment: string;
-        createdAt: Date;
-    }>;
+  }>;
+  shares: number;
+  comments: Array<{
+    userId: string;
+    comment: string;
     createdAt: Date;
+  }>;
+  createdAt: Date;
 }
 
 const PostSchema: Schema = new Schema({

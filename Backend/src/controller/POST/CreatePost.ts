@@ -14,7 +14,8 @@ const createPost = async (req: Request, res: Response) => {
     const newPost = new Post({
       userId,
       caption,
-      likes: 0,
+      imageUrl,
+      likes: [],
       shares: 0,
       comments: [],
       createdAt: new Date(),
