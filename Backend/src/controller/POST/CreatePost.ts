@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import Post from "../../models/PostModel";
-import cloudinary from "../../utils/cloudinary";
 
 const createPost = async (req: Request, res: Response) => {
   try {
@@ -12,14 +11,10 @@ const createPost = async (req: Request, res: Response) => {
         .json({ message: "User ID and Image URL are required." });
     }
 
-    const uploadResponse = await cloudinary.uploader.upload(imageUrl, {
-      folder: "posts", 
-    });
-
     const newPost = new Post({
       userId,
       caption,
-      imageUrl: uploadResponse.secure_url, 
+      imageUrl, 
       likes: 0,
       shares: 0,
       comments: [],
