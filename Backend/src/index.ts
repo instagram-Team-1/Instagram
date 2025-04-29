@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import authRouter from "../src/routers/authRoute";
 import PostRouter from "./routers/PostRouter";
 import userRouter from '../src/routers/userRouter'
+import Followrouter from "./routers/FollowRouter";
 const app = express();
 const port = process.env.PORT || 9000;
 dotenv.config();
@@ -27,6 +28,7 @@ if (!mongoConnectionString) {
 app.use("/api/auth", authRouter);
 app.use(`/api`, PostRouter);
 app.use("/api/users", userRouter);
+app.use("/api", Followrouter);
 
 mongoose.connect(mongoConnectionString).then(() => {
   console.log("Database connected");
