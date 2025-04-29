@@ -60,7 +60,7 @@ export default function PostsGrid({ username }: PostsGridProps) {
                   width={400}
                   height={400}
                 />
-                {console.log("Rendering Image URL:", post.imageUrl)}
+               
               </>
             ) : (
               <h2 className="text-[24px] font-semibold mb-2">

@@ -37,7 +37,7 @@ const preCheck = async (req: Request, res: Response)=> {
       ...req.body,
       code
     };
-    console.log(code);
+  
     
    
     await memoryStore.set(`prechecked`, JSON.stringify(data));

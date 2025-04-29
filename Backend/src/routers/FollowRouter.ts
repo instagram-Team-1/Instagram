@@ -4,28 +4,23 @@ import unfollowUser from "../controller/user-profile/Unfollow";
 
 const router = express.Router();
 
-// POST хүсэлтэнд зориулсан endpoint
 router.post("/follow", async (req, res) => {
+  const { followerId, followingId } = req.body;
   try {
-    const { followerId, followingId } = req.body;
     const result = await followUser(followerId, followingId);
     res.status(200).json(result);
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(400).json({ error: error.message });
-    } else {
-      res.status(400).json({ error: "An unknown error occurred" });
-    }
+    res.status(400).json({ error: error instanceof Error ? error.message : "An unknown error occurred" });
   }
 });
 
 router.post("/unfollow", async (req, res) => {
+  const { followerId, followingId } = req.body;
   try {
-    const { followerId, followingId } = req.body;
     const result = await unfollowUser(followerId, followingId);
     res.status(200).json(result);
   } catch (error) {
-    res.status(400).json({ error: error });
+    res.status(400).json({ error: error instanceof Error ? error.message : "An unknown error occurred" });
   }
 });
 

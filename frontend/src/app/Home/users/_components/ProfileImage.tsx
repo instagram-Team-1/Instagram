@@ -11,7 +11,7 @@ export default function ProfileImage({ user }: Props) {
       <div
         className="relative w-[150px] h-[150px] bg-gray-300 box-border rounded-full overflow-hidden group bg-cover bg-center"
         style={{
-          backgroundImage: `url(${user.avatarImage || "https://via.placeholder.com/150"})`,
+          backgroundImage: `url(${user.avatarImage})`,
         }}
       ></div>
     </div>

@@ -18,6 +18,33 @@ const UserHeaderTab = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
+  const [userData, setUserData] = useState<{
+    avatarImage?: string;
+    followers?: string[];
+    following?: string[];
+  } | null>(null);
+
+  const [posts, setPosts] = useState<any[]>([]);
+
+
+  const fetchPosts = async () => {
+    try {
+      
+      const response = await axios.get(`${API}/api/posts/user/${username}`);
+      const fetchedPosts = response.data.posts || response.data || [];
+      setPosts(fetchedPosts);
+      
+      
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setError("Failed to fetch posts. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -30,7 +57,7 @@ const UserHeaderTab = () => {
 
         if (decodedToken.username) {
           setTokenData({ username: decodedToken.username });
-          fetchProfileImage(decodedToken.username); // ☑️ username явуулж байна
+          fetchProfileImage(decodedToken.username); 
         } else {
           console.warn("Username not found in token");
           setTokenData(null);
@@ -51,7 +78,9 @@ const UserHeaderTab = () => {
   const fetchProfileImage = async (username: string) => {
     try {
       const response = await axios.get(`${API}/api/users/${username}`);
+      setUserData(response.data);
       setProfileImage(response.data.avatarImage);
+      
     } catch (error) {
       console.error("Failed to fetch profile image:", error);
     }
@@ -67,6 +96,7 @@ const UserHeaderTab = () => {
         avatarImage: imageUrl,
       });
       setProfileImage(imageUrl);
+      
       toast.success("Профайл зураг амжилттай шинэчлэгдлээ!");
     } catch (error) {
       console.error("Профайл шинэчлэхэд алдаа:", error);
@@ -122,27 +152,30 @@ const UserHeaderTab = () => {
             className="absolute inset-0 opacity-0 cursor-pointer z-10"
             disabled={uploading}
           />
-          <CldImage
-            className="absolute inset-0 w-full h-full bg-cover bg-center"
-            src={profileImage || "default_profile_image.jpg"}
-            width={150}
-            height={150}
-            quality={100}
-            loading="lazy"
-            style={{
-              backgroundImage: `url(${profileImage ||
-                "https://i.pinimg.com/originals/0f/78/5d/0f785d55cea2a407ac8c1d0c6ef19292.jpg"})`,
-            }} alt={""}           />
-            {uploading ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                <div className="text-white text-sm">Хуулж байна...</div>
-              </div>
-            ) : (
-              <div className="absolute inset-0 flex justify-center items-center bg-[var(--foreground)]/40 opacity-0 group-hover:opacity-100 transition-all cursor-pointer">
-                <Camera width={20} className="stroke-[var(--background)]" />
-              </div>
-            )}
-          
+          {profileImage ? (
+            <CldImage
+              className="absolute inset-0 w-full h-full bg-cover bg-center"
+              src={profileImage}
+              width={150}
+              height={150}
+              alt="profile"
+            />
+          ) : (
+            <img
+              className="absolute inset-0 w-full h-full object-cover"
+              src="https://i.pinimg.com/originals/0f/78/5d/0f785d55cea2a407ac8c1d0c6ef19292.jpg"
+              alt="default profile"
+            />
+          )}
+          {uploading ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <div className="text-white text-sm">Хуулж байна...</div>
+            </div>
+          ) : (
+            <div className="absolute inset-0 flex justify-center items-center bg-[var(--foreground)]/40 opacity-0 group-hover:opacity-100 transition-all cursor-pointer">
+              <Camera width={20} className="stroke-[var(--background)]" />
+            </div>
+          )}
         </div>
       </div>
 
@@ -159,9 +192,9 @@ const UserHeaderTab = () => {
           <Button variant="secondary">View archive</Button>
         </div>
         <div className="text-[16px] text-gray-400 flex gap-8">
-          <div>0 posts</div>
-          <div>0 followers</div>
-          <div>0 following</div>
+          <div>{posts.length} posts</div>
+          <div>{userData?.followers?.length || 0} followers</div>
+          <div>{userData?.following?.length || 0} following</div>
         </div>
         <div className="text-[16px] text-gray-500">Bio goes here</div>
       </div>
@@ -170,3 +203,7 @@ const UserHeaderTab = () => {
 };
 
 export default UserHeaderTab;
+function setError(arg0: string) {
+  throw new Error("Function not implemented.");
+}
+

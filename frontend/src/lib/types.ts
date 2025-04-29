@@ -1,4 +1,5 @@
 export type UserDataType = {
+  _id: any;
   id: string,
   username: String,
   fullname: String,

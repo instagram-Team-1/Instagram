@@ -132,9 +132,7 @@ const PostAndSave = () => {
                         className=""
                         width={400}
                         height={300}
-                        onError={() =>
-                          console.log("Image failed to load:", post.imageUrl)
-                        }
+                       
                       />
                     </div>
                   );

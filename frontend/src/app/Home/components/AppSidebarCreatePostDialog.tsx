@@ -41,7 +41,7 @@ export default function CreatePostDialog({
       const response = await axios.post(CLOUDINARY_URL, formData);
       const url = response.data.secure_url;
       setUploadedImageUrl(url);
-      console.log("Амжилттай upload хийлээ:", url);
+      
     } catch (error) {
       console.error("Upload алдаа:", error);
     } finally {
@@ -74,26 +74,27 @@ export default function CreatePostDialog({
     }
 
     interface DecodedToken {
-      username: string;
+      id: string;
       email: string;
     }
 
     const decoded = jwtDecode<DecodedToken>(token);
-    console.log("Decoded JWT:", decoded);
+   
+
     
-    const username = decoded.username;
+    const userId = decoded.id;
 
     try {
       await axios.post(
         `${API}/api/CreatePost`,
         {
-          username,
+          userId,
           caption,
           imageUrl: uploadedImageUrl,
         },
       );
 
-      console.log("Post success!");
+      
       setStep(1);
       setCaption("");
       setSelectedImage(null);
