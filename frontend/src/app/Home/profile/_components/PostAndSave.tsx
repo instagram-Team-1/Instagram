@@ -7,13 +7,13 @@ import axios from "axios";
 import { API } from "@/utils/api";
 
 interface DecodedToken {
-  id: string;
+  username: string;
   email: string;
 }
 
 interface Post {
   _id: string;
-  userId: string;
+  username: string;
   caption: string;
   imageUrl: string;
   likes: any[];
@@ -32,7 +32,7 @@ const PostAndSave = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tokenData, setTokenData] = useState<UserDataType | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -46,7 +46,7 @@ const PostAndSave = () => {
       const decoded = jwtDecode<UserDataType & DecodedToken>(token);
 
       setTokenData(decoded);
-      setUserId(decoded.id);
+      setUsername(decoded.username);
     } catch (err) {
       console.error("Invalid token:", err);
       setError("Invalid token. Please log in again.");
@@ -55,7 +55,7 @@ const PostAndSave = () => {
   }, []);
 
   useEffect(() => {
-    if (!userId) {
+    if (!username) {
     
       return;
     }
@@ -63,7 +63,7 @@ const PostAndSave = () => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API}/api/posts/user/${userId}`);
+        const response = await axios.get(`${API}/api/posts/user/${username}`);
         const fetchedPosts = response.data.posts || response.data || [];
         setPosts(fetchedPosts);
       } catch (error) {
@@ -75,7 +75,7 @@ const PostAndSave = () => {
     };
 
     fetchPosts();
-  }, [userId]);
+  }, [username]);
 
   return (
     <div className="flex flex-col mt-[30px]">

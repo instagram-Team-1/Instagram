@@ -74,18 +74,20 @@ export default function CreatePostDialog({
     }
 
     interface DecodedToken {
-      id: string;
+      username: string;
       email: string;
     }
 
     const decoded = jwtDecode<DecodedToken>(token);
-    const userId = decoded.id;
+    console.log("Decoded JWT:", decoded);
+    
+    const username = decoded.username;
 
     try {
       await axios.post(
         `${API}/api/CreatePost`,
         {
-          userId,
+          username,
           caption,
           imageUrl: uploadedImageUrl,
         },

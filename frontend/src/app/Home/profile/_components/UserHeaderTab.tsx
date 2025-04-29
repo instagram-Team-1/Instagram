@@ -14,7 +14,7 @@ const UserHeaderTab = () => {
     null
   );
 
-  const [userId, setUserId] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -36,8 +36,8 @@ const UserHeaderTab = () => {
           setTokenData(null);
         }
 
-        if (decodedToken.id) {
-          setUserId(decodedToken.id);
+        if (decodedToken.username) {
+          setUsername(decodedToken.username);
         }
       } catch (error) {
         console.error("Error decoding token:", error);
@@ -58,12 +58,12 @@ const UserHeaderTab = () => {
   };
 
   const updateProfileImage = async (imageUrl: string) => {
-    if (!userId) {
+    if (!username) {
       toast.error("Хэрэглэгчийн ID олдсонгүй!");
       return;
     }
     try {
-      await axios.put(`${API}/api/users/Update/${userId}`, {
+      await axios.put(`${API}/api/users/Update/${username}`, {
         avatarImage: imageUrl,
       });
       setProfileImage(imageUrl);

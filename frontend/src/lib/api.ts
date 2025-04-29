@@ -1,17 +1,18 @@
 "use client"
 import axios from "axios";
+import { API } from "@/utils/api";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 import { UserDataType } from "./types";
 
-export const fetchUser = async (username: string): Promise<UserDataType> => {
+export const fetchUser = async (username: string) => {
   try {
     const token = localStorage.getItem("token");
-    const response = await axios.get(`${API_URL}/api/users/${username}`, {
+    const response = await axios.get(`${API}/api/users/${username}`, {
       headers: {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
       },
-    });
+    })
     return response.data;
   } catch (error) {
     console.error("fetchUser error:", error);

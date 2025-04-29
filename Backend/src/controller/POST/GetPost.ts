@@ -6,14 +6,14 @@ export const getPostsByUser = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { userId } = req.params;
+    const { username } = req.params;
 
-    if (!userId) {
-      res.status(400).json({ message: "User ID is required" });
+    if (!username) {
+      res.status(400).json({ message: "Username is required" });
       return;
     }
 
-    const posts = await Post.find({ userId }).sort({ createdAt: -1 });
+    const posts = await Post.find({ username }).sort({ createdAt: -1 });
 
     res.status(200).json(posts);
   } catch (error) {

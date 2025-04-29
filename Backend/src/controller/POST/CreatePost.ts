@@ -3,18 +3,19 @@ import Post from "../../models/PostModel";
 
 const createPost = async (req: Request, res: Response) => {
   try {
-    const { userId, caption, imageUrl } = req.body;
+    const { caption, imageUrl , username } = req.body;
 
-    if (!userId || !imageUrl) {
+    if (!username || !imageUrl) {
        res
         .status(400)
         .json({ message: "User ID and Image URL are required." });
     }
 
     const newPost = new Post({
-      userId,
+      // userId,
       caption,
       imageUrl,
+      username,
       likes: [],
       shares: 0,
       comments: [],

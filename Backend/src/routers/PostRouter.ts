@@ -12,7 +12,7 @@ router.post("/CreatePost", createPost);
 router.put("/UpdatePost", updatePost);
 router.post("/posts/:postId", updatePost);
 router.delete("/Delete/:postId" , deletePost);
-router.get("/posts/user/:userId", getPostsByUser);
+router.get("/posts/user/:username", getPostsByUser);
 router.post("/posts/:postId/like", likePost);
 
 export default router;
