@@ -37,7 +37,6 @@ export default function ProfilePage() {
       }
     };
     getUser();
-    console.log("User data:", user);
     
   }, [username]);
 
@@ -71,6 +70,8 @@ export default function ProfilePage() {
       throw error;
     }
   };
+
+  console.log("User data:", user);
   
 
   if (loading) return <div>Loading...</div>;
@@ -82,7 +83,7 @@ export default function ProfilePage() {
       <div className="w-[935px] h-full px-[20px] pt-[30px] flex flex-col">
         <div className="flex flex-col gap-[30px]">
           <div className="flex flex-row">
-            <ProfileImage />
+            <ProfileImage user={user}/>
             <ProfileHeader user={user} />
           </div>
           <ProfileHighlights onClick={() => setShowHighlightModal(true)} />
@@ -91,7 +92,7 @@ export default function ProfilePage() {
         <div className="flex flex-col mt-[30px]">
           <ProfileTabs />
           <div className="mt-[20px]">
-            <PostsGrid />
+          <PostsGrid username={user.username.toString()} />
           </div>
         </div>
 

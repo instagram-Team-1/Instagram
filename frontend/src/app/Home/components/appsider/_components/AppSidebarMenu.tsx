@@ -98,8 +98,8 @@ import {
                             togglePanel("messages");
                           } else if (item.title === "Notifications") {
                             togglePanel("notifications");
-                          } else if (item.title === "Profile" && username) {
-                            router.push(`/Home/profile/${username}`);
+                          } else if (item.title === "Profile") {
+                            router.push(`/Home/profile`);
                           } else if (item.title === "Home") {
                             router.push(`/Home`);
                           } else if (item.title === "Create") {
