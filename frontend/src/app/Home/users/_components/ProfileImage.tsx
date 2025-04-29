@@ -17,4 +17,3 @@ export default function ProfileImage({ user }: Props) {
     </div>
   );
 }
-

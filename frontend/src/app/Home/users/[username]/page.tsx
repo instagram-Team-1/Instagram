@@ -70,8 +70,6 @@ export default function ProfilePage() {
       throw error;
     }
   };
-
-  console.log("User data:", user);
   
 
   if (loading) return <div>Loading...</div>;
@@ -95,7 +93,6 @@ export default function ProfilePage() {
           <PostsGrid username={user.username.toString()} />
           </div>
         </div>
-
         <ProfileFooter />
       </div>
     </div>

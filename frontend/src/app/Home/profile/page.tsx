@@ -6,7 +6,6 @@ import UserHeaderTab from "./_components/UserHeaderTab";
 import Highlight from "./_components/Highligth";
 import PostAndSave from "./_components/PostAndSave";
 import Footer from "./_components/Footer";
-import PostsGrid from "./_components/PostsGrid";
 
 export default function ProfilePage() {
   return (
@@ -17,7 +16,6 @@ export default function ProfilePage() {
           <Highlight />
         </div>
         <PostAndSave />
-        <PostsGrid username="username" />
         <Footer />
       </div>
     </div>

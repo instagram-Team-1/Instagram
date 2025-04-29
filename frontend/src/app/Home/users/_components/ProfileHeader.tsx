@@ -23,4 +23,3 @@ export default function ProfileHeader({ user }: Props) {
     </div>
   );
 }
-
