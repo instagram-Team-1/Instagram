@@ -15,10 +15,9 @@ export const getFeedPosts = async (req: Request, res: Response) => {
     console.log("User ID:", userId);
     console.log("Following:", user.following);
     const posts = await Post.find({ userId: { $in: user.following } })
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1 }) 
       .populate("userId", "username avatarImage");
-
-    console.log("Fetched posts:", posts);
+   
 
     res.status(200).json(posts);
     return;
