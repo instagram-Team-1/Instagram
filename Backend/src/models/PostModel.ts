@@ -1,12 +1,13 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IPost extends Document {
-  userId: string;
+  userId: mongoose.Types.ObjectId;
   caption?: string;
   imageUrl: string;
   likes: string[];
   shares: number;
   comments: Array<{
+    username: string;
     comment: string;
     createdAt: Date;
   }>;
@@ -14,7 +15,7 @@ export interface IPost extends Document {
 }
 
 const PostSchema: Schema = new Schema({
-  userId: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   caption: { type: String },
   imageUrl: { type: String, required: true },
   likes: [

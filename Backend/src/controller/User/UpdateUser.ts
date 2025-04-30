@@ -1,6 +1,4 @@
 import { Request, Response } from "express";
-
-import cloudinary from "../../utils/cloudinary";
 import { User } from "../../models/userModel";
 
 
@@ -12,7 +10,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { $set: updateData }, // Зөвхөн заасан талбаруудыг шинэчлэх
+      { $set: updateData }, 
       { new: true, runValidators: true }
     );
 

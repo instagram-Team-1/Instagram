@@ -9,94 +9,66 @@ import { API } from "@/utils/api";
 import { toast } from "react-toastify";
 import { CldImage } from "next-cloudinary";
 
-const UserHeaderTab = () => {
-  const [tokenData, setTokenData] = useState<{ username?: string } | null>(
-    null
-  );
+export const UserHeaderTab = () => {
 
+  const [UserId, setUserId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const [userData, setUserData] = useState<{
+    _id?: string;
     avatarImage?: string;
     followers?: string[];
     following?: string[];
   } | null>(null);
-
-  const [posts, setPosts] = useState<any[]>([]);
-
-
-  const fetchPosts = async () => {
-    try {
-      
-      const response = await axios.get(`${API}/api/posts/user/${username}`);
-      const fetchedPosts = response.data.posts || response.data || [];
-      setPosts(fetchedPosts);
-      
-      
-    } catch (error) {
-      console.error("Fetch error:", error);
-      setError("Failed to fetch posts. Please try again.");
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
         const decodedToken = jwtDecode<{
           id: string;
-          email: string;
           username: string;
         }>(token);
 
-        if (decodedToken.username) {
-          setTokenData({ username: decodedToken.username });
-          fetchProfileImage(decodedToken.username); 
+        if (decodedToken.id) {
+          fetchUserDataById(decodedToken.id);
+          setUserId(decodedToken.id);
+          
         } else {
-          console.warn("Username not found in token");
-          setTokenData(null);
-        }
-
-        if (decodedToken.username) {
-          setUsername(decodedToken.username);
+          toast.error("Token дотор ID байхгүй байна!");
         }
       } catch (error) {
         console.error("Error decoding token:", error);
-        toast.error("Токены алдаа гарлаа!");
+        toast.error("Токеныг уншихад алдаа гарлаа!");
       }
     }
   }, []);
 
-  useEffect(() => {}, [tokenData]);
-
-  const fetchProfileImage = async (username: string) => {
+  const fetchUserDataById = async (UserId: string) => {
     try {
-      const response = await axios.get(`${API}/api/users/${username}`);
-      setUserData(response.data);
-      setProfileImage(response.data.avatarImage);
-      
+      const response = await axios.get(`${API}/api/users/${UserId}`);
+      const user = response.data;
+
+      console.log(response.data);
+
+      setUserId(user._id);
+      setUserData(user);
+      setUsername(user.username);
+      setProfileImage(user.avatarImage);
     } catch (error) {
-      console.error("Failed to fetch profile image:", error);
+      console.error("Failed to fetch user data:", error);
+      toast.error("Хэрэглэгчийн мэдээллийг татахад алдаа гарлаа!");
     }
   };
 
   const updateProfileImage = async (imageUrl: string) => {
-    if (!username) {
-      toast.error("Хэрэглэгчийн ID олдсонгүй!");
-      return;
-    }
     try {
-      await axios.put(`${API}/api/users/Update/${username}`, {
+      const response = await axios.put(`${API}/api/users/Update/${UserId}`, {
         avatarImage: imageUrl,
       });
+
       setProfileImage(imageUrl);
-      
       toast.success("Профайл зураг амжилттай шинэчлэгдлээ!");
     } catch (error) {
       console.error("Профайл шинэчлэхэд алдаа:", error);
@@ -124,7 +96,7 @@ const UserHeaderTab = () => {
       const UPLOAD_PRESET = "PostsInstagram";
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", UPLOAD_PRESET); // Cloudinary upload preset
+      formData.append("upload_preset", UPLOAD_PRESET);
 
       const uploadRes = await axios.post(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
@@ -182,7 +154,7 @@ const UserHeaderTab = () => {
       {/* User Info */}
       <div className="flex flex-col ml-5 gap-6">
         <div className="text-[20px] font-normal flex items-center gap-4">
-          <div>{tokenData?.username || "No user data found"}</div>
+          <div>{username || "No user data found"}</div>
           <Button
             variant="secondary"
             onClick={() => (window.location.href = "/accounts/edit/")}
@@ -192,7 +164,7 @@ const UserHeaderTab = () => {
           <Button variant="secondary">View archive</Button>
         </div>
         <div className="text-[16px] text-gray-400 flex gap-8">
-          <div>{posts.length} posts</div>
+          <div>0 posts</div>
           <div>{userData?.followers?.length || 0} followers</div>
           <div>{userData?.following?.length || 0} following</div>
         </div>
@@ -201,9 +173,3 @@ const UserHeaderTab = () => {
     </div>
   );
 };
-
-export default UserHeaderTab;
-function setError(arg0: string) {
-  throw new Error("Function not implemented.");
-}
-

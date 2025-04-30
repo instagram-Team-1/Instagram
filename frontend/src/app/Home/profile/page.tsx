@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import UserHeaderTab from "./_components/UserHeaderTab";
+import {UserHeaderTab} from "./_components/UserHeaderTab";
 import Highlight from "./_components/Highligth";
 import PostAndSave from "./_components/PostAndSave";
 import Footer from "./_components/Footer";
