@@ -101,7 +101,6 @@ export function PostCard({
       setIsLoading(false);
     }
   };
-
   const handleSave = () => {
     setSaved((prev) => !prev);
   };

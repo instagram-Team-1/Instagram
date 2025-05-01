@@ -92,7 +92,6 @@ export default function FeedPage() {
             comments={post.comments || []}
             postId={post._id}
             currentUserId={userId?.id || ""} 
-            
           />
         ))}
       </div>
