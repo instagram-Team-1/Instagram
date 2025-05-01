@@ -4,7 +4,7 @@ export interface IPost extends Document {
   userId: mongoose.Types.ObjectId;
   caption?: string;
   imageUrl: string;
-  likes: string[];
+  likes: mongoose.Types.ObjectId[];
   shares: number;
   comments: Array<{
     username: string;
@@ -20,9 +20,8 @@ const PostSchema: Schema = new Schema({
   imageUrl: { type: String, required: true },
   likes: [
     {
-      type: String,
-      required: true,
-      default: 0,
+      type: mongoose.Schema.Types.ObjectId, // likes дотор ObjectId ашиглана
+      ref: "User", // Хэрвээ хүсвэл likes-д орсон хэрэглэгчийн мэдээллийг холбоно
     },
   ],
   shares: { type: Number, default: 0 },

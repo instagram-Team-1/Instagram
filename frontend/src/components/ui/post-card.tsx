@@ -3,6 +3,11 @@
 import Image from "next/image";
 import { Heart, MessageCircle, Bookmark, Send, X, Copy } from "lucide-react";
 import { useState } from "react";
+import { API } from "@/utils/api";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
+import { CldImage } from "next-cloudinary";
 
 type PostCardProps = {
   imageUrl: string;
@@ -13,6 +18,8 @@ type PostCardProps = {
   };
   likes: number;
   comments: string[];
+  postId: string;
+  currentUserId: string;
 };
 
 export function PostCard({
@@ -21,6 +28,8 @@ export function PostCard({
   userId,
   likes,
   comments,
+  postId,
+  currentUserId,
 }: PostCardProps) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -31,19 +40,66 @@ export function PostCard({
   const [showFullCaption, setShowFullCaption] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showOptions, setShowOptions] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const fullCaption = caption || "Тайлбар байхгүй.";
   const shortCaption = fullCaption.slice(0, 100);
 
   const friends = [
     { name: "Juliana", image: "/img/user1.png" },
     { name: "Pine", image: "/img/user2.png" },
-    // ... бусад найзууд
   ];
 
-  const handleLike = () => {
+  useEffect(() => {
+    const checkIfLiked = async () => {
+      try {
+        const response = await axios.get(API + `/api/check-like`, {
+          params: { userId: currentUserId, postId },
+        });
+        setLiked(response.data.liked);
+      } catch (error) {
+        console.error("Like төлвийг шалгахад алдаа гарлаа:", error);
+        toast.error("Постын төлвийг ачааллахад алдаа гарлаа");
+      }
+    };
+
+    if (postId && currentUserId) {
+      checkIfLiked();
+    }
+  }, [postId, currentUserId]);
+  const handleLike = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+
+    const wasLiked = liked;
+    const prevLikes = likesCount;
+
     setLiked((prev) => !prev);
-    setLikesCount((prev) => prev + (liked ? -1 : 1));
+    setLikesCount((prev) => prev + (wasLiked ? -1 : 1));
+
+    try {
+      const endpoint = wasLiked ? "/api/unlike" : "/api/like";
+      const response = await axios.post(API + endpoint, {
+        userId: currentUserId,
+        postId,
+      });
+
+      toast.success(response.data.message);
+
+      // Server response-оос like тоог шинэчлэх (optional)
+      if (response.data.likes) {
+        setLikesCount(response.data.likes.length);
+      }
+    } catch (error) {
+      console.error("Like/unlike үйлдэлд алдаа гарлаа:", error);
+      toast.error("Like үйлдэлд алдаа гарлаа");
+
+      // UI-г буцаах
+      setLiked(wasLiked);
+      setLikesCount(prevLikes);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSave = () => {
@@ -220,7 +276,8 @@ export function PostCard({
                     onClick={handleLike}
                     className={`cursor-pointer ${
                       liked ? "text-red-500 fill-red-500" : "text-white"
-                    }`}
+                    } ${isLoading ? "opacity-50" : ""}`} // Ачаалалтай үед opacity бууруулах
+                   
                   />
                   <MessageCircle className="text-white cursor-pointer" />
                   <Send

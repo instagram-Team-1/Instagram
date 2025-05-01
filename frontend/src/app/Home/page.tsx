@@ -82,10 +82,17 @@ export default function FeedPage() {
           <PostCard
             key={post._id}
             imageUrl={post.imageUrl}
-            caption={post.caption || "No caption provided"} // Default caption if none exists
+            caption={post.caption || "No caption provided"}
             userId={post.userId}
-            likes={typeof post.likes === "string" ? parseInt(post.likes, 10) : post.likes || 0} // Ensure likes is a number
-            comments={post.comments || []} // Default comments if none exists
+            likes={
+              typeof post.likes === "string"
+                ? parseInt(post.likes, 10)
+                : post.likes || 0
+            }
+            comments={post.comments || []}
+            postId={post._id}
+            currentUserId={userId?.id || ""} 
+            
           />
         ))}
       </div>
