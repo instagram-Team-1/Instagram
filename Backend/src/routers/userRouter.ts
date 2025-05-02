@@ -1,0 +1,18 @@
+import express from 'express'
+
+import { getUsers } from '../controller/User/GetUser'
+import { updateUser } from '../controller/User/UpdateUser'
+import { getFeedPosts } from '../controller/POST/GetFollowingPost'
+
+const userRouter = express.Router()
+
+
+
+userRouter.get("/:id", getUsers);
+
+userRouter.put("/Update/:id", updateUser);
+
+userRouter.get("/feed/:id", getFeedPosts);
+
+
+export default userRouter
