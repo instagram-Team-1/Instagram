@@ -5,7 +5,6 @@ import  Post  from "../../models/PostModel";
 // Unlike хийх функц
 async function unlikePost(userId: string, postId: string) {
   try {
-    // ID-ийн форматыг шалгах
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
       !mongoose.Types.ObjectId.isValid(postId)
@@ -17,7 +16,6 @@ async function unlikePost(userId: string, postId: string) {
     const userObjectId = new mongoose.Types.ObjectId(userId);
     const postObjectId = new mongoose.Types.ObjectId(postId);
 
-    // Хэрэглэгч болон постыг хайх
     const [user, post] = await Promise.all([
       User.findById(userObjectId),
       Post.findById(postObjectId),
@@ -33,7 +31,6 @@ async function unlikePost(userId: string, postId: string) {
         likes: post.likes,
       };
     }
-    // Постын likes жагсаалтаас хэрэглэгчийн ID-г хасах
     post.likes = post.likes?.filter((id) => !id.equals(userObjectId)) ?? [];
 
 

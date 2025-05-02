@@ -10,6 +10,8 @@ const userRouter = express.Router()
 
 userRouter.get("/:id", getUsers);
 
+userRouter.get("/", getUsers);
+
 userRouter.put("/Update/:id", updateUser);
 
 userRouter.get("/feed/:id", getFeedPosts);
