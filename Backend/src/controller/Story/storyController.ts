@@ -5,16 +5,17 @@ import Story from "../../models/Story.model";
 
 export class StoryController {
   upload(request: any, response: Response) {
-    const token = request.token;
-    const userId = token.id || token.userId;
-
-    const form = new IncomingForm();
+    const form = new IncomingForm({
+      multiples: false,
+      keepExtensions: true,
+    });
 
     form.parse(request, async (error, fields, files: any) => {
       if (error) {
-        return response
-          .status(500)
-          .json({ error: "Failed to parse form data", details: error });
+        return response.status(500).json({
+          error: "Failed to parse form data",
+          details: error,
+        });
       }
 
       const { text } = fields;
@@ -26,21 +27,23 @@ export class StoryController {
 
       try {
         const media_url = await cloudinaryImageUploadMethod(
-          backgroundMedia[0].path
+          backgroundMedia.filepath
         );
 
         const newStory = new Story({
-          owner: userId,
           media: media_url,
           text,
         });
 
         const savedStory = await newStory.save();
-        return response.status(201).json({ msg: "Story added", savedStory });
-      } catch (error) {
         return response
-          .status(500)
-          .json({ error: "Failed to save the story", details: error });
+          .status(201)
+          .json({ msg: "Story added successfully", savedStory });
+      } catch (uploadError) {
+        return response.status(500).json({
+          error: "Failed to upload media or save story",
+          details: uploadError,
+        });
       }
     });
   }

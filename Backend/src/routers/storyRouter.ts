@@ -7,7 +7,7 @@ const router = Router();
 const Controller = new StoryController();
 
 router.post(
-  "/api/story/upload",
+  "/upload",
   Authenticate,
   (request: Request, response: Response, next: NextFunction) => {
     Controller.upload(request as MyRequest, response);
