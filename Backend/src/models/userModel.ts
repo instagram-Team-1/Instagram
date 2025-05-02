@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Document, Schema, Model } from "mongoose";
 
-interface IUser extends Document {
+export interface IUser extends Document {
   username: string;
   fullname: string;
   email?: string;
@@ -15,42 +15,49 @@ interface IUser extends Document {
   updateAt: Date;
 }
 
-const userSchema: Schema<IUser> = new Schema<IUser>({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
+const userSchema: Schema<IUser> = new Schema<IUser>(
+  {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    fullname: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      unique: true,
+      sparse: true,
+    },
+    phone: {
+      type: String,
+      trim: true,
+      unique: true,
+      sparse: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    bio: { type: String },
+    avatarImage: { type: String },
+    followers: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] },
+    ],
+    following: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] },
+    ],
+    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
   },
-  fullname: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  email: {
-    type: String,
-    trim: true,
-    lowercase: true,
-    unique: true,
-    sparse: true, 
-  },
-  phone: {
-    type: String,
-    trim: true,
-    unique: true,
-    sparse: true,
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  bio: { type: String },
-  avatarImage: { type: String },
-  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
-  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
-  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
-}, {
-  timestamps: true,
-});
+  {
+    timestamps: true,
+  }
+);
 
-export const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
+export const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
