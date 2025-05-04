@@ -7,6 +7,8 @@ import PostRouter from "./routers/PostRouter";
 import userRouter from '../src/routers/userRouter'
 import Followrouter from "./routers/FollowRouter";
 import LikeRouter from "./routers/LikeRouter";
+import CommentRouter from "./routers/CommentRouter";
+import ConvertRouter from "./routers/ConvertRouter";
 const app = express();
 const port = process.env.PORT || 9000;
 dotenv.config();
@@ -31,6 +33,8 @@ app.use(`/api`, PostRouter);
 app.use("/api/users", userRouter);
 app.use("/api", Followrouter);
 app.use("/api", LikeRouter);
+app.use("/api", CommentRouter);
+app.use("/api",ConvertRouter);
 
 mongoose.connect(mongoConnectionString).then(() => {
   console.log("Database connected");

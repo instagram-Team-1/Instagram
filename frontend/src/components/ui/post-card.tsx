@@ -7,7 +7,6 @@ import { API } from "@/utils/api";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
-import { CldImage } from "next-cloudinary";
 
 type PostCardProps = {
   imageUrl: string;
@@ -17,19 +16,33 @@ type PostCardProps = {
     avatarImage: string;
   };
   likes: number;
-  comments: string[];
+  comments: {
+    userId: string;
+    comment: string;
+    createdAt: string;
+    _id: string;
+  }[];
   postId: string;
   currentUserId: string;
+  currentUserUsername: string;
 };
+
+interface Comment {
+  comment: string;
+  user: {
+    username: string;
+  };
+}
+
 
 export function PostCard({
   imageUrl,
   caption,
   userId,
   likes,
-  comments,
   postId,
   currentUserId,
+  currentUserUsername,
 }: PostCardProps) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -43,6 +56,9 @@ export function PostCard({
   const [isLoading, setIsLoading] = useState(false);
   const fullCaption = caption || "Тайлбар байхгүй.";
   const shortCaption = fullCaption.slice(0, 100);
+
+   const [comments, setComments] = useState<Comment[]>([]);
+   const [loading, setLoading] = useState(false);
 
   const friends = [
     { name: "Juliana", image: "/img/user1.png" },
@@ -101,6 +117,70 @@ export function PostCard({
       setIsLoading(false);
     }
   };
+
+
+  
+ const postComment = async (
+   postId: string,
+   currentUserId: string,
+   comment: string
+ ) => {
+   try {
+     const res = await axios.post(
+       API+`/api/posts/comment/${postId}`,
+       {
+         userId: currentUserId,
+         comment,
+       }
+     );
+
+     const newComment = {
+       comment,
+       user: {
+         username: currentUserUsername,
+       },
+     };
+
+     // Update the comments list with the new comment
+     setComments((prevComments) => [...prevComments, newComment]);
+   } catch (err) {
+     console.error("Error posting comment:", err);
+   }
+ };
+
+ const handleSubmit = (e: React.FormEvent) => {
+   e.preventDefault();
+   if (comment.trim()) {
+     postComment(postId, currentUserId, comment);
+   }
+
+   setComment("");
+ };
+  
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(
+          API+`/api/posts/comment/${postId}`
+        );
+        const data = res.data;
+        setComments(data);
+        console.log("Fetched comments:", data);
+        
+      } catch (error) {
+        console.error("Failed to load comments:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchComments();
+  }, [postId]);
+
+  if (loading)
+    return <p className="text-gray-400 text-sm">Түр хүлээнэ үү...</p>;
   const handleSave = () => {
     setSaved((prev) => !prev);
   };
@@ -264,7 +344,8 @@ export function PostCard({
                       key={index}
                       className="text-sm text-white pt-2 border-b border-neutral-800 pb-2"
                     >
-                      <span className="font-semibold">you</span> {cmt}
+                      <span className="font-semibold">{cmt.user.username}</span>{" "}
+                      {cmt.comment}
                     </div>
                   ))
                 )}
@@ -276,7 +357,6 @@ export function PostCard({
                     className={`cursor-pointer ${
                       liked ? "text-red-500 fill-red-500" : "text-white"
                     } ${isLoading ? "opacity-50" : ""}`} // Ачаалалтай үед opacity бууруулах
-                   
                   />
                   <MessageCircle className="text-white cursor-pointer" />
                   <Send
@@ -288,14 +368,22 @@ export function PostCard({
                   {likesCount.toLocaleString()} таалагдсан
                 </div>
                 <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    placeholder="Коммент бичих..."
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="flex-1 bg-transparent text-white outline-none placeholder-gray-500 text-sm"
-                  />
-                  <span className="text-2xl">😄</span>
+                  <form onSubmit={handleSubmit} className="flex items-center">
+                    <input
+                      type="text"
+                      placeholder="Коммент бичих..."
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      className="bg-transparent text-white text-sm flex-1 outline-none placeholder-gray-500"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!comment.trim()}
+                      className="ml-2 text-white text-lg disabled:text-gray-500"
+                    >
+                      Send
+                    </button>
+                  </form>
                 </div>
               </div>
             </div>
@@ -424,14 +512,22 @@ export function PostCard({
           </div>
 
           <div className="flex items-center px-4 pt-3 pb-3 border-b border-neutral-800">
-            <input
-              type="text"
-              placeholder="Коммент бичих..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="bg-transparent text-white text-sm flex-1 outline-none placeholder-gray-500"
-            />
-            <span className="text-2xl">😄</span>
+            <form onSubmit={handleSubmit} className="flex items-center">
+              <input
+                type="text"
+                placeholder="Коммент бичих..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="bg-transparent text-white text-sm flex-1 outline-none placeholder-gray-500"
+              />
+              <button
+                type="submit"
+                disabled={!comment.trim()}
+                className="ml-2 text-white text-lg disabled:text-gray-500"
+              >
+                Send
+              </button>
+            </form>
           </div>
         </div>
       )}

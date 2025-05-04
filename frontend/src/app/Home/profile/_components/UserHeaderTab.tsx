@@ -50,8 +50,6 @@ export const UserHeaderTab = () => {
       const response = await axios.get(`${API}/api/users/${UserId}`);
       const user = response.data;
 
-      console.log(response.data);
-
       setUserId(user._id);
       setUserData(user);
       setUsername(user.username);

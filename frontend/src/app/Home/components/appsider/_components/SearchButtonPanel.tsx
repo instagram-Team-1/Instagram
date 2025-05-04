@@ -3,6 +3,7 @@ import axios from "axios";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import Link from "next/link";
+import { API } from "@/utils/api";
 
 interface UserType {
   _id: string;
@@ -25,37 +26,42 @@ function SearchButtonPanel({ activePanel }: SearchButtonPanelProps) {
   const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
-    if (!searchValue) {
-      setUsers([]);
-      return;
-    }
+  if (!searchValue) {
+    setUsers([]);
+    return;
+  }
 
-    const delayDebounce = setTimeout(() => {
-      const fetchUserDetails = async () => {
-        setLoading(true);
-        try {
-          const response = await axios.get(
-            "https://instabackend-eight.vercel.app/api/users"
+  const delayDebounce = setTimeout(() => {
+    const fetchUserDetails = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          API+`/api/users/search?query=${encodeURIComponent(searchValue)}`
+        );
+        setUsers(response.data); 
+      } catch (error) {
+        console.log(error);
+
+        if (axios.isAxiosError(error)) {
+          console.log(
+            "Error details:",
+            error.response?.data,
+            error.response?.status
           );
-          const filteredUsers = response.data.filter(
-            (user: UserType) =>
-              user.username.toLowerCase().includes(searchValue.toLowerCase()) ||
-              user.fullname.toLowerCase().includes(searchValue.toLowerCase())
-          );
-          setUsers(filteredUsers);
-        } catch (error) {
-          console.log(error);
-          setError("Хэрэглэгчийн мэдээллийг татахад алдаа гарлаа.");
-        } finally {
-          setLoading(false);
+        } else {
+          console.log("An unexpected error occurred:", error);
         }
-      };
+        setError("Хэрэглэгчийн мэдээллийг татахад алдаа гарлаа.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      fetchUserDetails();
-    }, 500);
+    fetchUserDetails();
+  }, 500);
 
-    return () => clearTimeout(delayDebounce);
-  }, [searchValue]);
+  return () => clearTimeout(delayDebounce);
+}, [searchValue]);
 
   return (
     <div>
@@ -81,9 +87,11 @@ function SearchButtonPanel({ activePanel }: SearchButtonPanelProps) {
         </div>
 
         {isFocused && searchValue && (
-          <div className="xl:w-[577px] w-[335px] h-auto overflow-hidden rounded-lg dark:bg-customText bg-white p-2 mt-2 absolute right-10 xl:right-[550px] ">
+          <div className="absolute z-50 top-[180px] left-[80px] w-[360px] bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-gray-200 dark:border-zinc-700">
             {loading ? (
-              <p className="text-center text-gray-500 mt-4">Уншиж байна...</p>
+              <p className="text-center text-gray-500 dark:text-gray-400 p-4">
+                Уншиж байна...
+              </p>
             ) : users.length > 0 ? (
               users.slice(0, 5).map((user) => (
                 <Link
@@ -91,28 +99,32 @@ function SearchButtonPanel({ activePanel }: SearchButtonPanelProps) {
                   key={user._id}
                   onClick={() => setSearchValue("")}
                 >
-                  <div className="p-2 border-b shadow-sm xl:w-[553px] flex items-center gap-4">
+                  <div className="flex items-center gap-4 px-4 py-3 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
                     <Image
                       src={user.avatarImage || "/default-avatar.png"}
                       alt="avatar"
-                      width={50}
-                      height={50}
-                      className="rounded-full"
+                      width={44}
+                      height={44}
+                      className="rounded-full object-cover"
                     />
-                    <div>
-                      <p className="font-semibold">{user.fullname}</p>
-                      <p className="text-sm text-gray-500">@{user.username}</p>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-sm text-gray-900 dark:text-white">
+                        {user.fullname}
+                      </span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        @{user.username}
+                      </span>
                     </div>
                   </div>
                 </Link>
               ))
             ) : (
-              <p className="text-center text-gray-500 mt-4">
+              <p className="text-center text-gray-500 dark:text-gray-400 p-4">
                 Хэрэглэгч олдсонгүй.
               </p>
             )}
             <Link href={`/search?searching=${searchValue}`}>
-              <div className="text-sm font-semibold mt-3 ml-2">
+              <div className="text-center py-3 text-sm font-medium text-blue-600 dark:text-blue-400 border-t border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors">
                 “{searchValue}” хайлтын бүх үр дүнг харах
               </div>
             </Link>

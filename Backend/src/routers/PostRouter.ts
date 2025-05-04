@@ -3,6 +3,7 @@ import createPost from "../controller/POST/CreatePost";
 import updatePost from "../controller/POST/Updatepost";
 import { deletePost } from "../controller/POST/DeletePost";
 import { getPostsByUser } from "../controller/POST/GetPost";
+import  Createcomment  from "../controller/Comment/CreateComment";
 
 
 

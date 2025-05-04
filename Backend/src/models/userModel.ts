@@ -22,12 +22,10 @@ const userSchema: Schema<IUser> = new Schema<IUser>(
       type: String,
       required: true,
       unique: true,
-      trim: true,
     },
     fullname: {
       type: String,
       required: true,
-      trim: true,
     },
     email: {
       type: String,

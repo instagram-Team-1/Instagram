@@ -19,26 +19,33 @@ type Post = {
     avatarImage: string;
   };
   likes: number | string; // Ensure likes is a number or string that represents a number
-  comments: string[];
+  comments: {
+    userId: string;
+    comment: string;
+    createdAt: string;
+    _id: string;
+  }[];
   createdAt: string;
 };
 
 export default function FeedPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [userId, setId] = useState<{ id: string } | null>(null);
+  const [username, setusername] = useState<{ username: string } | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const userId = getUserIdFromToken(token);
+    const parsedToken = getUserIdFromToken(token);
 
-    console.log("Token:", token);
-    console.log("Parsed User ID:", userId);
-
-    if (userId) {
-      setId({ id: userId });
+    if (parsedToken?.id) {
+      setId({ id: parsedToken.id });
     } else {
-      console.warn("User ID not found in token");
       setId(null);
+    }
+    if (parsedToken?.username) {
+      setusername({ username: parsedToken.username });
+    } else {
+      setusername(null);
     }
   }, []);
 
@@ -57,8 +64,6 @@ export default function FeedPage() {
         }
 
         const data = await res.json();
-        console.log("Fetched posts:", data);
-
         // If likes are an array, convert them to a number
         const processedPosts = data.map((post: Post) => ({
           ...post,
@@ -82,7 +87,11 @@ export default function FeedPage() {
           <PostCard
             key={post._id}
             imageUrl={post.imageUrl}
-            caption={post.caption || "No caption provided"}
+            caption={
+              typeof post.caption === "string"
+                ? post.caption
+                : "No caption provided"
+            }
             userId={post.userId}
             likes={
               typeof post.likes === "string"
@@ -91,7 +100,8 @@ export default function FeedPage() {
             }
             comments={post.comments || []}
             postId={post._id}
-            currentUserId={userId?.id || ""} 
+            currentUserId={userId?.id || ""}
+            currentUserUsername={username?.username || ""}
           />
         ))}
       </div>

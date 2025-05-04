@@ -7,7 +7,7 @@ export interface IPost extends Document {
   likes: mongoose.Types.ObjectId[];
   shares: number;
   comments: Array<{
-    username: string;
+    userId: mongoose.Types.ObjectId; 
     comment: string;
     createdAt: Date;
   }>;
@@ -27,7 +27,11 @@ const PostSchema: Schema = new Schema({
   shares: { type: Number, default: 0 },
   comments: [
     {
-      username: { type: String, required: true },
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
       comment: { type: String, required: true },
       createdAt: { type: Date, default: Date.now },
     },
