@@ -101,8 +101,12 @@ const Page = () => {
             {currentStep === 1 ? (
              
               <div className='flex flex-col items-center'>
+                <div className={`mt-4 flex flex-col items-center text-white ${!file ? '' : 'hidden'}`}>
                 <ImageIcon className='text-black' />
                 <h1 className='text-black font-semibold mt-2'>Drag photos and videos here</h1>
+
+                    </div>
+           
 
                 <FileUploadButton
                   onChange={handleFileChange}
@@ -121,8 +125,9 @@ const Page = () => {
 
                 <Button
                   onClick={() => setCurrentStep(2)} 
-                  className="mt-4 bg-blue-500 text-white"
-                  disabled={!file}
+                  className={`mt-4 bg-blue-500 text-white ${file ? '' : 'hidden'}`}
+
+                  
                 >
                   Next
                 </Button>
