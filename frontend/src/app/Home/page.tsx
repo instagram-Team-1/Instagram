@@ -18,7 +18,7 @@ type Post = {
     username: string;
     avatarImage: string;
   };
-  likes: number | string; // Ensure likes is a number or string that represents a number
+  likes: number | string;
   comments: {
     userId: string;
     comment: string;
@@ -64,7 +64,7 @@ export default function FeedPage() {
         }
 
         const data = await res.json();
-        // If likes are an array, convert them to a number
+     
         const processedPosts = data.map((post: Post) => ({
           ...post,
           likes: Array.isArray(post.likes) ? post.likes.length : post.likes,
@@ -78,7 +78,7 @@ export default function FeedPage() {
 
     fetchPosts();
   }, [userId]);
-
+  localStorage.setItem('id', JSON.stringify(userId));
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
       <div className="w-full max-w-[630px]">
