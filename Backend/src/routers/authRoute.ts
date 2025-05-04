@@ -8,6 +8,10 @@ import searchUser from '../utils/msg/searchMsg'
 import createRoom from '../utils/msg/createRoom';
 import allChat from '../utils/msg/allChats';
 import checkMsg from '../utils/auth/checkMsg';
+
+
+import storyAdd from '../controller/story/storyAdd';
+
 const router = express.Router();
 
 
@@ -17,6 +21,7 @@ router.post('/create-account', createAccount )
 router.get('/messages/:name', searchUser)
 router.post('/Room', createRoom)
 router.get('/chats/:id', allChat)
+router.post('/story', storyAdd)
 
 
 
