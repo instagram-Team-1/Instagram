@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { io, Socket } from 'socket.io-client';
 import { Smile } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 let socket: Socket;
 
@@ -17,7 +18,7 @@ const Page = () => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when new messages come in
+ 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -66,7 +67,7 @@ const Page = () => {
 
     socket.emit('serverMSG', {
       roomId,
-      senderId: currentId as string, // ✅ assert here too
+      senderId: currentId as string,
       content: msg,
     });
 
@@ -83,21 +84,37 @@ const Page = () => {
     <div className='bg-black w-full h-[100vh] text-white flex flex-col justify-between'>
       <div className="flex-1 overflow-y-auto p-4">
         <div>
-          {[...prevMessage, ...received].map((message, index) => (
-            <div
-              key={index}
-              className={`mb-2 p-[10px] rounded-xl w-fit max-w-[70%] ${
-                message.sender._id === currentId
-                  ? 'bg-blue-600 text-right ml-auto'
-                  : 'bg-gray-700 text-left'
-              }`}
-            >
-              {message.sender._id !== currentId && (
-                <strong>{message.sender.username}: </strong>
-              )}
-              {message.content}
-            </div>
-          ))}
+        {[...prevMessage, ...received].map((message, index) => {
+  const isCurrentUser = message.sender._id === currentId;
+  return (
+    <div
+      key={index}
+      className={`mb-4 flex items-start gap-2 ${
+        isCurrentUser ? 'justify-end' : 'justify-start'
+      }`}
+    >
+      {!isCurrentUser && (
+        // <img
+        //   src={message.sender.avatarImage}
+        //   alt={message.sender.username}
+        //   className="w-8 h-8 rounded-full"
+        // />
+        <Avatar>
+           <AvatarImage src={message.sender.avatarImage} />
+           <AvatarFallback>xopp</AvatarFallback>
+        </Avatar>
+      )}
+      <div
+        className={`p-3 rounded-xl max-w-[70%] ${
+          isCurrentUser ? 'bg-blue-600 text-right' : 'bg-gray-700 text-left'
+        }`}
+      >
+        <div className="whitespace-pre-wrap break-words">{message.content}</div>
+      </div>
+    </div>
+  );
+})}
+
           <div ref={messagesEndRef} />
         </div>
       </div>
