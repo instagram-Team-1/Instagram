@@ -11,7 +11,10 @@ interface IUser extends Document {
   followers?: mongoose.Types.ObjectId[];
   following?: mongoose.Types.ObjectId[];
   posts?: mongoose.Types.ObjectId[];
-  isPrivate: boolean;
+  isPrivate: {
+   type: boolean;
+   default: false;
+  };
   createdAt: Date;
   updateAt: Date;
 }
