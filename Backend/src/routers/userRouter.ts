@@ -1,26 +1,23 @@
 import express from 'express'
-import { RequestHandler } from 'express'
-
-import getUserByUsername from '../resolvers/user-profile/get-userByUsername'
-import followUser  from '../resolvers/user-profile/follow-user'
-import { get } from 'mongoose'
-// import { followUser } from '../resolvers/user-profile/page'
 
 import { getUsers } from '../controller/User/GetUser'
 import { updateUser } from '../controller/User/UpdateUser'
+import { getFeedPosts } from '../controller/POST/GetFollowingPost'
+import { searchUser } from '../controller/SearchUser/SearchUser'
 
 const userRouter = express.Router()
 
-// router.get('/me', getCurrentUser)
-userRouter.get('/:username', getUserByUsername)
-// router.get('/:id/followers', getUserFollowers)
-userRouter.post('/:id/follow', followUser as RequestHandler)
-// router.delete('/:id/unfollow', unfollowUser)
-// router.put('/:id', updateUser)
+userRouter.get("/search", searchUser);
 
-userRouter.get("/:username", getUsers);
+userRouter.get("/:id", getUsers);
+
+userRouter.get("/", getUsers);
 
 userRouter.put("/Update/:id", updateUser);
+
+userRouter.get("/feed/:id", getFeedPosts);
+
+
 
 
 export default userRouter

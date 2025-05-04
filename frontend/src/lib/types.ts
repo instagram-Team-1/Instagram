@@ -1,12 +1,13 @@
 export type UserDataType = {
-  id: string;
-  username: String;
-  fullname: String;
-  email: String;
-  phone: String;
-  password: String;
-  bio: String;
-  avatarImage: String;
+  _id: any;
+  id: string,
+  username: String,
+  fullname: String,
+  email: String,
+  phone: String,
+  password: String,
+  bio: String,
+  avatarImage: String,
   followers: string[];
   following: string[];
   posts: string[];

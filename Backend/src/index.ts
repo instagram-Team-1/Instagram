@@ -6,6 +6,10 @@ import authRouter from "../src/routers/authRoute";
 import PostRouter from "./routers/PostRouter";
 import userRouter from "../src/routers/userRouter";
 import storyRouter from "./routers/storyRouter";
+import Followrouter from "./routers/FollowRouter";
+import LikeRouter from "./routers/LikeRouter";
+import CommentRouter from "./routers/CommentRouter";
+import ConvertRouter from "./routers/ConvertRouter";
 
 const app = express();
 const port = process.env.PORT || 9000;
@@ -28,6 +32,10 @@ app.use("/api/auth", authRouter);
 app.use(`/api`, PostRouter);
 app.use("/api/users", userRouter);
 app.use("/api/story", storyRouter);
+app.use("/api", Followrouter);
+app.use("/api", LikeRouter);
+app.use("/api", CommentRouter);
+app.use("/api",ConvertRouter);
 
 mongoose.connect(mongoConnectionString).then(() => {
   console.log("Database connected");

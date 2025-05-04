@@ -4,9 +4,8 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { API } from "@/utils/api";
 
-interface DecodedToken {
-  id: string;
-  email: string;
+interface PostsGridProps {
+  username: string;
 }
 
 interface Post {
@@ -20,44 +19,17 @@ interface Post {
   createdAt: string;
 }
 
-export default function PostsGrid() {
+export default function PostsGrid({ username }: PostsGridProps) {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    console.log("Token:", token); // Токеныг шалгах
-    if (!token) {
-      setError("No token found. Please log in.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const decoded = jwtDecode<DecodedToken>(token);
-      console.log("Decoded Token:", decoded); // Декодлогдсон токеныг шалгах
-      setUserId(decoded.id);
-    } catch (err) {
-      console.error("Invalid token:", err);
-      setError("Invalid token. Please log in again.");
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!userId) {
-      console.log("No userId, skipping fetch");
-      return;
-    }
-
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API}/api/posts/user/${userId}`);
-        console.log("API Response:", response.data); // API хариуг шалгах
-        setPosts(response.data.posts || response.data); // Зөв өгөгдлийг авах
+        const response = await axios.get(`${API}/api/posts/user/${username}`);
+        setPosts(response.data.posts || response.data);
       } catch (error) {
         console.error("Error fetching posts:", error);
         setError("Failed to fetch posts. Please try again.");
@@ -66,18 +38,10 @@ export default function PostsGrid() {
       }
     };
 
-    fetchPosts();
-  }, [userId]);
-
-  if (loading) {
-    return (
-      <p className="col-span-3 text-center text-gray-500">Ачааллаж байна...</p>
-    );
-  }
-
-  if (error) {
-    return <p className="col-span-3 text-center text-red-500">{error}</p>;
-  }
+    if (username) {
+      fetchPosts();
+    }
+  }, [username]);
 
   return (
     <div className="grid grid-cols-3 gap-4">
@@ -96,18 +60,19 @@ export default function PostsGrid() {
                   width={400}
                   height={400}
                 />
-                {/* Image URL-г шалгахын тулд console-д хэвлэх */}
-                {console.log("Rendering Image URL:", post.imageUrl)}
+               
               </>
             ) : (
-              <p className="text-center text-gray-500">Зураг байхгүй</p>
+              <h2 className="text-[24px] font-semibold mb-2">
+                No post yet
+              </h2>
             )}
           </div>
         ))
       ) : (
-        <p className="col-span-3 text-center text-gray-500">
-          Яг одоо пост алга...
-        </p>
+        <h2 className="text-[24px] font-semibold mb-2">
+          No post yet
+        </h2>
       )}
     </div>
   );

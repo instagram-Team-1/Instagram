@@ -11,6 +11,7 @@ export interface IUser extends Document {
   followers?: mongoose.Types.ObjectId[];
   following?: mongoose.Types.ObjectId[];
   posts?: mongoose.Types.ObjectId[];
+  isPrivate: boolean;
   createdAt: Date;
   updateAt: Date;
 }
@@ -54,6 +55,7 @@ const userSchema: Schema<IUser> = new Schema<IUser>(
       { type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] },
     ],
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+    isPrivate: { type: Boolean, default: false },
   },
   {
     timestamps: true,

@@ -3,7 +3,8 @@ import createPost from "../controller/POST/CreatePost";
 import updatePost from "../controller/POST/Updatepost";
 import { deletePost } from "../controller/POST/DeletePost";
 import { getPostsByUser } from "../controller/POST/GetPost";
-import { likePost } from "../controller/Like/LikeAndUnLike";
+import  Createcomment  from "../controller/Comment/CreateComment";
+
 
 
 const router = express.Router();
@@ -12,7 +13,6 @@ router.post("/CreatePost", createPost);
 router.put("/UpdatePost", updatePost);
 router.post("/posts/:postId", updatePost);
 router.delete("/Delete/:postId" , deletePost);
-router.get("/posts/user/:userId", getPostsByUser);
-router.post("/posts/:postId/like", likePost);
+router.get("/posts/user/:username", getPostsByUser);
 
 export default router;

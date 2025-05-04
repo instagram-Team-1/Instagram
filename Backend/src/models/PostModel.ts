@@ -1,13 +1,13 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IPost extends Document {
-  userId: string;
+  userId: mongoose.Types.ObjectId;
   caption?: string;
   imageUrl: string;
-  likes: string[]; 
+  likes: mongoose.Types.ObjectId[];
   shares: number;
   comments: Array<{
-    userId: string;
+    userId: mongoose.Types.ObjectId; 
     comment: string;
     createdAt: Date;
   }>;
@@ -15,20 +15,23 @@ export interface IPost extends Document {
 }
 
 const PostSchema: Schema = new Schema({
-  userId: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   caption: { type: String },
   imageUrl: { type: String, required: true },
   likes: [
     {
-      type: String, 
-      required: true,
-      default: 0,
+      type: mongoose.Schema.Types.ObjectId, // likes дотор ObjectId ашиглана
+      ref: "User", // Хэрвээ хүсвэл likes-д орсон хэрэглэгчийн мэдээллийг холбоно
     },
   ],
   shares: { type: Number, default: 0 },
   comments: [
     {
-      userId: { type: String, required: true },
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
       comment: { type: String, required: true },
       createdAt: { type: Date, default: Date.now },
     },
