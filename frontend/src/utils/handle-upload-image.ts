@@ -4,7 +4,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { userDetailTypes } from "./atoms";
 
 interface Props {
-  e: any;
+  e: React.ChangeEvent<HTMLInputElement>;
   location: string;
   username: string;
   maxWidthOrHeight: number;
@@ -18,17 +18,27 @@ async function handleUploadToCloud({
   maxWidthOrHeight,
   setLoading,
 }: Props) {
-  const fileType = e.target.files[0].type;
-  const imageFile = e.target.files[0];
+  const file = e.target?.files?.[0];
+  if (!file) {
+    console.error("Файл олдсонгүй.");
+    return { photoURL: null };
+  }
+
+  const fileType = file.type;
   const options = {
     maxSizeMB: 1,
     maxWidthOrHeight,
     useWebWorker: true,
   };
-  const storage = getStorage();
-  const storageRef = ref(storage, `${location}/${username}`);
 
-  let photoURL;
+  const storage = getStorage();
+  const timestamp = Date.now();
+  const storageRef = ref(
+    storage,
+    `${location}/${username}-${timestamp}-${file.name}`
+  );
+
+  let photoURL: string | null = null;
 
   if (
     fileType === "image/png" ||
@@ -36,39 +46,37 @@ async function handleUploadToCloud({
     fileType === "image/jpeg"
   ) {
     setLoading(true);
-
-    // compress the image
-    const compressedFile = await imageCompression(imageFile, options);
-
-    // upload to storage, and then retrieve the usable URL
-    await uploadBytes(storageRef, compressedFile).then(() => {
-      // image uplaoded
-    });
-    await getDownloadURL(ref(storage, `${location}/${username}`))
-      .then((url) => {
-        // setPhotoURL(url);
-        photoURL = url;
-      })
-      .catch((error) => {
-        console.log(error);
-        setLoading(false);
-      });
+    try {
+      const compressedFile = await imageCompression(file, options);
+      await uploadBytes(storageRef, compressedFile);
+      photoURL = await getDownloadURL(storageRef);
+    } catch (error) {
+      console.error("Upload error:", error);
+    } finally {
+      setLoading(false);
+    }
   } else {
-    console.log("please only use .png, .jpg, .jpeg file types");
+    console.warn("Зөвхөн .png, .jpg, .jpeg файлуудыг ашиглана уу.");
   }
 
   return { photoURL };
 }
 
 interface handleUploadImageProps {
-  e: any;
+  e: React.ChangeEvent<HTMLInputElement>;
   location: string;
   username: string;
   maxWidthOrHeight: number;
   chatRoomIDs: string[] | null;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setAddPhoto: React.Dispatch<React.SetStateAction<boolean>>;
-  handleImgURLFunction: any;
+  handleImgURLFunction: (props: {
+    url: string;
+    username: string;
+    chatRoomIDs: string[] | null;
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    setAddPhoto: React.Dispatch<React.SetStateAction<boolean>>;
+  }) => void;
 }
 
 function handleUploadImage({
@@ -82,21 +90,27 @@ function handleUploadImage({
   handleImgURLFunction,
 }: handleUploadImageProps) {
   async function handler() {
-    const userDetails: userDetailTypes = await handleUploadToCloud({
+    const { photoURL } = await handleUploadToCloud({
       e,
       location,
       username,
       maxWidthOrHeight,
       setLoading,
     });
-    handleImgURLFunction({
-      url: userDetails.photoURL!,
-      username,
-      chatRoomIDs,
-      setLoading,
-      setAddPhoto,
-    });
+
+    if (photoURL) {
+      handleImgURLFunction({
+        url: photoURL,
+        username,
+        chatRoomIDs,
+        setLoading,
+        setAddPhoto,
+      });
+    } else {
+      console.warn("Зураг байршуулахад алдаа гарлаа.");
+    }
   }
+
   handler();
 }
 

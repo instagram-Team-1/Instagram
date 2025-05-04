@@ -1,6 +1,6 @@
 import React from "react";
-import PlaySVG from "../../../../public/svg-components/playsvg";
-import PauseSVG from "../../../../public/svg-components/pausesvg";
+import PlaySVG from "../../../public/svg-components/playsvg";
+import PauseSVG from "../../../public/svg-components/pausesvg";
 import useProgressBar from "@/hooks/use-progress-bar";
 
 interface Props {

@@ -1,8 +1,6 @@
-
-
 "use client";
 
-import StoryBoard from "@/components/ui/stories/story-board";
+import StoryBoard from "@/components/stories/story-board";
 import { useEffect, useState } from "react";
 import { StoriesBar } from "@/components/ui/stories-section";
 import { PostCard } from "@/components/ui/post-card";

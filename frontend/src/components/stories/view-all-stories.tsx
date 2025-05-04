@@ -2,12 +2,12 @@ import React from "react";
 import { useAtom } from "jotai";
 import Image from "next/image";
 import Link from "next/link";
-import CloseBtnSVG from "../../../../public/svg-components/closebtnsvg";
-import ArrowSVG from "../../../../public/svg-components/arrowsvg";
+import CloseBtnSVG from "../../../public/svg-components/closebtnsvg";
+import ArrowSVG from "../../../public/svg-components/arrowsvg";
 import atoms from "@/utils/atoms";
 import ProgressBar from "./progress-bar";
-import InstagramSVG from "../../../../public/svg-components/instagramsvg";
-import ProfilePicSVG from "../../../../public/svg-components/profilepicsvg";
+import InstagramSVG from "../../../public/svg-components/instagramsvg";
+import ProfilePicSVG from "../../../public/svg-components/profilepicsvg";
 import handleSwipeEvents from "@/utils/handle-swipe-events";
 
 function ViewAllStories({

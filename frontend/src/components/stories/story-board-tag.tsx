@@ -5,7 +5,7 @@ import atoms from "@/utils/atoms";
 import useCheckNameLength from "@/hooks/use-check-name-length";
 import ViewAllStories from "./view-all-stories";
 import useWindowSize from "@/hooks/use-window-size";
-import ProfilePicSVG from "../../../../public/svg-components/profilepicsvg";
+import ProfilePicSVG from "../../../public/svg-components/profilepicsvg";
 
 function StoryBoardTag({ username }: { username: string }) {
   const [stories] = useAtom(atoms.stories);
