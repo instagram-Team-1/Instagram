@@ -1,4 +1,4 @@
-import { StoriesBar } from "@/components/ui/stories-section";
+import StoryBoard from "@/components/ui/stories/story-board";
 import { PostCard } from "@/components/ui/post-card";
 import { SuggestionsSidebar } from "@/components/ui/suggested-sidebar";
 
@@ -6,7 +6,7 @@ export default function FeedPage() {
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8  ">
       <div className="w-full max-w-[630px]">
-        <StoriesBar />
+        <StoryBoard />
         <PostCard />
         <PostCard />
         <PostCard />

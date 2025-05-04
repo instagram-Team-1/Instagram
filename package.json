@@ -19,19 +19,24 @@
   "dependencies": {
     "@headlessui/react": "^2.2.2",
     "axios": "^1.9.0",
+    "browser-image-compression": "^2.0.2",
     "cloudinary": "^2.6.0",
     "cors": "^2.8.5",
     "cron": "^4.3.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "firebase": "^11.6.1",
     "formidable": "^3.5.4",
     "instagram-stories": "^1.2.3",
+    "jotai": "^2.12.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.14.1",
     "multer": "^1.4.5-lts.2",
     "next-auth": "^4.24.11",
     "node-cron": "^3.0.3",
-    "react-native-instagram-story-circle": "^0.1.9"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "stories-react": "^1.1.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
