@@ -13,37 +13,44 @@ import { Input } from '@/components/ui/input';
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+
 type User = {
   username: string;
   _id: string;
 };
 
 const Page = () => {
-
-  const currentId = localStorage.getItem('id');
-  const parsedCurrentId = currentId ? JSON.parse(currentId).id : null;
-
   const [users, setUsers] = useState<User[]>([]);
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<{ name: string; id: string }[]>([]);
-  
-  
-  
-  
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
   const router = useRouter();
+
+
   useEffect(() => {
-    if (parsedCurrentId) {
+    const stored = localStorage.getItem('id');
+    try {
+      const parsed = stored ? JSON.parse(stored) : null;
+      const id = typeof parsed === 'object' && parsed?.id ? parsed.id : stored;
+      setCurrentUserId(id);
+    } catch {
+      setCurrentUserId(stored); 
+    }
+  }, []);
+
+
+  useEffect(() => {
+    if (currentUserId) {
       setSelectedUsers((prev) => {
-        const alreadyAdded = prev.some(user => user.id === parsedCurrentId);
+        const alreadyAdded = prev.some(user => user.id === currentUserId);
         return alreadyAdded
           ? prev
-          : [...prev, { name: 'You', id: parsedCurrentId }];
+          : [...prev, { name: 'You', id: currentUserId }];
       });
     }
-  }, [parsedCurrentId]);
-  
-
+  }, [currentUserId]);
 
 
   useEffect(() => {
@@ -53,6 +60,7 @@ const Page = () => {
     return () => clearTimeout(timer);
   }, [searchValue]);
 
+  
   useEffect(() => {
     const fetchUser = async () => {
       if (!debouncedSearch) {
@@ -61,7 +69,7 @@ const Page = () => {
       }
       try {
         const res = await axios.get(`http://localhost:9000/api/auth/messages/${debouncedSearch}`);
-        const filteredUsers = res.data.filter((user: User) => user._id !== parsedCurrentId); // Exclude the logged-in user
+        const filteredUsers = res.data.filter((user: User) => user._id !== currentUserId); // exclude current user
         setUsers(filteredUsers);
       } catch (error) {
         console.error(error);
@@ -69,8 +77,8 @@ const Page = () => {
       }
     };
     fetchUser();
-  }, [debouncedSearch]);
-  
+  }, [debouncedSearch, currentUserId]);
+
 
   const select = useCallback((name: string, id: string) => {
     setSelectedUsers((prev) => {
@@ -81,15 +89,13 @@ const Page = () => {
     });
   }, []);
 
+  // Create chat room
   const createChatRoom = async () => {
     const data = await axios.post('http://localhost:9000/api/auth/Room', selectedUsers);
     if (data.data === 'room created') {
       router.push('/chat');
     }
   };
-
-  
-  
 
   return (
     <div className="flex items-center justify-center w-full bg-black h-[100vh]">
@@ -114,17 +120,16 @@ const Page = () => {
               <Separator />
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-white">To:</p>
-                {selectedUsers.length > 0 &&
-  selectedUsers
-    .filter((selectedUser) => selectedUser.id !== currentId) // Exclude logged-in user
-    .map((selectedUser, index) => (
-      <div
-        key={index}
-        className="py-[5px] px-[10px] bg-gray-800 rounded-[10px] text-white text-sm"
-      >
-        {selectedUser.name}
-      </div>
-    ))}
+                {selectedUsers
+                  .filter((selectedUser) => selectedUser.id !== currentUserId) // don't show "You" here
+                  .map((selectedUser, index) => (
+                    <div
+                      key={index}
+                      className="py-[5px] px-[10px] bg-gray-800 rounded-[10px] text-white text-sm"
+                    >
+                      {selectedUser.name}
+                    </div>
+                  ))}
                 <Input
                   placeholder="Search person"
                   value={searchValue}
@@ -146,9 +151,7 @@ const Page = () => {
                   return (
                     <div
                       key={index}
-                      className={`p-2 border rounded-lg hover:bg-white/30 flex justify-between items-center cursor-pointer ${
-                        isSelected ? "bg-white/20" : ""
-                      }`}
+                      className={`p-2 border rounded-lg hover:bg-white/30 flex justify-between items-center cursor-pointer ${isSelected ? "bg-white/20" : ""}`}
                       onClick={() => select(user.username, user._id)}
                     >
                       <span className="text-white">{user.username}</span>
@@ -165,7 +168,6 @@ const Page = () => {
               </div>
             )}
 
-            {/* Hook up to "create chat" here */}
             <Button className="bg-blue-500" onClick={createChatRoom}>
               Chat
             </Button>
