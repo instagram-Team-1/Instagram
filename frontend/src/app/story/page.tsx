@@ -10,6 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
+import FileUploadButton from '@/components/fileButton';
 
 const Page = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -17,7 +18,8 @@ const Page = () => {
   const [tag, setTag] = useState('');
   const [loading, setLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [open, setOpen] = useState(false); // control dialog visibility
+  const [open, setOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1); 
 
   useEffect(() => {
     const stored = localStorage.getItem('id');
@@ -50,7 +52,6 @@ const Page = () => {
     setLoading(true);
 
     try {
-      // Upload to Cloudinary
       const formData = new FormData();
       formData.append('file', file);
       formData.append('upload_preset', 'Covaar');
@@ -69,7 +70,6 @@ const Page = () => {
 
       console.log('Cloudinary URL:', cloudData.secure_url);
 
-      // Send to backend
       await axios.post('http://localhost:9000/api/auth/story', {
         owner: currentUserId,
         media: cloudData.secure_url,
@@ -80,7 +80,7 @@ const Page = () => {
       setFile(null);
       setPreviewUrl(null);
       setTag('');
-      setOpen(false); // close dialog after upload
+      setOpen(false);
     } catch (err) {
       console.error(err);
       alert('Something went wrong');
@@ -96,41 +96,70 @@ const Page = () => {
           <Plus /> Create
         </DialogTrigger>
 
-        <DialogContent className='bg-white/50 border-0 flex flex-col sm:flex-row justify-center items-center p-[30px] gap-6'>
+        <DialogContent className='bg-white/50 border-0 flex flex-col sm:flex-row justify-center items-center'>
           <div className='w-full max-w-[300px] flex flex-col items-center'>
-            <ImageIcon className='text-black' />
-            <h1 className='text-black font-semibold mt-2'>Drag photos and videos here</h1>
+            {currentStep === 1 ? (
+             
+              <div className='flex flex-col items-center'>
+                <ImageIcon className='text-black' />
+                <h1 className='text-black font-semibold mt-2'>Drag photos and videos here</h1>
 
-            <Input
-              type="file"
-              onChange={handleFileChange}
-              className="border bg-white mt-4"
-            />
+                <FileUploadButton
+                  onChange={handleFileChange}
+                  className="border bg-blue-500 text-white mt-4"
+                />
 
-            {previewUrl && (
-              <div className="mt-4">
-                <p className="text-sm text-black mb-1">Preview:</p>
-                <img src={previewUrl} alt="Preview" className="w-40 rounded border" />
+                {previewUrl && (
+                  <div className="mt-4 h-full flex justify-center">
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
+                      className="w-40 rounded border"
+                    />
+                  </div>
+                )}
+
+                <Button
+                  onClick={() => setCurrentStep(2)} 
+                  className="mt-4 bg-blue-500 text-white"
+                  disabled={!file}
+                >
+                  Next
+                </Button>
+              </div>
+            ) : (
+            
+              <div className='w-full flex flex-col items-center'>
+                <div className='w-full flex justify-between'>
+                  <Button onClick={() => setCurrentStep(1)} className="bg-blue-500 text-white">Back</Button>
+                  <Button onClick={handleUpload} className="bg-blue-500 text-white" disabled={loading}>
+                    {loading ? 'Uploading...' : 'Add Story'}
+                  </Button>
+                </div>
+
+                
+                {previewUrl && (
+                  <div className="mt-4 h-full flex justify-center">
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
+                      className="w-40 rounded border"
+                    />
+                  </div>
+                )}
+
+               
+                <div className='w-full mt-4'>
+                  <p className='text-black'>Add a tag</p>
+                  <Input
+                    value={tag}
+                    onChange={(e) => setTag(e.target.value)}
+                    className='border bg-white mt-2'
+                    placeholder='Enter a tag'
+                  />
+                </div>
               </div>
             )}
-
-            <Button
-              onClick={handleUpload}
-              className="mt-4 bg-blue-500 text-white"
-              disabled={loading}
-            >
-              {loading ? 'Uploading...' : 'Add Story'}
-            </Button>
-          </div>
-
-          <div className='w-full'>
-            <p className='text-black'>Add tag</p>
-            <Input
-              value={tag}
-              onChange={(e) => setTag(e.target.value)}
-              className='border bg-white mt-2'
-              placeholder='Enter a tag'
-            />
           </div>
         </DialogContent>
       </Dialog>

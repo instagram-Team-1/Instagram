@@ -1,21 +1,15 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const storySchema = new mongoose.Schema(
-  {
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    media: { type: String, required: true },
-    text: { type: String },
-    viewedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    expiresAt: { type: Date, },
+const StorySchema = new mongoose.Schema({
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
   },
-  { timestamps: true }
-);
+  media: { type: String, required: true },
+  text: { type: String },
+  createdAt: { type: Date, default: Date.now, expires: 20 } 
+});
 
-storySchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
-
-const Story = mongoose.model("Story", storySchema);
+const Story = mongoose.model('Story', StorySchema);
 export default Story;
