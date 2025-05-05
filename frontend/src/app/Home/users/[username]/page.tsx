@@ -16,14 +16,12 @@ import { jwtDecode } from "jwt-decode";
 export default function ProfilePage() {
   const { username } = useParams(); 
   const [userPosts, setUserPosts] = useState<PostType[]>([]);
-  const [userData, setUserData] = useState<UserDataType | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [showHighlightModal, setShowHighlightModal] = useState(false);
   const [user, setUser] = useState<UserDataType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<{id: string} | null>(null);
-  
+  const [userId, setUserId] = useState<{ id: string } | null>(null);
 
   useEffect(() => {
     const getUser = async () => {
@@ -32,11 +30,10 @@ export default function ProfilePage() {
         if (typeof username === "string") {
           const userData = await fetchUser(username);
           setUser(userData);
-          
         }
       } catch (error) {
-        console.error("Хэрэглэгч авахад алдаа гарлаа:", error);
-        setError("Хэрэглэгчийн мэдээлэл авахад алдаа гарлаа");
+        console.error("Error fetching user:", error);
+        setError("User not found");
       } finally {
         setLoading(false);
       }
@@ -44,41 +41,36 @@ export default function ProfilePage() {
     getUser();
   }, [username]);
 
-
   useEffect(() => {
-    // `userId`-ийн утгыг авахын тулд `localStorage`-ээс token авах
     const token = localStorage.getItem("token");
     if (token) {
       try {
         const decodedToken = jwtDecode<{ id: string }>(token);
-  
+
         if (decodedToken.id) {
           setUserId({ id: decodedToken.id });
-          setCurrentUserId(decodedToken.id); // Хэрэглэгчийн ID-ийг `currentUserId`-д хадгалахын тулд нэмэх
+          setCurrentUserId(decodedToken.id);
         } else {
-          console.warn("id not found in token");
+          console.warn("ID not found in token");
           setUserId(null);
-          setCurrentUserId(null); // `null` тохируулах
+          setCurrentUserId(null);
         }
       } catch (error) {
         console.error("Error decoding token:", error);
       }
     }
   }, []);
-  
-
-  useEffect(() => {}, [userId]);
 
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
         if (typeof username !== "string") return;
         const res = await fetch(`${API}/api/posts/user/${username}`);
-        if (!res.ok) throw new Error("Пост авахад алдаа гарлаа");
+        if (!res.ok) throw new Error("Failed to fetch posts");
         const data = await res.json();
         setUserPosts(data.posts || []);
       } catch (error) {
-        console.error("Хэрэглэгчийн пост авахад алдаа гарлаа:", error);
+        console.error("Error fetching user posts:", error);
       }
     };
 
@@ -88,7 +80,6 @@ export default function ProfilePage() {
   const fetchUser = async (username: string) => {
     try {
       const response = await axios.get(`${API}/api/users/${username}`);
-      
       return response.data;
     } catch (error) {
       console.error("fetchUser error:", error);
@@ -101,20 +92,10 @@ export default function ProfilePage() {
   if (!user) return <div>User not found</div>;
 
   const isOwnProfile = user?.id === userId?.id;
-const canViewPosts =
-  !user?.isPrivate ||
-  isOwnProfile ||
-  (userId?.id && user?.followers?.includes(userId.id));
-
-
-console.log("canViewPosts:", canViewPosts); // Шалгах
-console.log("user.followers:", user?.followers);
-console.log("userId.id:", userId?.id);
-console.log("Followers data:", user?.followers);
-console.log("Current userId:", userId);
-
-  
-  // (userId?.id && user?.followers?.some(follower => follower.id === userId.id));
+  const canViewPosts =
+    !user?.isPrivate ||
+    isOwnProfile ||
+    (userId?.id && user?.followers?.includes(userId.id));
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
@@ -133,21 +114,18 @@ console.log("Current userId:", userId);
 
         <div className="flex flex-col mt-[30px]">
           <ProfileTabs />
-          {/* <PostAndSave/> */}
           <div className="mt-[20px]">
-          {user?.username && (
-          (user.id === userId?.id || canViewPosts) ? (
-            <PostsGrid username={user.username.toString()} />
-          ) : (
-            <div className="text-center mt-10">
-              <p className="text-lg font-semibold">This account is private.</p>
-              <p className="text-sm text-gray-500">Follow to see their photos.</p>
-            </div>
-          )
-        )}
-
+            {user?.username && (
+              (user.id === userId?.id || canViewPosts) ? (
+                <PostsGrid username={user.username.toString()} />
+              ) : (
+                <div className="text-center mt-10">
+                  <p className="text-lg font-semibold">This account is private.</p>
+                  <p className="text-sm text-gray-500">Follow to see their photos.</p>
+                </div>
+              )
+            )}
           </div>
-
         </div>
         <ProfileFooter />
       </div>

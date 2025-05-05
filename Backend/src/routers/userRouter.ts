@@ -6,10 +6,7 @@ import { getFeedPosts } from '../controller/POST/GetFollowingPost'
 import getUserByUsername from '../controller/user-profile/get-userByUsername'
 import { searchUser } from '../controller/SearchUser/SearchUser'
 
-
 const userRouter = express.Router()
-
-
 
 userRouter.get("/:id", getUsers);
 userRouter.get("/", getUsers);

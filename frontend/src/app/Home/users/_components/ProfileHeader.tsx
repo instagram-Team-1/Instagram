@@ -125,11 +125,6 @@ export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }:
     fetchUserData();
   }, [user._id]); 
 
-  
-
-  // console.error("Follow error:", error.response?.data || error);
-  // console.error("Unfollow error:", error.response?.data || error);
-
   return (
     <div className="flex flex-col ml-[20px] gap-[30px]">
       <div className="text-[20px] font-normal flex flex-row items-center gap-[8px]">
@@ -182,17 +177,11 @@ export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }:
             </DialogTitle>
           </DialogHeader>
           <div className="max-h-[300px] overflow-y-auto">
-            {(modalType === "followers" ? userData?.followers : userData?.following)?.map((userId) => (
-              <div key={userId} className="py-2 border-b">
-                {modalUsers
-                  .filter(user => user._id === userId)
-                  .map((user) => (
-                    <div key={user._id}>
-                      @{user.username}
-                    </div>
-                  ))}
-              </div>
-            ))}
+          {modalUsers.map((user) => (
+            <div key={user._id} className="py-2 border-b">
+              @{user.username}
+            </div>
+          ))}
           </div>
         </DialogContent>
       </Dialog>

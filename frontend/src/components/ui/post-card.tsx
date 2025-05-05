@@ -209,6 +209,9 @@ export function PostCard({
     friend.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const CLOUDINARY_BASE = process.env.NEXT_PUBLIC_CLOUDINARY_BASE_URL;
+
+
   return (
     <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-6 relative">
       {/* SHARE MODAL */}
@@ -305,7 +308,7 @@ export function PostCard({
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gray-500 rounded-full">
                     <Image
-                      src={userId.avatarImage || "/img/default-avatar.png"}
+                      src={`https://res.cloudinary.com/<your-cloud-name>/image/upload/${userId.avatarImage}`}
                       alt={`${userId.username}-н профайлын зураг`}
                       width={32}
                       height={32}
@@ -431,7 +434,7 @@ export function PostCard({
             <div className="flex items-center gap-4">
               <div className="w-8 h-8 bg-gray-500 rounded-full">
                 <Image
-                  src={userId.avatarImage || "/img/default-avatar.png"}
+                  src={`${CLOUDINARY_BASE}/${userId.avatarImage}`}
                   alt={`${userId.username}-н профайлын зураг`}
                   width={32}
                   height={32}
