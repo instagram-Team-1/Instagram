@@ -12,9 +12,10 @@ import ProfileTabs from "../_components/ProfileTabs";
 import ProfileFooter from "../_components/ProfileFooter";
 import PostsGrid from "../../profile/_components/PostsGrid";
 import { jwtDecode } from "jwt-decode";
+import { FollowerType } from "@/lib/types";
 
 export default function ProfilePage() {
-  const { username } = useParams(); 
+  const { username } = useParams();
   const [userPosts, setUserPosts] = useState<PostType[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [showHighlightModal, setShowHighlightModal] = useState(false);
@@ -91,6 +92,8 @@ export default function ProfilePage() {
   if (error) return <div>{error}</div>;
   if (!user) return <div>User not found</div>;
 
+  console.log(user.followers, "followers");
+
   const isOwnProfile = user?.id === userId?.id;
   const canViewPosts =
     !user?.isPrivate ||
@@ -115,16 +118,19 @@ export default function ProfilePage() {
         <div className="flex flex-col mt-[30px]">
           <ProfileTabs />
           <div className="mt-[20px]">
-            {user?.username && (
-              (user.id === userId?.id || canViewPosts) ? (
+            {user?.username &&
+              (user.id === userId?.id || canViewPosts ? (
                 <PostsGrid username={user.username.toString()} />
               ) : (
                 <div className="text-center mt-10">
-                  <p className="text-lg font-semibold">This account is private.</p>
-                  <p className="text-sm text-gray-500">Follow to see their photos.</p>
+                  <p className="text-lg font-semibold">
+                    This account is private.
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Follow to see their photos.
+                  </p>
                 </div>
-              )
-            )}
+              ))}
           </div>
         </div>
         <ProfileFooter />
@@ -132,4 +138,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-

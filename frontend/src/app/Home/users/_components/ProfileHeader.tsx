@@ -20,7 +20,7 @@ type Props = {
 
 export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }: Props) {
   const [isFollowing, setIsFollowing] = useState<boolean>(
-    user.followers?.some(f => f.id === currentUserId) || false
+    user.followers?.some(f => f === currentUserId) || false
   );
   
   const [isLoading, setIsLoading] = useState<boolean>(false);
