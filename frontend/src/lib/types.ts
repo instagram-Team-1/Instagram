@@ -8,8 +8,8 @@ export type UserDataType = {
   password: string;
   bio: string;
   avatarImage: string;
-  followers: FollowerType[];
-  following: FollowerType[];
+  followers: string[];
+  following: string[];
   posts: string[];
   createdAt: Date;
   updatedAt: Date;

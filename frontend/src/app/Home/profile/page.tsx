@@ -42,7 +42,7 @@ export default function ProfilePage() {
 
   const isOwnProfile = userData?.id === currentUserId;
   const canViewPosts =
-  !userData?.isPrivate || isOwnProfile || userData?.followers?.some(f => f.id === currentUserId);
+  !userData?.isPrivate || isOwnProfile || userData?.followers?.some(f => f === currentUserId);
 
 
   // if (userData?.isPrivate && userData.id !== currentUserId) {
