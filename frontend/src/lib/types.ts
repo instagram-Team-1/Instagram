@@ -1,19 +1,21 @@
 export type UserDataType = {
-  _id: any;
-  id: string,
-  username: String,
-  fullname: String,
-  email: String,
-  phone: String,
-  password: String,
-  bio: String,
-  avatarImage: String,
-  followers: string[];
-  following: string[];
+  _id: string;
+  id: string;
+  username: string;
+  fullname: string;
+  email: string;
+  phone: string;
+  password: string;
+  bio: string;
+  avatarImage: string;
+  followers: FollowerType[];
+  following: FollowerType[];
   posts: string[];
-  createdAt: Date,
-  updateAt: Date,
-}; 
+  createdAt: Date;
+  updatedAt: Date;
+  isPrivate: boolean;
+};
+
 
 export type PostType = {
   id: string;
@@ -22,4 +24,10 @@ export type PostType = {
   createdAt: string; 
   userId: string; 
 };
+
+export type FollowerType = {
+  id: string;
+  username: string;
+  followers: string[];
+}
   
