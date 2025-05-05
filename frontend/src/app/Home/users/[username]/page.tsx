@@ -12,9 +12,10 @@ import ProfileTabs from "../_components/ProfileTabs";
 import ProfileFooter from "../_components/ProfileFooter";
 import PostsGrid from "../../profile/_components/PostsGrid";
 import { jwtDecode } from "jwt-decode";
+import { FollowerType } from "@/lib/types";
 
 export default function ProfilePage() {
-  const { username } = useParams(); 
+  const { username } = useParams();
   const [userPosts, setUserPosts] = useState<PostType[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [showHighlightModal, setShowHighlightModal] = useState(false);
@@ -132,4 +133,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-

@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { API } from '@/utils/api';
 
 type User = {
   username: string;
@@ -68,7 +69,7 @@ const Page = () => {
         return;
       }
       try {
-        const res = await axios.get(`http://localhost:9000/api/auth/messages/${debouncedSearch}`);
+        const res = await axios.get(API+`/api/auth/messages/${debouncedSearch}`);
         const filteredUsers = res.data.filter((user: User) => user._id !== currentUserId); // exclude current user
         setUsers(filteredUsers);
       } catch (error) {
@@ -89,11 +90,13 @@ const Page = () => {
     });
   }, []);
 
-  // Create chat room
+
   const createChatRoom = async () => {
-    const data = await axios.post('http://localhost:9000/api/auth/Room', selectedUsers);
-    if (data.data === 'room created') {
-      router.push('/chat');
+    const data = await axios.post(API+'/api/auth/Room', selectedUsers);
+    console.log(data.data);
+    
+    if (data.data.message === "Room created successfully") {
+      router.push(`/actualRoom/${data.data.roomId}`);
     }
   };
 
@@ -121,7 +124,7 @@ const Page = () => {
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-white">To:</p>
                 {selectedUsers
-                  .filter((selectedUser) => selectedUser.id !== currentUserId) // don't show "You" here
+                  .filter((selectedUser) => selectedUser.id !== currentUserId)
                   .map((selectedUser, index) => (
                     <div
                       key={index}

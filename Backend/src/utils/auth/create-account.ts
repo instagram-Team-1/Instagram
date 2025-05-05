@@ -22,6 +22,7 @@ const createAccount = async (req: Request, res: Response) => {
       fullname: stored.fullname,
       password: hashedPassword,
       email: stored.email,
+      avatarImage: 'https://res.cloudinary.com/dvfl0oxmj/image/upload/v1746372697/gbbju93p0xiwunwz8hie.gif'
     });
     await newUser.save();   
     memoryStore.delete('prechecked');
