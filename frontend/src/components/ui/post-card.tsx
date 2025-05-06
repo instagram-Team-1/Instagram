@@ -7,6 +7,8 @@ import { API } from "@/utils/api";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User } from "lucide-react";
 
 type PostCardProps = {
   imageUrl: string;
@@ -34,7 +36,6 @@ interface Comment {
   };
 }
 
-
 export function PostCard({
   imageUrl,
   caption,
@@ -57,8 +58,8 @@ export function PostCard({
   const fullCaption = caption || "Тайлбар байхгүй.";
   const shortCaption = fullCaption.slice(0, 100);
 
-   const [comments, setComments] = useState<Comment[]>([]);
-   const [loading, setLoading] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const friends = [
     { name: "Juliana", image: "/img/user1.png" },
@@ -118,57 +119,48 @@ export function PostCard({
     }
   };
 
+  const postComment = async (
+    postId: string,
+    currentUserId: string,
+    comment: string
+  ) => {
+    try {
+      const res = await axios.post(API + `/api/posts/comment/${postId}`, {
+        userId: currentUserId,
+        comment,
+      });
 
-  
- const postComment = async (
-   postId: string,
-   currentUserId: string,
-   comment: string
- ) => {
-   try {
-     const res = await axios.post(
-       API+`/api/posts/comment/${postId}`,
-       {
-         userId: currentUserId,
-         comment,
-       }
-     );
+      const newComment = {
+        comment,
+        user: {
+          username: currentUserUsername,
+        },
+      };
 
-     const newComment = {
-       comment,
-       user: {
-         username: currentUserUsername,
-       },
-     };
+      // Update the comments list with the new comment
+      setComments((prevComments) => [...prevComments, newComment]);
+    } catch (err) {
+      console.error("Error posting comment:", err);
+    }
+  };
 
-     // Update the comments list with the new comment
-     setComments((prevComments) => [...prevComments, newComment]);
-   } catch (err) {
-     console.error("Error posting comment:", err);
-   }
- };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (comment.trim()) {
+      postComment(postId, currentUserId, comment);
+    }
 
- const handleSubmit = (e: React.FormEvent) => {
-   e.preventDefault();
-   if (comment.trim()) {
-     postComment(postId, currentUserId, comment);
-   }
-
-   setComment("");
- };
-  
+    setComment("");
+  };
 
   useEffect(() => {
     const fetchComments = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(
-          API+`/api/posts/comment/${postId}`
-        );
+        const res = await axios.get(API + `/api/posts/comment/${postId}`);
         const data = res.data;
         setComments(data);
         console.log("Fetched comments:", data);
-        
       } catch (error) {
         console.error("Failed to load comments:", error);
       } finally {
@@ -304,13 +296,21 @@ export function PostCard({
               <div className="flex items-center justify-between py-4 px-6 border-b border-neutral-800">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gray-500 rounded-full">
-                    <Image
+                    <Avatar className="w-[32px] h-[32px]">
+                      <AvatarImage
+                        src={userId.avatarImage || "/img/default-avatar.png"}
+                      />
+                      <AvatarFallback>
+                        <User />
+                      </AvatarFallback>
+                    </Avatar>
+                    {/* <Image
                       src={userId.avatarImage || "/img/default-avatar.png"}
                       alt={`${userId.username}-н профайлын зураг`}
                       width={32}
                       height={32}
                       className="object-cover rounded-full"
-                    />
+                    /> */}
                   </div>
                   <span className="text-white font-semibold text-sm">
                     {userId.username}
@@ -430,13 +430,21 @@ export function PostCard({
           <div className="flex items-center justify-between py-3 px-4">
             <div className="flex items-center gap-4">
               <div className="w-8 h-8 bg-gray-500 rounded-full">
-                <Image
+                <Avatar className="w-[32px] h-[32px]">
+                  <AvatarImage
+                    src={userId.avatarImage || "/img/default-avatar.png"}
+                  />
+                  <AvatarFallback>
+                    <User />
+                  </AvatarFallback>
+                </Avatar>
+                {/* <Image
                   src={userId.avatarImage || "/img/default-avatar.png"}
                   alt={`${userId.username}-н профайлын зураг`}
                   width={32}
                   height={32}
                   className="rounded-full"
-                />
+                /> */}
               </div>
               <span className="text-white text-sm font-medium">
                 {userId.username}

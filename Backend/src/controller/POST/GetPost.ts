@@ -15,7 +15,6 @@ export const getPostsByUser = async (
       res.status(404).json({ message: "Хэрэглэгч олдсонгүй" });
       return;
     }
-
   
     const posts = await Post.find({ userId: user._id });
     res.status(200).json({ posts });

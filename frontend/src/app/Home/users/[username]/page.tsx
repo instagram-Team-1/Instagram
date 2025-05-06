@@ -12,16 +12,18 @@ import ProfileTabs from "../_components/ProfileTabs";
 import ProfileFooter from "../_components/ProfileFooter";
 import PostsGrid from "../../profile/_components/PostsGrid";
 import { jwtDecode } from "jwt-decode";
+import { FollowerType } from "@/lib/types";
 
 export default function ProfilePage() {
-  const { username } = useParams(); 
+  const { username } = useParams();
   const [userPosts, setUserPosts] = useState<PostType[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [showHighlightModal, setShowHighlightModal] = useState(false);
   const [user, setUser] = useState<UserDataType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<{ id: string } | null>(null);
 
-  // Хэрэглэгчийн мэдээлэл авах
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -29,11 +31,10 @@ export default function ProfilePage() {
         if (typeof username === "string") {
           const userData = await fetchUser(username);
           setUser(userData);
-          
         }
       } catch (error) {
-        console.error("Хэрэглэгч авахад алдаа гарлаа:", error);
-        setError("Хэрэглэгчийн мэдээлэл авахад алдаа гарлаа");
+        console.error("Error fetching user:", error);
+        setError("User not found");
       } finally {
         setLoading(false);
       }
@@ -41,21 +42,19 @@ export default function ProfilePage() {
     getUser();
   }, [username]);
 
-  const [userId, setId] = useState<{ id: string } | null>(null);
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const decodedToken = jwtDecode<{
-          id: string;
-        }>(token);
+        const decodedToken = jwtDecode<{ id: string }>(token);
 
         if (decodedToken.id) {
-          setId({ id: decodedToken.id });
+          setUserId({ id: decodedToken.id });
+          setCurrentUserId(decodedToken.id);
         } else {
-          console.warn("id not found in token");
-          setId(null);
+          console.warn("ID not found in token");
+          setUserId(null);
+          setCurrentUserId(null);
         }
       } catch (error) {
         console.error("Error decoding token:", error);
@@ -63,18 +62,16 @@ export default function ProfilePage() {
     }
   }, []);
 
-  useEffect(() => {}, [userId]);
-
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
         if (typeof username !== "string") return;
         const res = await fetch(`${API}/api/posts/user/${username}`);
-        if (!res.ok) throw new Error("Пост авахад алдаа гарлаа");
+        if (!res.ok) throw new Error("Failed to fetch posts");
         const data = await res.json();
         setUserPosts(data.posts || []);
       } catch (error) {
-        console.error("Хэрэглэгчийн пост авахад алдаа гарлаа:", error);
+        console.error("Error fetching user posts:", error);
       }
     };
 
@@ -84,7 +81,6 @@ export default function ProfilePage() {
   const fetchUser = async (username: string) => {
     try {
       const response = await axios.get(`${API}/api/users/${username}`);
-      
       return response.data;
     } catch (error) {
       console.error("fetchUser error:", error);
@@ -92,9 +88,17 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) return <div>Ачааллаж байна...</div>;
+  if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
-  if (!user) return <div>Хэрэглэгч олдсонгүй</div>;
+  if (!user) return <div>User not found</div>;
+
+  console.log(user.followers, "followers");
+
+  const isOwnProfile = user?.id === userId?.id;
+  const canViewPosts =
+    !user?.isPrivate ||
+    isOwnProfile ||
+    (userId?.id && user?.followers?.includes(userId.id));
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
@@ -102,7 +106,11 @@ export default function ProfilePage() {
         <div className="flex flex-col gap-[30px]">
           <div className="flex flex-row">
             <ProfileImage user={user} />
-            <ProfileHeader user={user} currentUserId={userId?.id || ""} />
+            <ProfileHeader
+              user={user}
+              currentUserId={userId?.id || ""}
+              onUserDataUpdate={(updatedUser) => setUser(updatedUser)}
+            />
           </div>
           <ProfileHighlights onClick={() => setShowHighlightModal(true)} />
         </div>
@@ -110,9 +118,19 @@ export default function ProfilePage() {
         <div className="flex flex-col mt-[30px]">
           <ProfileTabs />
           <div className="mt-[20px]">
-            {user?.username && (
-              <PostsGrid username={user.username.toString()} />
-            )}
+            {user?.username &&
+              (user.id === userId?.id || canViewPosts ? (
+                <PostsGrid username={user.username.toString()} />
+              ) : (
+                <div className="text-center mt-10">
+                  <p className="text-lg font-semibold">
+                    This account is private.
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Follow to see their photos.
+                  </p>
+                </div>
+              ))}
           </div>
         </div>
         <ProfileFooter />
