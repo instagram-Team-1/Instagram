@@ -15,6 +15,7 @@ import roomModel from './models/roomModel';
 import http from "http";
 import { Server } from "socket.io";
 import checkMsg from "./utils/auth/checkMsg";
+import savedRouter from "./routers/SaveRouter";
 
 dotenv.config();
 const app = express();
@@ -42,6 +43,7 @@ app.use("/api", Followrouter);
 app.use("/api", LikeRouter);
 app.use("/api", CommentRouter);
 app.use("/api", ConvertRouter);
+app.use("/api", savedRouter);
 
 // Socket.IO
 const io = new Server(server, {

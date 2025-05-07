@@ -5,6 +5,7 @@ import { UserDataType } from "@/lib/types";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { API } from "@/utils/api";
+import { log } from "console";
 
 interface DecodedToken {
   username: string;
@@ -24,11 +25,11 @@ interface Post {
 
 const PostAndSave = () => {
   const [selectedTab, setSelectedTab] = useState<"posts" | "saved" | "tagged">(
-    "posts"
-  );
+      "posts"
+    );
 
   const [posts, setPosts] = useState<Post[]>([]);
-
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tokenData, setTokenData] = useState<UserDataType | null>(null);
@@ -36,6 +37,8 @@ const PostAndSave = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+
+    
     if (!token) {
       setError("No token found. Please log in.");
       setLoading(false);
@@ -47,6 +50,8 @@ const PostAndSave = () => {
 
       setTokenData(decoded);
       setUsername(decoded.username);
+      console.log("Decoded token:", decoded.id);
+      
     } catch (err) {
       console.error("Invalid token:", err);
       setError("Invalid token. Please log in again.");
@@ -55,8 +60,37 @@ const PostAndSave = () => {
   }, []);
 
   useEffect(() => {
+    if (!tokenData?.id) return;
+  
+
+    const fetchSavedPosts = async () => {
+      try {
+        setLoading(true);
+        
+        
+        const response = await axios.get(
+          `${API}/api/getSavePost/${tokenData.id}`
+        );
+          console.log("Saved posts:", response.data.savedPosts);
+        setSavedPosts(response.data.savedPosts);
+        console.log("Saved posts:", response.data.savedPosts);
+      } catch (err) {
+        console.error("Failed to fetch saved posts", err);
+        setError("Couldn't fetch saved posts");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (selectedTab === "saved") {
+      fetchSavedPosts();
+    }
+  }, [selectedTab, tokenData]);
+
+  
+
+  useEffect(() => {
     if (!username) {
-    
       return;
     }
 
@@ -77,6 +111,8 @@ const PostAndSave = () => {
     fetchPosts();
   }, [username]);
 
+
+
   return (
     <div className="flex flex-col mt-[30px]">
       <div className="flex flex-row justify-center gap-[30px] border-t border-gray-200 dark:border-gray-600">
@@ -92,6 +128,7 @@ const PostAndSave = () => {
         >
           <p className="mt-[20px]">Posts</p>
         </button>
+
         <button
           role="tab"
           aria-selected={selectedTab === "saved"}
@@ -104,6 +141,7 @@ const PostAndSave = () => {
         >
           <p className="mt-[20px]">Saved</p>
         </button>
+
         <button
           role="tab"
           aria-selected={selectedTab === "tagged"}
@@ -118,13 +156,13 @@ const PostAndSave = () => {
         </button>
       </div>
 
-      <div className="mt-[20px] flex flex-col items-center justify-center min-h-[300px]">
+      <div>
         {selectedTab === "posts" && (
           <>
             {posts.length > 0 ? (
               <div className="grid grid-cols-3 gap-4">
-                {posts.map((post) => {
-                  return (
+                {posts.map((post) => (
+                
                     <div key={post._id} className="w-full h-auto bg-gray-200">
                       <CldImage
                         src={post.imageUrl}
@@ -132,11 +170,10 @@ const PostAndSave = () => {
                         className=""
                         width={400}
                         height={300}
-                       
                       />
                     </div>
-                  );
-                })}
+                  
+                ))}
               </div>
             ) : (
               <div className="text-center">
@@ -148,10 +185,34 @@ const PostAndSave = () => {
             )}
           </>
         )}
-        {selectedTab !== "posts" && (
-          <div className="text-center text-gray-400">
-            Feature not available yet.
-          </div>
+      </div>
+      <div>
+        {selectedTab === "saved" && (
+          <>
+            {savedPosts.length > 0 ? (
+              <div className="grid grid-cols-3 gap-4">
+                {savedPosts.map((post) => (
+                  <div key={post._id} className="w-full h-auto bg-gray-200">
+                    <CldImage
+                      src={post.imageUrl}
+                      alt={post.caption || "Saved Post"}
+                      width={400}
+                      height={300}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center">
+                <h2 className="text-[24px] font-semibold mb-2">
+                  No Saved Posts
+                </h2>
+                <p className="text-gray-400">
+                  You haven't saved any posts yet.
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

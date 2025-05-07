@@ -6,6 +6,7 @@ import { getFeedPosts } from '../controller/POST/GetFollowingPost'
 import getUserByUsername from '../controller/user-profile/get-userByUsername'
 import { searchUser } from '../controller/SearchUser/SearchUser'
 
+
 const userRouter = express.Router()
 
 userRouter.get("/search", searchUser);
@@ -14,6 +15,8 @@ userRouter.get("/", getUsers);
 userRouter.put("/update/:id", updateUser);
 userRouter.get("/username/:username", getUserByUsername)
 userRouter.get("/feed/:id", getFeedPosts);
+// saved postiin hesg
+
 
 
 export default userRouter
