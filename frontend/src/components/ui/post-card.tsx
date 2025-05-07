@@ -512,14 +512,23 @@ export function PostCard({
           <div className="flex items-center justify-between py-3 px-4">
             <div className="flex items-center gap-4">
               <div className="w-8 h-8 bg-gray-500 rounded-full">
-                <Avatar className="w-[32px] h-[32px]">
-                  <AvatarImage
-                    src={userId.avatarImage || "/img/default-avatar.png"}
-                  />
-                  <AvatarFallback>
-                    <User />
-                  </AvatarFallback>
-                </Avatar>
+                {userId ? (
+                  <Avatar className="w-[32px] h-[32px]">
+                    <AvatarImage
+                      src={userId.avatarImage || "/img/default-avatar.png"}
+                    />
+                    <AvatarFallback>
+                      <User />
+                    </AvatarFallback>
+                  </Avatar>
+                ) : (
+                  <Avatar className="w-[32px] h-[32px]">
+                    <AvatarImage src="/img/default-avatar.png" />
+                    <AvatarFallback>
+                      <User />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
                 {/* <Image
                   src={userId.avatarImage || "/img/default-avatar.png"}
                   alt={`${userId.username}-н профайлын зураг`}
@@ -528,9 +537,15 @@ export function PostCard({
                   className="rounded-full"
                 /> */}
               </div>
-              <span className="text-white text-sm font-medium">
-                {userId.username}
-              </span>
+              {userId ? (
+                <span className="text-white text-sm font-medium">
+                  {userId.username}
+                </span>
+              ) : (
+                <span className="text-white text-sm font-medium text-gray-400">
+                  @unknown
+                </span>
+              )}
             </div>
             <button
               className="text-white text-lg"
@@ -543,7 +558,9 @@ export function PostCard({
           <div className="relative w-full aspect-[4/5] bg-black overflow-hidden">
             <Image
               src={imageUrl}
-              alt={`Постын зураг: ${userId.username}`}
+              alt={`Постын зураг: ${
+                userId?.username || "Тодорхойгүй хэрэглэгч"
+              }`}
               width={468}
               height={585}
               className=""
