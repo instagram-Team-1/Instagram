@@ -14,7 +14,7 @@ const allChat = async (req: Request, res: Response) => {
     const objectId = new mongoose.Types.ObjectId(id);
 
     const rooms = await Room.find({ participants: objectId })
-      .populate('participants', 'username _id')
+      .populate('participants', 'username _id avatartImage')
     
 
     res.status(200).json(rooms);
