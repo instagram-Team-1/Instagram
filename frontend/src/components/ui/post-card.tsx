@@ -39,6 +39,26 @@ type PostCardProps = {
   currentUserUsername: string;
 };
 
+type Post = {
+  imageUrl: string;
+  _id: string;
+  image: string;
+  caption: string;
+  userId: {
+    _id: string;
+    username: string;
+    avatarImage: string;
+  };
+  likes: number | string;
+  comments: {
+    userId: string;
+    comment: string;
+    createdAt: string;
+    _id: string;
+  }[];
+  createdAt: string;
+};
+
 interface Comment {
   comment: string;
   user: {
@@ -61,6 +81,7 @@ export function PostCard({
 }: PostCardProps) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [likesCount, setLikesCount] = useState(likes || 0);
   const [comment, setComment] = useState("");
   const [showComments, setShowComments] = useState(false);
@@ -84,26 +105,33 @@ export function PostCard({
   ];
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const isSaved = savedPosts.some(
+      (post) => post._id.toString() === postId.toString()
+    );
+    setSaved(isSaved);
+  }, [savedPosts, postId]);
 
-    if (!token) {
-      setError("No token found. Please log in.");
-      setLoading(false);
-      return;
-    }
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
 
-    try {
-      const decoded = jwtDecode<UserDataType & DecodedToken>(token);
+  //   if (!token) {
+  //     setError("No token found. Please log in.");
+  //     setLoading(false);
+  //     return;
+  //   }
 
-      setTokenData(decoded);
-      setUsername(decoded.username);
-      console.log("Decoded token:", decoded.id);
-    } catch (err) {
-      console.error("Invalid token:", err);
-      setError("Invalid token. Please log in again.");
-      setLoading(false);
-    }
-  }, []);
+  //   try {
+  //     const decoded = jwtDecode<UserDataType & DecodedToken>(token);
+
+  //     setTokenData(decoded);
+  //     setUsername(decoded.username);
+  //     console.log("Decoded token:", decoded.id);
+  //   } catch (err) {
+  //     console.error("Invalid token:", err);
+  //     setError("Invalid token. Please log in again.");
+  //     setLoading(false);
+  //   }
+  // }, []);
 
   useEffect(() => {
     const checkIfLiked = async () => {
@@ -210,12 +238,6 @@ export function PostCard({
     fetchComments();
   }, [postId]);
 
-  if (loading)
-    return <p className="text-gray-400 text-sm">Түр хүлээнэ үү...</p>;
-  const handleSave = () => {
-    setSaved((prev) => !prev);
-  };
-
   const handleShare = () => {
     setShowShareModal(true);
   };
@@ -240,34 +262,18 @@ export function PostCard({
     friend.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // useEffect(() => {
-  //   const checkIfSaved = async () => {
-  //     try {
-  //       const res = await axios.get(`${API}/api/getSavePost/${currentUserId}`);
-  //       const savedPosts = res.data?.savedPosts || [];
-
-  //       const isSaved = savedPosts.some((post: any) => post._id === postId);
-  //       setSaved(isSaved);
-  //     } catch (error) {
-  //       console.error("Хадгалагдсан постыг шалгахад алдаа гарлаа:", error);
-  //     }
-  //   };
-
-  //   checkIfSaved();
-  // }, [currentUserId, postId]);
-
   const toggleSave = async () => {
     try {
-      setSaved((prev) => !prev); // UI-г түр зуур шинэчилж харуулна
+      setSaved((prev) => !prev);
 
       if (saved) {
-        // Хадгалсан байвал устгана
-        await axios.delete(`${API}/api/unsavePost/${currentUserId}`, {
-          data: { postId },
-        });
+        // устгах
+       await axios.post(`${API}/api/unsavePost/${postId}`, {
+         userId: currentUserId,
+       });
         toast.success("Пост хадгалагдсаныг устгалаа");
       } else {
-        // Хадгалаагүй бол хадгална
+        // хадгалах
         await axios.post(`${API}/api/savePost/${currentUserId}`, {
           userId: currentUserId,
           postId,
@@ -277,11 +283,37 @@ export function PostCard({
     } catch (error) {
       console.error("Пост хадгалах/устгахад алдаа гарлаа:", error);
       toast.error("Пост хадгалах/устгахад алдаа гарлаа");
-
-      // Алдаа гарсан тохиолдолд UI-г буцааж хуучин төлөвт оруулна
       setSaved((prev) => !prev);
     }
   };
+
+  const fetchSavedPosts = async () => {
+    try {
+      setLoading(true);
+
+      const response = await axios.get(
+        `${API}/api/getSavePost/${currentUserId}`
+      );
+      console.log("Saved posts:", response.data.savedPosts);
+      setSavedPosts(response.data.savedPosts);
+      console.log("Saved posts:", response.data.savedPosts);
+    } catch (err) {
+      console.error("Failed to fetch saved posts", err);
+      setError("Couldn't fetch saved posts");
+    } finally {
+      setLoading(false);
+    }
+  };
+  console.log(savedPosts, " savedPosts");
+
+  useEffect(() => {
+    if (currentUserId) {
+      fetchSavedPosts();
+    }
+  }, [currentUserId]);
+
+  if (loading)
+    return <p className="text-gray-400 text-sm">Түр хүлээнэ үү...</p>;
 
   return (
     <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-6 relative">

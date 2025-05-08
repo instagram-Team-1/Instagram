@@ -7,6 +7,6 @@ const savedRouter = express.Router();
 
 savedRouter.post("/savePost/:userId", savePost);
 savedRouter.get("/getSavePost/:userId", getSavedPosts);
-savedRouter.delete("/unsavePost/:userId", unsavePost);
+savedRouter.post("/unsavePost/:postId", unsavePost);
 
 export default savedRouter;

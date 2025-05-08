@@ -4,7 +4,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import authRouter from "../src/routers/authRoute";
 import PostRouter from "./routers/PostRouter";
-import userRouter from '../src/routers/userRouter';
+import userRouter from "../src/routers/userRouter";
 import Followrouter from "./routers/FollowRouter";
 import LikeRouter from "./routers/LikeRouter";
 import CommentRouter from "./routers/CommentRouter";
@@ -12,11 +12,12 @@ import ConvertRouter from "./routers/ConvertRouter";
 import SuggestRouter from "./routers/SuggestedRouter";
 
 import Message from "./models/messageModel";
-import roomModel from './models/roomModel';
+import roomModel from "./models/roomModel";
 import http from "http";
 import { Server } from "socket.io";
 import checkMsg from "./utils/auth/checkMsg";
 import savedRouter from "./routers/SaveRouter";
+
 
 dotenv.config();
 const app = express();
@@ -29,7 +30,9 @@ const server = http.createServer(app);
 
 const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
 if (!mongoConnectionString) {
-  throw new Error("MONGO_CONNECTION_STRING is not defined in the environment variables");
+  throw new Error(
+    "MONGO_CONNECTION_STRING is not defined in the environment variables"
+  );
 }
 
 mongoose.connect(mongoConnectionString).then(() => {
@@ -45,7 +48,7 @@ app.use("/api", LikeRouter);
 app.use("/api", CommentRouter);
 app.use("/api", ConvertRouter);
 app.use("/api", savedRouter);
-app.use("/api",SuggestRouter);
+app.use("/api", SuggestRouter);
 
 // Socket.IO
 const io = new Server(server, {
@@ -87,7 +90,9 @@ io.on("connection", (socket) => {
   socket.on("serverMSG", async ({ roomId, senderId, content }) => {
     const isInRoom = [...socket.rooms].includes(roomId);
     if (!isInRoom) {
-      return socket.emit("error", { message: "You must join the room before sending messages." });
+      return socket.emit("error", {
+        message: "You must join the room before sending messages.",
+      });
     }
 
     const newMessage = await new Message({
@@ -96,11 +101,16 @@ io.on("connection", (socket) => {
       content,
     }).save();
 
-    const populatedMessage = await newMessage.populate("sender", "username avatarImage");
+    const populatedMessage = await newMessage.populate(
+      "sender",
+      "username avatarImage"
+    );
 
     io.to(roomId).emit("fromServer", populatedMessage);
 
-    await roomModel.findByIdAndUpdate(roomId, { lastMessage: populatedMessage._id });
+    await roomModel.findByIdAndUpdate(roomId, {
+      lastMessage: populatedMessage._id,
+    });
   });
 
   socket.on("disconnect", async () => {
@@ -113,14 +123,18 @@ io.on("connection", (socket) => {
         if (roomUsers[roomId].length === 0) {
           console.log(`Room ${roomId} is now empty`);
 
-          const lastMessage = await Message.findOne({ room: roomId }).sort({ createdAt: -1 });
+          const lastMessage = await Message.findOne({ room: roomId }).sort({
+            createdAt: -1,
+          });
 
           if (lastMessage) {
             await roomModel.findByIdAndUpdate(roomId, {
               lastMessage: lastMessage.content,
             });
 
-            console.log(`Room ${roomId} updated with last message: "${lastMessage.content}"`);
+            console.log(
+              `Room ${roomId} updated with last message: "${lastMessage.content}"`
+            );
           }
         }
         break;

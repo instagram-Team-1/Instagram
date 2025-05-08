@@ -47,10 +47,8 @@ const PostAndSave = () => {
 
     try {
       const decoded = jwtDecode<UserDataType & DecodedToken>(token);
-
       setTokenData(decoded);
       setUsername(decoded.username);
-      console.log("Decoded token:", decoded.id);
       
     } catch (err) {
       console.error("Invalid token:", err);
