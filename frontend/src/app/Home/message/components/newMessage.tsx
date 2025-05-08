@@ -72,7 +72,7 @@ export const NewMessageDialog = () => {
   const createChatRoom = async () => {
     const res = await axios.post(API + '/api/auth/Room', selectedUsers);
     if (res.data.message === "Room created successfully") {
-      router.push(`/actualRoom/${res.data.roomId}`);
+      router.push(`/Home/actualRoom/${res.data.roomId}`);
     }
   };
 

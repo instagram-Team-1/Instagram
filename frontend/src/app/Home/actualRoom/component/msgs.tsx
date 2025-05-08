@@ -43,7 +43,7 @@ const Msgs = () => {
   }, []);
 
   const jumpTo = (id: string) => {
-    router.push(`/actualRoom/${id}`);
+    router.push(`/Home/actualRoom/${id}`);
   };
 
   return (

@@ -380,16 +380,18 @@ export function PostCard({
               <div className="flex items-center justify-between py-4 px-6 border-b border-neutral-800">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gray-500 rounded-full">
-                    <Image
+                    {/* <Image
                       src={`https://res.cloudinary.com/<your-cloud-name>/image/upload/${userId.avatarImage}`}
+                      alt="asd"
                     <Avatar className="w-[32px] h-[32px]">
                       <AvatarImage
                         src={userId.avatarImage || "/img/default-avatar.png"}
-                      />
-<!--                       <AvatarFallback>
+                      /> */}
+                    <Avatar>
+                      <AvatarFallback>
                         <User />
                       </AvatarFallback>
-                    </Avatar> -->
+                    </Avatar>
                     {/* <Image
                       src={userId.avatarImage || "/img/default-avatar.png"}
                       alt={`${userId.username}-н профайлын зураг`}
@@ -440,9 +442,8 @@ export function PostCard({
                 <div className="flex items-center gap-4 pb-3">
                   <Heart
                     onClick={handleLike}
-                    className={`cursor-pointer ${
-                      liked ? "text-red-500 fill-red-500" : "text-white"
-                    } ${isLoading ? "opacity-50" : ""}`} // Ачаалалтай үед opacity бууруулах
+                    className={`cursor-pointer ${liked ? "text-red-500 fill-red-500" : "text-white"
+                      } ${isLoading ? "opacity-50" : ""}`} // Ачаалалтай үед opacity бууруулах
                   />
                   <MessageCircle className="text-white cursor-pointer" />
                   <Send
@@ -515,35 +516,9 @@ export function PostCard({
         <div className="bg-black rounded-md overflow-hidden">
           <div className="flex items-center justify-between py-3 px-4">
             <div className="flex items-center gap-4">
-              <div className="w-8 h-8 bg-gray-500 rounded-full">
-                <Image
-                  src={`${CLOUDINARY_BASE}/${userId.avatarImage}`}
+             
 
-<!--                 {userId ? (
-                  <Avatar className="w-[32px] h-[32px]">
-                    <AvatarImage
-                      src={userId.avatarImage || "/img/default-avatar.png"}
-                    />
-                    <AvatarFallback>
-                      <User />
-                    </AvatarFallback>
-                  </Avatar>
-                ) : (
-                  <Avatar className="w-[32px] h-[32px]">
-                    <AvatarImage src="/img/default-avatar.png" />
-                    <AvatarFallback>
-                      <User />
-                    </AvatarFallback>
-                  </Avatar>
-                )} -->
-                {/* <Image
-                  src={userId.avatarImage || "/img/default-avatar.png"}
-                  alt={`${userId.username}-н профайлын зураг`}
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                /> */}
-              </div>
+       
               {userId ? (
                 <span className="text-white text-sm font-medium">
                   {userId.username}
@@ -565,9 +540,8 @@ export function PostCard({
           <div className="relative w-full aspect-[4/5] bg-black overflow-hidden">
             <Image
               src={imageUrl}
-              alt={`Постын зураг: ${
-                userId?.username || "Тодорхойгүй хэрэглэгч"
-              }`}
+              alt={`Постын зураг: ${userId?.username || "Тодорхойгүй хэрэглэгч"
+                }`}
               width={468}
               height={585}
               className=""
@@ -578,9 +552,8 @@ export function PostCard({
             <div className="flex items-center gap-4">
               <Heart
                 onClick={handleLike}
-                className={`cursor-pointer ${
-                  liked ? "text-red-500 fill-red-500" : "text-white"
-                }`}
+                className={`cursor-pointer ${liked ? "text-red-500 fill-red-500" : "text-white"
+                  }`}
               />
               <MessageCircle
                 className="text-white cursor-pointer"
