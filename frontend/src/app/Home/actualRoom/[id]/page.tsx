@@ -4,7 +4,8 @@ import { useParams } from 'next/navigation';
 import { io, Socket } from 'socket.io-client';
 import { Smile } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
+import { API } from '@/utils/api';
+import ChatDarawer from '../component/chatDrawer'
 let socket: Socket;
 
 const Page = () => {
@@ -39,11 +40,11 @@ const Page = () => {
   useEffect(() => {
     if (!currentId) return;
 
-    socket = io('http://localhost:9000');
+    socket = io(API);
 
     socket.emit('join-room', {
       roomId,
-      currentId: currentId as string, // ✅ type assertion here
+      currentId: currentId as string, 
     });
 
     socket.on("previousMessages", (messages) => {
@@ -140,6 +141,7 @@ const Page = () => {
           className="w-full outline-none text-white bg-transparent"
         />
       </div>
+      <ChatDarawer/>
     </div>
   );
 };

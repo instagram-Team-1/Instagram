@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
-import Msgs from "@/app/actualRoom/component/msgs";
-import Request from "@/app/actualRoom/component/req";
+import Msgs from "@/app/Home/actualRoom/component/msgs";
+import Request from "@/app/Home/actualRoom/component/req";
 type ActivePanelType = "none" | "search" | "messages" | "notifications";
 
 interface MasegeButtonPanelProps {

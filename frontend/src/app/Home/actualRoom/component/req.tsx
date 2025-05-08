@@ -3,7 +3,7 @@ import React from 'react'
 const request = () => {
   return (
     <div>
-      req
+      req coming soon
     </div>
   )
 }
