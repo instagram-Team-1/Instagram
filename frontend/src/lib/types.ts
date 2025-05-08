@@ -29,3 +29,10 @@ export type FollowerType = {
   username: string;
   followers: string[];
 };
+
+export interface Story {
+  name: string;
+  img: string;
+  isLive?: boolean;
+  timestamp: string;
+}

@@ -8,10 +8,10 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
     if (id) {
       let user;
       if (mongoose.Types.ObjectId.isValid(id)) {
-        user = await User.findById(id).populate('posts');
+        user = await User.findById(id).populate("posts");
       }
       if (!user) {
-        user = await User.findOne({ username: id }).populate('posts');
+        user = await User.findOne({ username: id }).populate("posts");
       }
 
       if (!user) {
@@ -20,7 +20,7 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
       }
       res.status(200).json(user);
     } else {
-      const users = await User.find().populate('posts');
+      const users = await User.find().populate("posts");
       res.status(200).json(users);
     }
   } catch (error) {

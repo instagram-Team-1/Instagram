@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Document, Schema, Model } from "mongoose";
 
 interface IUser extends Document {
   username: string;
@@ -12,8 +12,8 @@ interface IUser extends Document {
   following?: mongoose.Types.ObjectId[];
   posts?: mongoose.Types.ObjectId[];
   isPrivate: {
-   type: boolean;
-   default: false;
+    type: boolean;
+    default: false;
   };
   createdAt: Date;
   updateAt: Date;
@@ -63,4 +63,4 @@ const userSchema: Schema<IUser> = new Schema<IUser>(
   }
 );
 
-export const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
+export const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);

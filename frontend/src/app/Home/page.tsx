@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { StoriesBar } from "@/components/ui/stories-section";
+import { StoriesBar } from "@/components/stories/stories-section";
 import { PostCard } from "@/components/ui/post-card";
 import { SuggestionsSidebar } from "@/components/ui/suggested-sidebar";
 import { API } from "@/utils/api";
@@ -64,7 +64,7 @@ export default function FeedPage() {
         }
 
         const data = await res.json();
-     
+
         const processedPosts = data.map((post: Post) => ({
           ...post,
           likes: Array.isArray(post.likes) ? post.likes.length : post.likes,
@@ -78,7 +78,7 @@ export default function FeedPage() {
 
     fetchPosts();
   }, [userId]);
-  localStorage.setItem('id', JSON.stringify(userId));
+  localStorage.setItem("id", JSON.stringify(userId));
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
       <div className="w-full max-w-[630px]">
