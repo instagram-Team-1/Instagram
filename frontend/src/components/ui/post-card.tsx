@@ -240,8 +240,6 @@ export function PostCard({
     friend.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const CLOUDINARY_BASE = process.env.NEXT_PUBLIC_CLOUDINARY_BASE_URL;
-
   // useEffect(() => {
   //   const checkIfSaved = async () => {
   //     try {
@@ -380,14 +378,13 @@ export function PostCard({
               <div className="flex items-center justify-between py-4 px-6 border-b border-neutral-800">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gray-500 rounded-full">
-                    {/* <Image
-                      src={`https://res.cloudinary.com/<your-cloud-name>/image/upload/${userId.avatarImage}`}
-                      alt="asd"
+
+
                     <Avatar className="w-[32px] h-[32px]">
                       <AvatarImage
                         src={userId.avatarImage || "/img/default-avatar.png"}
-                      /> */}
-                    <Avatar>
+                      />
+
                       <AvatarFallback>
                         <User />
                       </AvatarFallback>
@@ -516,9 +513,34 @@ export function PostCard({
         <div className="bg-black rounded-md overflow-hidden">
           <div className="flex items-center justify-between py-3 px-4">
             <div className="flex items-center gap-4">
-             
 
-       
+              <div className="w-8 h-8 bg-gray-500 rounded-full">
+                {userId ? (
+                  <Avatar className="w-[32px] h-[32px]">
+                    <AvatarImage
+                      src={userId.avatarImage || "/img/default-avatar.png"}
+                    />
+                    <AvatarFallback>
+                      <User />
+                    </AvatarFallback>
+                  </Avatar>
+                ) : (
+                  <Avatar className="w-[32px] h-[32px]">
+                    <AvatarImage src="/img/default-avatar.png" />
+                    <AvatarFallback>
+                      <User />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                {/* <Image
+                  src={userId.avatarImage || "/img/default-avatar.png"}
+                  alt={`${userId.username}-н профайлын зураг`}
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                /> */}
+              </div>
+
               {userId ? (
                 <span className="text-white text-sm font-medium">
                   {userId.username}

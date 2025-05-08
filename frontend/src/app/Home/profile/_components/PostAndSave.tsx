@@ -5,6 +5,7 @@ import { UserDataType } from "@/lib/types";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { API } from "@/utils/api";
+import { log } from "console";
 
 interface DecodedToken {
   username: string;
@@ -49,6 +50,7 @@ const PostAndSave = () => {
 
       setTokenData(decoded);
       setUsername(decoded.username);
+      console.log("Decoded token:", decoded.id);
       
     } catch (err) {
       console.error("Invalid token:", err);
@@ -158,29 +160,21 @@ const PostAndSave = () => {
         {selectedTab === "posts" && (
           <>
             {posts.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4 mt-6">
-              {posts.map((post) => (
-                <div
-                  key={post._id}
-                  className="relative group w-full aspect-square overflow-hidden"
-                >
-                  {/* Зураг */}
-                  <CldImage
-                    src={post.imageUrl}
-                    alt={post.caption || "Post image"}
-                    width={400}
-                    height={400}
-                    className="object-cover w-full h-full"
-                  />
-            
-                  {/* Hover effect */}
-                  <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-60 transition-opacity flex items-center justify-center gap-4">
-                    <div className="flex items-center gap-1 text-white text-lg font-semibold">
-                      ❤️ {post.likes?.length ?? 0}
+              <div className="grid grid-cols-3 gap-4">
+                {posts.map((post) => (
+                
+                    <div key={post._id} className="w-full h-auto bg-gray-200">
+                      <CldImage
+                        src={post.imageUrl}
+                        alt={post.caption || "Post image"}
+                        className=""
+                        width={400}
+                        height={300}
+                      />
                     </div>
-                    <div className="flex items-center gap-1 text-white text-lg font-semibold">
-                      💬 {post.comments?.length ?? 0}
-                    </div>
+                  
+                ))}
+              </div>
             ) : (
               <div className="text-center">
                 <h2 className="text-[24px] font-semibold mb-2">Share Photos</h2>
@@ -209,7 +203,7 @@ const PostAndSave = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center mt-14">
+              <div className="text-center">
                 <h2 className="text-[24px] font-semibold mb-2">
                   No Saved Posts
                 </h2>
