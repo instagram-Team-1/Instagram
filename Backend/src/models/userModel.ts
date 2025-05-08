@@ -8,15 +8,16 @@ interface IUser extends Document {
   password: string;
   bio?: string;
   avatarImage?: string;
-  followers?: mongoose.Types.ObjectId[];
-  following?: mongoose.Types.ObjectId[];
+  followers: mongoose.Types.ObjectId[];
+  following: mongoose.Types.ObjectId[];
   posts?: mongoose.Types.ObjectId[];
   isPrivate: {
-   type: boolean;
-   default: false;
+    type: boolean;
+    default: false;
   };
   createdAt: Date;
   updateAt: Date;
+  savedPosts: mongoose.Types.ObjectId[];
 }
 
 const userSchema: Schema<IUser> = new Schema<IUser>(
@@ -56,6 +57,7 @@ const userSchema: Schema<IUser> = new Schema<IUser>(
       { type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] },
     ],
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+    savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     isPrivate: { type: Boolean, default: false },
   },
   {

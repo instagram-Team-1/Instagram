@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Msgs from './msgs'
-import Request from './request'
+import Request from './req'
 const msgTest = () => {
 const [status,setStatus] = useState('')
 

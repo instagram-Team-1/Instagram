@@ -8,12 +8,14 @@ import { searchUser } from '../controller/SearchUser/SearchUser'
 
 const userRouter = express.Router()
 
+userRouter.get("/search", searchUser);
 userRouter.get("/:id", getUsers);
 userRouter.get("/", getUsers);
-userRouter.get("/search", searchUser);
 userRouter.put("/update/:id", updateUser);
 userRouter.get("/username/:username", getUserByUsername)
 userRouter.get("/feed/:id", getFeedPosts);
+// saved postiin hesg
+
 
 
 export default userRouter
