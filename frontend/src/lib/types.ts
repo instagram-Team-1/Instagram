@@ -16,18 +16,16 @@ export type UserDataType = {
   isPrivate: boolean;
 };
 
-
 export type PostType = {
   id: string;
   image: string;
-  caption?: string; 
-  createdAt: string; 
-  userId: string; 
+  caption?: string;
+  createdAt: string;
+  userId: string;
 };
 
 export type FollowerType = {
   id: string;
   username: string;
   followers: string[];
-}
-  
+};

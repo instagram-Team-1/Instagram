@@ -109,6 +109,8 @@ const PostAndSave = () => {
     fetchPosts();
   }, [username]);
 
+
+
   return (
     <div className="flex flex-col mt-[30px]">
       <div className="flex flex-row justify-center gap-[30px] border-t border-gray-200 dark:border-gray-600">
@@ -179,12 +181,6 @@ const PostAndSave = () => {
                     <div className="flex items-center gap-1 text-white text-lg font-semibold">
                       💬 {post.comments?.length ?? 0}
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            
             ) : (
               <div className="text-center">
                 <h2 className="text-[24px] font-semibold mb-2">Share Photos</h2>

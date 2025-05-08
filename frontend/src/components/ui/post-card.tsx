@@ -1,12 +1,24 @@
 "use client";
 
 import Image from "next/image";
-import { Heart, MessageCircle, Bookmark, Send, X, Copy } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  Bookmark,
+  BookmarkMinus,
+  Send,
+  X,
+  Copy,
+} from "lucide-react";
 import { useState } from "react";
 import { API } from "@/utils/api";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
+import { UserDataType } from "@/lib/types";
 
 type PostCardProps = {
   imageUrl: string;
@@ -33,7 +45,10 @@ interface Comment {
     username: string;
   };
 }
-
+interface DecodedToken {
+  username: string;
+  email: string;
+}
 
 export function PostCard({
   imageUrl,
@@ -56,14 +71,39 @@ export function PostCard({
   const [isLoading, setIsLoading] = useState(false);
   const fullCaption = caption || "Тайлбар байхгүй.";
   const shortCaption = fullCaption.slice(0, 100);
+  const [error, setError] = useState<string | null>(null);
+  const [tokenData, setTokenData] = useState<UserDataType | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
 
-   const [comments, setComments] = useState<Comment[]>([]);
-   const [loading, setLoading] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const friends = [
     { name: "Juliana", image: "/img/user1.png" },
     { name: "Pine", image: "/img/user2.png" },
   ];
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("No token found. Please log in.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<UserDataType & DecodedToken>(token);
+
+      setTokenData(decoded);
+      setUsername(decoded.username);
+      console.log("Decoded token:", decoded.id);
+    } catch (err) {
+      console.error("Invalid token:", err);
+      setError("Invalid token. Please log in again.");
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     const checkIfLiked = async () => {
@@ -118,57 +158,48 @@ export function PostCard({
     }
   };
 
+  const postComment = async (
+    postId: string,
+    currentUserId: string,
+    comment: string
+  ) => {
+    try {
+      const res = await axios.post(API + `/api/posts/comment/${postId}`, {
+        userId: currentUserId,
+        comment,
+      });
 
-  
- const postComment = async (
-   postId: string,
-   currentUserId: string,
-   comment: string
- ) => {
-   try {
-     const res = await axios.post(
-       API+`/api/posts/comment/${postId}`,
-       {
-         userId: currentUserId,
-         comment,
-       }
-     );
+      const newComment = {
+        comment,
+        user: {
+          username: currentUserUsername,
+        },
+      };
 
-     const newComment = {
-       comment,
-       user: {
-         username: currentUserUsername,
-       },
-     };
+      // Update the comments list with the new comment
+      setComments((prevComments) => [...prevComments, newComment]);
+    } catch (err) {
+      console.error("Error posting comment:", err);
+    }
+  };
 
-     // Update the comments list with the new comment
-     setComments((prevComments) => [...prevComments, newComment]);
-   } catch (err) {
-     console.error("Error posting comment:", err);
-   }
- };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (comment.trim()) {
+      postComment(postId, currentUserId, comment);
+    }
 
- const handleSubmit = (e: React.FormEvent) => {
-   e.preventDefault();
-   if (comment.trim()) {
-     postComment(postId, currentUserId, comment);
-   }
-
-   setComment("");
- };
-  
+    setComment("");
+  };
 
   useEffect(() => {
     const fetchComments = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(
-          API+`/api/posts/comment/${postId}`
-        );
+        const res = await axios.get(API + `/api/posts/comment/${postId}`);
         const data = res.data;
         setComments(data);
         console.log("Fetched comments:", data);
-        
       } catch (error) {
         console.error("Failed to load comments:", error);
       } finally {
@@ -211,6 +242,48 @@ export function PostCard({
 
   const CLOUDINARY_BASE = process.env.NEXT_PUBLIC_CLOUDINARY_BASE_URL;
 
+  // useEffect(() => {
+  //   const checkIfSaved = async () => {
+  //     try {
+  //       const res = await axios.get(`${API}/api/getSavePost/${currentUserId}`);
+  //       const savedPosts = res.data?.savedPosts || [];
+
+  //       const isSaved = savedPosts.some((post: any) => post._id === postId);
+  //       setSaved(isSaved);
+  //     } catch (error) {
+  //       console.error("Хадгалагдсан постыг шалгахад алдаа гарлаа:", error);
+  //     }
+  //   };
+
+  //   checkIfSaved();
+  // }, [currentUserId, postId]);
+
+  const toggleSave = async () => {
+    try {
+      setSaved((prev) => !prev); // UI-г түр зуур шинэчилж харуулна
+
+      if (saved) {
+        // Хадгалсан байвал устгана
+        await axios.delete(`${API}/api/unsavePost/${currentUserId}`, {
+          data: { postId },
+        });
+        toast.success("Пост хадгалагдсаныг устгалаа");
+      } else {
+        // Хадгалаагүй бол хадгална
+        await axios.post(`${API}/api/savePost/${currentUserId}`, {
+          userId: currentUserId,
+          postId,
+        });
+        toast.success("Пост хадгаллаа");
+      }
+    } catch (error) {
+      console.error("Пост хадгалах/устгахад алдаа гарлаа:", error);
+      toast.error("Пост хадгалах/устгахад алдаа гарлаа");
+
+      // Алдаа гарсан тохиолдолд UI-г буцааж хуучин төлөвт оруулна
+      setSaved((prev) => !prev);
+    }
+  };
 
   return (
     <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-6 relative">
@@ -309,11 +382,21 @@ export function PostCard({
                   <div className="w-8 h-8 bg-gray-500 rounded-full">
                     <Image
                       src={`https://res.cloudinary.com/<your-cloud-name>/image/upload/${userId.avatarImage}`}
+                    <Avatar className="w-[32px] h-[32px]">
+                      <AvatarImage
+                        src={userId.avatarImage || "/img/default-avatar.png"}
+                      />
+<!--                       <AvatarFallback>
+                        <User />
+                      </AvatarFallback>
+                    </Avatar> -->
+                    {/* <Image
+                      src={userId.avatarImage || "/img/default-avatar.png"}
                       alt={`${userId.username}-н профайлын зураг`}
                       width={32}
                       height={32}
                       className="object-cover rounded-full"
-                    />
+                    /> */}
                   </div>
                   <span className="text-white font-semibold text-sm">
                     {userId.username}
@@ -435,15 +518,41 @@ export function PostCard({
               <div className="w-8 h-8 bg-gray-500 rounded-full">
                 <Image
                   src={`${CLOUDINARY_BASE}/${userId.avatarImage}`}
+
+<!--                 {userId ? (
+                  <Avatar className="w-[32px] h-[32px]">
+                    <AvatarImage
+                      src={userId.avatarImage || "/img/default-avatar.png"}
+                    />
+                    <AvatarFallback>
+                      <User />
+                    </AvatarFallback>
+                  </Avatar>
+                ) : (
+                  <Avatar className="w-[32px] h-[32px]">
+                    <AvatarImage src="/img/default-avatar.png" />
+                    <AvatarFallback>
+                      <User />
+                    </AvatarFallback>
+                  </Avatar>
+                )} -->
+                {/* <Image
+                  src={userId.avatarImage || "/img/default-avatar.png"}
                   alt={`${userId.username}-н профайлын зураг`}
                   width={32}
                   height={32}
                   className="rounded-full"
-                />
+                /> */}
               </div>
-              <span className="text-white text-sm font-medium">
-                {userId.username}
-              </span>
+              {userId ? (
+                <span className="text-white text-sm font-medium">
+                  {userId.username}
+                </span>
+              ) : (
+                <span className="text-white text-sm font-medium text-gray-400">
+                  @unknown
+                </span>
+              )}
             </div>
             <button
               className="text-white text-lg"
@@ -456,7 +565,9 @@ export function PostCard({
           <div className="relative w-full aspect-[4/5] bg-black overflow-hidden">
             <Image
               src={imageUrl}
-              alt={`Постын зураг: ${userId.username}`}
+              alt={`Постын зураг: ${
+                userId?.username || "Тодорхойгүй хэрэглэгч"
+              }`}
               width={468}
               height={585}
               className=""
@@ -480,12 +591,15 @@ export function PostCard({
                 className="text-white cursor-pointer"
               />
             </div>
-            <Bookmark
+            {/* <Bookmark
               onClick={handleSave}
               className={`cursor-pointer ${
                 saved ? "text-white-400 fill-white" : "text-white"
               }`}
-            />
+            /> */}
+            <button onClick={toggleSave}>
+              {saved ? <BookmarkMinus size={22} /> : <Bookmark size={22} />}
+            </button>
           </div>
 
           <div className="text-sm text-white px-4 pt-2 font-semibold">
