@@ -23,11 +23,11 @@ export function StoriesBar() {
   const [viewingStories, setViewingStories] = useState<Story[]>([]);
 
   const fetchStories = async () => {
-    const res = await axios.get(API+"/api/story");
+    const res = await axios.get(API + "/api/story");
     setStoriesList(res.data);
   };
 
-  useEffect(() => { 
+  useEffect(() => {
     fetchStories();
   }, []);
 
@@ -42,7 +42,7 @@ export function StoriesBar() {
         userId: user.id,
       };
 
-      await axios.post(API+"/api/story", newStory);
+      await axios.post(API + "/api/story", newStory);
       fetchStories();
     } catch (err) {
       console.error("Upload error:", err);
@@ -53,7 +53,7 @@ export function StoriesBar() {
     const storyToDelete = viewingStories[index];
     if (!storyToDelete._id) return;
 
-    await axios.delete(API+`/api/story/${storyToDelete._id}`);
+    await axios.delete(API + `/api/story/${storyToDelete._id}`);
     fetchStories();
 
     const remaining = viewingStories.filter((_, i) => i !== index);
@@ -115,7 +115,9 @@ export function StoriesBar() {
               <div className="relative p-[2px] rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500">
                 <Avatar className="border-2 border-black w-14 h-14">
                   <AvatarImage src={story.img} alt={story.name} />
-                  <AvatarFallback>{story.name[0]}</AvatarFallback>
+                  <AvatarFallback>
+                    {story.name?.charAt(0) || "?"}
+                  </AvatarFallback>
                 </Avatar>
               </div>
               <span className="text-xs text-white mt-2 w-16 text-center truncate">
