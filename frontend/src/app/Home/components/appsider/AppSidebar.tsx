@@ -6,11 +6,11 @@ import NotificationButtonPanel from "./_components/NotificationButtonPanel";
 import MesageButtonPanel from "./_components/MessageButtonPanel";
 import SearchButtonPanel from "./_components/SearchButtonPanel";
 import AppSidebarMenu from "./_components/AppSidebarMenu";
-
+import { useRouter } from "next/navigation";
 
 
 export function AppSidebar() {
-
+const router = useRouter()
   const [username, setUsername] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<
     "none" | "search" | "messages" | "notifications"
@@ -41,7 +41,9 @@ export function AppSidebar() {
   const togglePanel = (panel: "search" | "messages" | "notifications") => {
     setActivePanel((prev) => (prev === panel ? "none" : panel));
   };
-
+if (activePanel === 'messages') {
+  router.push('http://localhost:3000/Home/message')
+}
   return (
     <div className="flex h-screen z-40 ">
       <AppSidebarMenu

@@ -19,21 +19,21 @@ const Drawer = () => {
   const params = useParams()
   const roomId = params.id;
   
-  const [participants, setParticipants] = useState<any[]>([]);  // Define state to store participants data
+  const [participants, setParticipants] = useState<any[]>([]);  
 
   useEffect(() => {
     const fetch = async () => {
       try {
         const res = await axios.get(`${API}/api/chat/get/${roomId}`);
-        setParticipants(res.data.participants);  // Assuming the response contains participants data
-        console.log(res.data); // Log the data to check the structure
+        setParticipants(res.data.participants); 
+        console.log(res.data); 
       } catch (error) {
         console.error('Error fetching room data:', error);
       }
     }
     
-    fetch();  // Fetch participants data when component mounts
-  }, [roomId]);  // Fetch when roomId changes
+    fetch();  
+  }, [roomId]); 
 
   return (
     <div className='max-w-[350px]'>
