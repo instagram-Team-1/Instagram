@@ -158,23 +158,35 @@ const PostAndSave = () => {
         {selectedTab === "posts" && (
           <>
             {posts.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4">
-                {posts.map((post) => (
-                
-                    <div key={post._id} className="w-full h-auto bg-gray-200">
-                      <CldImage
-                        src={post.imageUrl}
-                        alt={post.caption || "Post image"}
-                        className=""
-                        width={400}
-                        height={300}
-                      />
+              <div className="grid grid-cols-3 gap-4 mt-6">
+              {posts.map((post) => (
+                <div
+                  key={post._id}
+                  className="relative w-full h-auto group bg-gray-200"
+                >
+                  <CldImage
+                    src={post.imageUrl}
+                    alt={post.caption || "Post image"}
+                    width={400}
+                    height={300}
+                    className="object-cover w-full h-full"
+                  />
+            
+                  {/* Hover effect */}
+                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-60 transition-opacity">
+                    <div className="flex items-center gap-1 text-white text-lg font-semibold">
+                      ❤️ {post.likes?.length ?? 0}
                     </div>
-                  
-                ))}
-              </div>
+                    <div className="flex items-center gap-1 text-white text-lg font-semibold">
+                      💬 {post.comments?.length ?? 0}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
             ) : (
-              <div className="text-center">
+              <div className="text-center mt-24">
                 <h2 className="text-[24px] font-semibold mb-2">Share Photos</h2>
                 <p className="text-gray-400">
                   When you share photos, they will appear on your profile.
@@ -202,7 +214,7 @@ const PostAndSave = () => {
               </div>
             ) : (
               <div className="text-center">
-                <h2 className="text-[24px] font-semibold mb-2">
+                <h2 className="text-[24px] font-semibold mb-2 mt-24">
                   No Saved Posts
                 </h2>
                 <p className="text-gray-400">
