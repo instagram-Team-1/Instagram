@@ -481,13 +481,13 @@ export function PostCard({
                   />
                 </div>
                 <div className="text-white text-sm font-semibold pb-3">
-                  {likesCount.toLocaleString()} таалагдсан
+                  {likesCount.toLocaleString()} likes
                 </div>
                 <div className="flex items-center gap-3">
                   <form onSubmit={handleSubmit} className="flex items-center">
                     <input
                       type="text"
-                      placeholder="Коммент бичих..."
+                      placeholder="Add a comment..."
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       className="bg-transparent text-white text-sm flex-1 outline-none placeholder-gray-500"
@@ -630,7 +630,7 @@ export function PostCard({
           </div>
 
           <div className="text-sm text-white px-4 pt-2 font-semibold">
-            {likesCount.toLocaleString()} таалагдсан
+            {likesCount.toLocaleString()} likes
           </div>
 
           <div className="text-sm text-white px-4 pt-1">
@@ -651,7 +651,7 @@ export function PostCard({
             onClick={handleShowComments}
           >
             {comments.length > 0
-              ? `Бүх ${comments.length} комментийг харах`
+              ? `View all ${comments.length} comments`
               : "Коммент байхгүй"}
           </div>
 
@@ -659,7 +659,7 @@ export function PostCard({
             <form onSubmit={handleSubmit} className="flex items-center">
               <input
                 type="text"
-                placeholder="Коммент бичих..."
+                placeholder="Add a comment..."
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 className="bg-transparent text-white text-sm flex-1 outline-none placeholder-gray-500"
