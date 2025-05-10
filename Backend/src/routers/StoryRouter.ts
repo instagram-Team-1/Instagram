@@ -1,17 +1,22 @@
 import express from "express";
-import upload from "../config/multer.config";
-import {
-  createStory,
-  getStories,
-  updateStory,
-  deleteStory,
-} from "../controller/Story/storyController";
+
+import { getStories } from "../controller/Story/GetStory";
+import { createStory } from "../controller/Story/CreateStory";
+import { updateStory } from "../controller/Story/Update";
+import { deleteStory } from "../controller/Story/DeleteStory";
+import { getStoryViewers } from "../controller/Story/ViewStory";
+import { addStoryViewer } from "../controller/Story/PostViewStory";
+import { hasUserViewedStories } from "../controller/Story/GetViewStory";
+
 
 const router = express.Router();
 
-router.get("/story", getStories);
-router.post("/story", upload.single("image"), createStory);
+router.get("/Getstory/:userId", getStories);
+router.post("/story/:userId", createStory);
 router.put("/story/:id", updateStory);
 router.delete("/story/:id", deleteStory);
+
+router.post("/storyHasView", hasUserViewedStories);
+router.post("/ViewStory", addStoryViewer);
 
 export default router;

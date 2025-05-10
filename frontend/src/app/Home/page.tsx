@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { StoriesBar } from "@/components/stories/stories-section";
 import { PostCard } from "@/components/ui/post-card";
 import { SuggestionsSidebar } from "@/components/ui/suggested-sidebar";
 import { API } from "@/utils/api";
 import { getUserIdFromToken } from "@/utils/TokenParse";
+import { StoriesBar } from "@/components/stories/story";
 
 // Постын төрөл тодорхойлох
 type Post = {
@@ -48,6 +48,7 @@ export default function FeedPage() {
       setusername(null);
     }
   }, []);
+  
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -78,11 +79,10 @@ export default function FeedPage() {
 
     fetchPosts();
   }, [userId]);
-  localStorage.setItem("id", JSON.stringify(userId));
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
       <div className="w-full max-w-[630px]">
-        <StoriesBar />
+        <StoriesBar userId={userId} username={username} />
         {posts.map((post) => (
           <PostCard
             key={post._id}
