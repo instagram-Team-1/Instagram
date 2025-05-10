@@ -1,7 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { Heart, MessageCircle, Bookmark, Send, X, Copy } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  Bookmark,
+  BookmarkMinus,
+  Send,
+  X,
+  Copy,
+} from "lucide-react";
 import { useState } from "react";
 import { API } from "@/utils/api";
 import axios from "axios";
@@ -9,6 +17,8 @@ import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
+import { UserDataType } from "@/lib/types";
 
 type PostCardProps = {
   imageUrl: string;
@@ -29,11 +39,35 @@ type PostCardProps = {
   currentUserUsername: string;
 };
 
+type Post = {
+  imageUrl: string;
+  _id: string;
+  image: string;
+  caption: string;
+  userId: {
+    _id: string;
+    username: string;
+    avatarImage: string;
+  };
+  likes: number | string;
+  comments: {
+    userId: string;
+    comment: string;
+    createdAt: string;
+    _id: string;
+  }[];
+  createdAt: string;
+};
+
 interface Comment {
   comment: string;
   user: {
     username: string;
   };
+}
+interface DecodedToken {
+  username: string;
+  email: string;
 }
 
 export function PostCard({
@@ -47,6 +81,7 @@ export function PostCard({
 }: PostCardProps) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [likesCount, setLikesCount] = useState(likes || 0);
   const [comment, setComment] = useState("");
   const [showComments, setShowComments] = useState(false);
@@ -57,6 +92,9 @@ export function PostCard({
   const [isLoading, setIsLoading] = useState(false);
   const fullCaption = caption || "Тайлбар байхгүй.";
   const shortCaption = fullCaption.slice(0, 100);
+  const [error, setError] = useState<string | null>(null);
+  const [tokenData, setTokenData] = useState<UserDataType | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
@@ -65,6 +103,35 @@ export function PostCard({
     { name: "Juliana", image: "/img/user1.png" },
     { name: "Pine", image: "/img/user2.png" },
   ];
+
+  useEffect(() => {
+    const isSaved = savedPosts.some(
+      (post) => post._id.toString() === postId.toString()
+    );
+    setSaved(isSaved);
+  }, [savedPosts, postId]);
+
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+
+  //   if (!token) {
+  //     setError("No token found. Please log in.");
+  //     setLoading(false);
+  //     return;
+  //   }
+
+  //   try {
+  //     const decoded = jwtDecode<UserDataType & DecodedToken>(token);
+
+  //     setTokenData(decoded);
+  //     setUsername(decoded.username);
+  //     console.log("Decoded token:", decoded.id);
+  //   } catch (err) {
+  //     console.error("Invalid token:", err);
+  //     setError("Invalid token. Please log in again.");
+  //     setLoading(false);
+  //   }
+  // }, []);
 
   useEffect(() => {
     const checkIfLiked = async () => {
@@ -171,12 +238,6 @@ export function PostCard({
     fetchComments();
   }, [postId]);
 
-  if (loading)
-    return <p className="text-gray-400 text-sm">Түр хүлээнэ үү...</p>;
-  const handleSave = () => {
-    setSaved((prev) => !prev);
-  };
-
   const handleShare = () => {
     setShowShareModal(true);
   };
@@ -200,6 +261,59 @@ export function PostCard({
   const filteredFriends = friends.filter((friend) =>
     friend.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const toggleSave = async () => {
+    try {
+      setSaved((prev) => !prev);
+
+      if (saved) {
+        // устгах
+       await axios.post(`${API}/api/unsavePost/${postId}`, {
+         userId: currentUserId,
+       });
+        toast.success("Пост хадгалагдсаныг устгалаа");
+      } else {
+        // хадгалах
+        await axios.post(`${API}/api/savePost/${currentUserId}`, {
+          userId: currentUserId,
+          postId,
+        });
+        toast.success("Пост хадгаллаа");
+      }
+    } catch (error) {
+      console.error("Пост хадгалах/устгахад алдаа гарлаа:", error);
+      toast.error("Пост хадгалах/устгахад алдаа гарлаа");
+      setSaved((prev) => !prev);
+    }
+  };
+
+  const fetchSavedPosts = async () => {
+    try {
+      setLoading(true);
+
+      const response = await axios.get(
+        `${API}/api/getSavePost/${currentUserId}`
+      );
+      console.log("Saved posts:", response.data.savedPosts);
+      setSavedPosts(response.data.savedPosts);
+      console.log("Saved posts:", response.data.savedPosts);
+    } catch (err) {
+      console.error("Failed to fetch saved posts", err);
+      setError("Couldn't fetch saved posts");
+    } finally {
+      setLoading(false);
+    }
+  };
+  console.log(savedPosts, " savedPosts");
+
+  useEffect(() => {
+    if (currentUserId) {
+      fetchSavedPosts();
+    }
+  }, [currentUserId]);
+
+  if (loading)
+    return <p className="text-gray-400 text-sm">Түр хүлээнэ үү...</p>;
 
   return (
     <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-6 relative">
@@ -296,10 +410,13 @@ export function PostCard({
               <div className="flex items-center justify-between py-4 px-6 border-b border-neutral-800">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gray-500 rounded-full">
+
+
                     <Avatar className="w-[32px] h-[32px]">
                       <AvatarImage
                         src={userId.avatarImage || "/img/default-avatar.png"}
                       />
+
                       <AvatarFallback>
                         <User />
                       </AvatarFallback>
@@ -354,9 +471,8 @@ export function PostCard({
                 <div className="flex items-center gap-4 pb-3">
                   <Heart
                     onClick={handleLike}
-                    className={`cursor-pointer ${
-                      liked ? "text-red-500 fill-red-500" : "text-white"
-                    } ${isLoading ? "opacity-50" : ""}`} // Ачаалалтай үед opacity бууруулах
+                    className={`cursor-pointer ${liked ? "text-red-500 fill-red-500" : "text-white"
+                      } ${isLoading ? "opacity-50" : ""}`} // Ачаалалтай үед opacity бууруулах
                   />
                   <MessageCircle className="text-white cursor-pointer" />
                   <Send
@@ -429,15 +545,25 @@ export function PostCard({
         <div className="bg-black rounded-md overflow-hidden">
           <div className="flex items-center justify-between py-3 px-4">
             <div className="flex items-center gap-4">
+
               <div className="w-8 h-8 bg-gray-500 rounded-full">
-                <Avatar className="w-[32px] h-[32px]">
-                  <AvatarImage
-                    src={userId.avatarImage || "/img/default-avatar.png"}
-                  />
-                  <AvatarFallback>
-                    <User />
-                  </AvatarFallback>
-                </Avatar>
+                {userId ? (
+                  <Avatar className="w-[32px] h-[32px]">
+                    <AvatarImage
+                      src={userId.avatarImage || "/img/default-avatar.png"}
+                    />
+                    <AvatarFallback>
+                      <User />
+                    </AvatarFallback>
+                  </Avatar>
+                ) : (
+                  <Avatar className="w-[32px] h-[32px]">
+                    <AvatarImage src="/img/default-avatar.png" />
+                    <AvatarFallback>
+                      <User />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
                 {/* <Image
                   src={userId.avatarImage || "/img/default-avatar.png"}
                   alt={`${userId.username}-н профайлын зураг`}
@@ -446,9 +572,16 @@ export function PostCard({
                   className="rounded-full"
                 /> */}
               </div>
-              <span className="text-white text-sm font-medium">
-                {userId.username}
-              </span>
+
+              {userId ? (
+                <span className="text-white text-sm font-medium">
+                  {userId.username}
+                </span>
+              ) : (
+                <span className="text-white text-sm font-medium text-gray-400">
+                  @unknown
+                </span>
+              )}
             </div>
             <button
               className="text-white text-lg"
@@ -461,7 +594,8 @@ export function PostCard({
           <div className="relative w-full aspect-[4/5] bg-black overflow-hidden">
             <Image
               src={imageUrl}
-              alt={`Постын зураг: ${userId.username}`}
+              alt={`Постын зураг: ${userId?.username || "Тодорхойгүй хэрэглэгч"
+                }`}
               width={468}
               height={585}
               className=""
@@ -472,9 +606,8 @@ export function PostCard({
             <div className="flex items-center gap-4">
               <Heart
                 onClick={handleLike}
-                className={`cursor-pointer ${
-                  liked ? "text-red-500 fill-red-500" : "text-white"
-                }`}
+                className={`cursor-pointer ${liked ? "text-red-500 fill-red-500" : "text-white"
+                  }`}
               />
               <MessageCircle
                 className="text-white cursor-pointer"
@@ -485,12 +618,15 @@ export function PostCard({
                 className="text-white cursor-pointer"
               />
             </div>
-            <Bookmark
+            {/* <Bookmark
               onClick={handleSave}
               className={`cursor-pointer ${
                 saved ? "text-white-400 fill-white" : "text-white"
               }`}
-            />
+            /> */}
+            <button onClick={toggleSave}>
+              {saved ? <BookmarkMinus size={22} /> : <Bookmark size={22} />}
+            </button>
           </div>
 
           <div className="text-sm text-white px-4 pt-2 font-semibold">

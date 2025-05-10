@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { CldImage } from "next-cloudinary";
-import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { API } from "@/utils/api";
 
@@ -45,14 +44,18 @@ export default function PostsGrid({ username }: PostsGridProps) {
 
   return (
     <div className="grid grid-cols-3 gap-4">
-      {posts.length > 0 ? (
+      {loading ? (
+        <div>Loading...</div>
+      ) : error ? (
+        <div>{error}</div>
+      ) : posts.length > 0 ? (
         posts.map((post) => (
           <div
             key={post._id}
-            className="w-full h-80 bg-gray-200 overflow-hidden rounded-lg"
+            className="w-full h-70 bg-gray-200 overflow-hidden rounded-lg"
           >
             {post.imageUrl ? (
-              <>
+              <div className="relative group w-full aspect-square overflow-hidden rounded-lg">
                 <CldImage
                   src={post.imageUrl}
                   alt={post.caption || "Post image"}
@@ -60,20 +63,25 @@ export default function PostsGrid({ username }: PostsGridProps) {
                   width={400}
                   height={400}
                 />
-               
-              </>
+                <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-60 transition-opacity flex items-center justify-center gap-6">
+                  <div className="flex items-center gap-1 text-white text-lg font-semibold">
+                    ❤️ {post.likes?.length ?? 0}
+                  </div>
+                  <div className="flex items-center gap-1 text-white text-lg font-semibold">
+                    💬 {post.comments?.length ?? 0}
+                  </div>
+                </div>
+              </div>
             ) : (
-              <h2 className="text-[24px] font-semibold mb-2">
-                No post yet
-              </h2>
+              <h2 className="text-[24px] text-center font-semibold mb-2">No post yet</h2>
             )}
           </div>
         ))
       ) : (
-        <h2 className="text-[24px] font-semibold mb-2">
-          No post yet
-        </h2>
+        <h2 className="text-[24px] text-center font-semibold mb-2">No post yet</h2>
       )}
+      
     </div>
   );
 }
+
