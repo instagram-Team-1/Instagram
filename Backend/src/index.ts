@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import authRouter from "../src/routers/authRoute";
 import PostRouter from "./routers/PostRouter";
 import userRouter from "../src/routers/userRouter";
+import storyRouter from "./routers/StoryRouter";
 import Followrouter from "./routers/FollowRouter";
 import LikeRouter from "./routers/LikeRouter";
 import CommentRouter from "./routers/CommentRouter";
@@ -47,6 +48,7 @@ app.use("/api", Followrouter);
 app.use("/api", LikeRouter);
 app.use("/api", CommentRouter);
 app.use("/api", ConvertRouter);
+app.use("/api", storyRouter);
 app.use("/api", savedRouter);
 app.use("/api",SuggestRouter);
 app.use("/api/chat", chatRoute)
