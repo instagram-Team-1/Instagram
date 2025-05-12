@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import axios from "axios";
 import {
@@ -9,11 +7,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { API } from "@/utils/api";
-
+import { FileUpload } from "@/components/ui/file-upload";
 import { jwtDecode } from "jwt-decode";
+import { API } from "@/utils/api";
 
 export default function CreatePostDialog({
   open,
@@ -40,8 +37,7 @@ export default function CreatePostDialog({
       setUploading(true);
       const response = await axios.post(CLOUDINARY_URL, formData);
       const url = response.data.secure_url;
-      setUploadedImageUrl(url);
-      
+      setUploadedImageUrl(url); // Image successfully uploaded
     } catch (error) {
       console.error("Upload алдаа:", error);
     } finally {
@@ -50,7 +46,7 @@ export default function CreatePostDialog({
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files && e.target.files[0] && !uploadedImageUrl) {
       const file = e.target.files[0];
       setSelectedImage(file);
       uploadImageToCloudinary(file);
@@ -79,22 +75,15 @@ export default function CreatePostDialog({
     }
 
     const decoded = jwtDecode<DecodedToken>(token);
-   
-
-    
     const userId = decoded.id;
 
     try {
-      await axios.post(
-        `${API}/api/CreatePost`,
-        {
-          userId,
-          caption,
-          imageUrl: uploadedImageUrl,
-        },
-      );
+      await axios.post(`${API}/api/CreatePost`, {
+        userId,
+        caption,
+        imageUrl: uploadedImageUrl,
+      });
 
-      
       setStep(1);
       setCaption("");
       setSelectedImage(null);
@@ -104,9 +93,10 @@ export default function CreatePostDialog({
       console.error("Error posting:", error);
     }
   };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] space-y-4">
+      <DialogContent className="sm:max-w-[550px]  sm:max-h-[1000px] space-y-4">
         <DialogHeader>
           <DialogTitle>Create Post</DialogTitle>
           <DialogDescription>
@@ -118,32 +108,60 @@ export default function CreatePostDialog({
 
         {step === 1 && (
           <div className="space-y-4">
-            <Input type="file" accept="image/*" onChange={handleFileChange} />
+            {!uploadedImageUrl && (
+              <FileUpload
+                onChange={(files: File[]) => {
+                  if (files.length > 0) {
+                    const file = files[0];
+                    setSelectedImage(file);
+                    uploadImageToCloudinary(file);
+                  }
+                }}
+              />
+            )}
             {uploading && <p>Uploading image...</p>}
             {uploadedImageUrl && (
-              <img
-                src={uploadedImageUrl}
-                alt="uploaded"
-                className="w-full h-auto max-h-[300px] object-contain rounded"
-              />
+              <div className="flex justify-center items-center relative w-[500px] ">
+                <img
+                  src={uploadedImageUrl}
+                  alt="uploaded"
+                  className="object-cover rounded"
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setUploadedImageUrl("");
+                    setSelectedImage(null);
+                  }}
+                  className="absolute top-2 right-2"
+                >
+                  Remove
+                </Button>
+              </div>
             )}
           </div>
         )}
 
         {step === 2 && (
-          <div className="space-y-4">
+          <div className="space-y-4 flex">
             {uploadedImageUrl && (
               <img
                 src={uploadedImageUrl}
                 alt="uploaded"
-                className="w-full h-auto max-h-[300px] object-contain rounded"
+                className="w-full h-auto max-h-[250px] object-cover rounded"
               />
             )}
-            <Input
-              placeholder="Write a caption..."
+            <textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-            />
+              className="w-[300px] h-[150px] p-1.5 ml-2"
+            ></textarea>
+            {/* <Input
+                placeholder=""
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                className=""
+              /> */}
           </div>
         )}
 
