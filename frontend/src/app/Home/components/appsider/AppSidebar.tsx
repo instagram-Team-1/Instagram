@@ -7,9 +7,25 @@ import MesageButtonPanel from "./_components/MessageButtonPanel";
 import SearchButtonPanel from "./_components/SearchButtonPanel";
 import AppSidebarMenu from "./_components/AppSidebarMenu";
 import { useRouter } from "next/navigation";
+import { API } from "@/utils/api";
 
 
 export function AppSidebar() {
+useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    const sidebarElement = document.getElementById("app-sidebar");
+    if (sidebarElement && !sidebarElement.contains(event.target as Node)) {
+      setActivePanel("none");
+    }
+  };
+
+  window.addEventListener("click", handleClickOutside);
+
+  return () => {
+    window.removeEventListener("click", handleClickOutside);
+  };
+}, []);
+
 const router = useRouter()
   const [username, setUsername] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<
@@ -42,10 +58,10 @@ const router = useRouter()
     setActivePanel((prev) => (prev === panel ? "none" : panel));
   };
 if (activePanel === 'messages') {
-  router.push('http://localhost:3000/Home/message')
+  router.push(API+'/Home/message')
 }
   return (
-    <div className="flex h-screen z-40 ">
+    <div id="app-sidebar" className="flex h-screen z-40 ">
       <AppSidebarMenu
         activePanel={activePanel}
         togglePanel={togglePanel}
