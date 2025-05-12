@@ -5,7 +5,6 @@ import { UserDataType } from "@/lib/types";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { API } from "@/utils/api";
-import { log } from "console";
 
 interface DecodedToken {
   username: string;
@@ -34,6 +33,9 @@ const PostAndSave = () => {
   const [error, setError] = useState<string | null>(null);
   const [tokenData, setTokenData] = useState<UserDataType | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -85,8 +87,6 @@ const PostAndSave = () => {
     }
   }, [selectedTab, tokenData]);
 
-  
-
   useEffect(() => {
     if (!username) {
       return;
@@ -108,8 +108,6 @@ const PostAndSave = () => {
 
     fetchPosts();
   }, [username]);
-
-
 
   return (
     <div className="flex flex-col mt-[30px]">
@@ -163,13 +161,17 @@ const PostAndSave = () => {
                 <div
                   key={post._id}
                   className="relative w-full h-auto group bg-gray-200"
+                   onClick={() => {
+                    setSelectedPost(post);
+                    setShowModal(true);
+                  }}
                 >
                   <CldImage
                     src={post.imageUrl}
                     alt={post.caption || "Post image"}
-                    width={400}
+                    width={300}
                     height={300}
-                    className="object-cover w-full h-full"
+                    className="object-cover box-border overflow-hidden w-full h-full"
                   />
             
                   {/* Hover effect */}
@@ -225,6 +227,50 @@ const PostAndSave = () => {
           </>
         )}
       </div>
+      {showModal && selectedPost && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 bg-opacity-80">
+        <div className="bg-black w-full max-w-5xl h-[80vh] flex rounded-lg overflow-hidden">
+          
+          <div className="w-1/2 relative">
+            <CldImage
+              src={selectedPost.imageUrl}
+              alt="selected post"
+              fill
+              className="object-cover"
+            />
+          </div>
+
+          <div className="w-1/2 flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-neutral-800">
+              <span className="text-white font-bold">{selectedPost.username}</span>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-white text-xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="text-white p-4 text-sm border-b border-neutral-800">
+              {selectedPost.caption}
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4">
+              {selectedPost.comments?.length === 0 ? (
+                <p className="text-neutral-400 text-sm">No comments yet.</p>
+              ) : (
+                selectedPost.comments?.map((comment, idx) => (
+                  <div key={idx} className="text-white text-sm py-2 border-b border-neutral-800">
+                    <span className="font-semibold">{comment?.user?.username }</span> {comment.comment}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
     </div>
   );
 };

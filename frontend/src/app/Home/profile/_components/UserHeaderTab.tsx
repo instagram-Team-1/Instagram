@@ -153,7 +153,7 @@ export const UserHeaderTab = () => {
   
 
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-row gap-14">
       {/* Profile image */}
       <div className="relative w-[150px] h-[150px] bg-gray-300 rounded-full overflow-hidden group">
         <input
