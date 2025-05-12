@@ -10,6 +10,21 @@ import { useRouter } from "next/navigation";
 
 
 export function AppSidebar() {
+useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    const sidebarElement = document.getElementById("app-sidebar");
+    if (sidebarElement && !sidebarElement.contains(event.target as Node)) {
+      setActivePanel("none");
+    }
+  };
+
+  window.addEventListener("click", handleClickOutside);
+
+  return () => {
+    window.removeEventListener("click", handleClickOutside);
+  };
+}, []);
+
 const router = useRouter()
   const [username, setUsername] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<
@@ -45,7 +60,7 @@ if (activePanel === 'messages') {
   router.push('http://localhost:3000/Home/message')
 }
   return (
-    <div className="flex h-screen z-40 ">
+    <div id="app-sidebar" className="flex h-screen z-40 ">
       <AppSidebarMenu
         activePanel={activePanel}
         togglePanel={togglePanel}
