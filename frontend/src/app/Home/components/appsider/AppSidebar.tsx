@@ -57,9 +57,6 @@ const router = useRouter()
   const togglePanel = (panel: "search" | "messages" | "notifications") => {
     setActivePanel((prev) => (prev === panel ? "none" : panel));
   };
-if (activePanel === 'messages') {
-  router.push(API+'/Home/message')
-}
   return (
     <div id="app-sidebar" className="flex h-screen z-40 ">
       <AppSidebarMenu
