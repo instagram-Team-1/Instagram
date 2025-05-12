@@ -533,7 +533,6 @@ export function PostCard({
                 )}
               </div>
 
-              {/* Name Hover */}
               <div
                 className="relative inline-block"
                 onMouseEnter={() => setIsHoveringName(true)}
