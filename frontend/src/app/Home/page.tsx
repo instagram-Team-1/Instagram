@@ -7,7 +7,6 @@ import { SuggestionsSidebar } from "@/components/ui/suggested-sidebar";
 import { API } from "@/utils/api";
 import { getUserIdFromToken } from "@/utils/TokenParse";
 
-// Постын төрөл тодорхойлох
 type Post = {
   imageUrl: string;
   _id: string;
@@ -64,7 +63,7 @@ export default function FeedPage() {
         }
 
         const data = await res.json();
-     
+
         const processedPosts = data.map((post: Post) => ({
           ...post,
           likes: Array.isArray(post.likes) ? post.likes.length : post.likes,
@@ -78,7 +77,9 @@ export default function FeedPage() {
 
     fetchPosts();
   }, [userId]);
-  localStorage.setItem('id', JSON.stringify(userId));
+
+  localStorage.setItem("id", JSON.stringify(userId));
+
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
       <div className="w-full max-w-[630px]">
@@ -92,7 +93,14 @@ export default function FeedPage() {
                 ? post.caption
                 : "No caption provided"
             }
-            userId={post.userId}
+            userId={{
+              _id: post.userId._id,
+              username: post.userId.username,
+              avatarImage: post.userId.avatarImage,
+              posts: [],
+              followers: 0,
+              following: 0,
+            }}
             likes={
               typeof post.likes === "string"
                 ? parseInt(post.likes, 10)
