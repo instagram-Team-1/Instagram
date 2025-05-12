@@ -14,7 +14,7 @@ export default function ProfileTabs() {
           className={`text-[16px] font-medium ${
             selectedTab === "posts"
               ? "text-white border-t border-t-[var(--foreground)]"
-              : "text-gray-500 hover:text-white hover:border-t border-t-transparent"
+              : "text-gray-500 dark:hover:text-white hover:text-gray-700 hover:border-t border-t-transparent "
           } `}
         >
           <p className="mt-[20px]">Posts</p>
