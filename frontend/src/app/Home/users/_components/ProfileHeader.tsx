@@ -58,7 +58,6 @@ export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }:
         toast.success(response.data.message);
         setIsFollowing(!isFollowing);
         
-        // Дагагчдын жагсаалтыг шинэчлэх
         const userRes = await axios.get(`${API}/api/users/${user._id}`);
         setUserData(userRes.data);
         onUserDataUpdate?.(userRes.data); 
