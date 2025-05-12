@@ -1,39 +1,19 @@
 "use client";
 
-import Image from "next/image";
-import {
-  Heart,
-  MessageCircle,
-  Bookmark,
-  BookmarkMinus,
-  Send,
-  X,
-  Copy,
-} from "lucide-react";
-import { useState } from "react";
-import { API } from "@/utils/api";
+import { FC, useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useEffect } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import HoverProfileCard from "./HoverProfileCard";
+import PostHeader from "./_components/PostCardHeader";
+import PostImage from "./_components/PostImage";
+import PostActions from "./_components/PostActions";
+import PostCaption from "./_components/PostCaption";
+import PostCommentInput from "./_components/PostCommentInput";
+import ShareModal from "./_components/ShareModal";
+import CommentModal from "./_components/CommentModal";
+import { API } from "@/utils/api";
+import { PostCardProps, Post, Comment } from "@/lib/types";
 
-import { User } from "lucide-react";
-
-import { UserDataType, PostCardProps, Post } from "@/lib/types";
-
-interface Comment {
-  comment: string;
-  user: {
-    username: string;
-  };
-}
-interface DecodedToken {
-  username: string;
-  email: string;
-}
-
-export function PostCard({
+const PostCard: FC<PostCardProps> = ({
   imageUrl,
   caption,
   userId,
@@ -41,7 +21,7 @@ export function PostCard({
   postId,
   currentUserId,
   currentUserUsername,
-}: PostCardProps) {
+}) => {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
@@ -49,27 +29,9 @@ export function PostCard({
   const [comment, setComment] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showFullCaption, setShowFullCaption] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showOptions, setShowOptions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const fullCaption = caption || "";
-  const shortCaption = fullCaption.slice(0, 100);
-  const [isHovering, setIsHovering] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  // const [tokenData, setTokenData] = useState<UserDataType | null>(null);
-  // const [username, setUsername] = useState<string | null>(null);
-
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const friends = [
-    { name: "Juliana", image: "/img/user1.png" },
-    { name: "Pine", image: "/img/user2.png" },
-  ];
-
-  const [isHoveringAvatar, setIsHoveringAvatar] = useState(false);
-  const [isHoveringName, setIsHoveringName] = useState(false);
 
   useEffect(() => {
     const isSaved = savedPosts.some(
@@ -78,32 +40,10 @@ export function PostCard({
     setSaved(isSaved);
   }, [savedPosts, postId]);
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-
-  //   if (!token) {
-  //     setError("No token found. Please log in.");
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   try {
-  //     const decoded = jwtDecode<UserDataType & DecodedToken>(token);
-
-  //     setTokenData(decoded);
-  //     setUsername(decoded.username);
-  //     console.log("Decoded token:", decoded.id);
-  //   } catch (err) {
-  //     console.error("Invalid token:", err);
-  //     setError("Invalid token. Please log in again.");
-  //     setLoading(false);
-  //   }
-  // }, []);
-
   useEffect(() => {
     const checkIfLiked = async () => {
       try {
-        const response = await axios.get(API + `/api/check-like`, {
+        const response = await axios.get(`${API}/api/check-like`, {
           params: { userId: currentUserId, postId },
         });
         setLiked(response.data.liked);
@@ -117,83 +57,13 @@ export function PostCard({
       checkIfLiked();
     }
   }, [postId, currentUserId]);
-  const handleLike = async () => {
-    if (isLoading) return;
-
-    setIsLoading(true);
-
-    const wasLiked = liked;
-    const prevLikes = likesCount;
-
-    setLiked((prev) => !prev);
-    setLikesCount((prev) => prev + (wasLiked ? -1 : 1));
-
-    try {
-      const endpoint = wasLiked ? "/api/unlike" : "/api/like";
-      const response = await axios.post(API + endpoint, {
-        userId: currentUserId,
-        postId,
-      });
-
-      toast.success(response.data.message);
-
-      // Server response-оос like тоог шинэчлэх (optional)
-      if (response.data.likes) {
-        setLikesCount(response.data.likes.length);
-      }
-    } catch (error) {
-      console.error("Like/unlike үйлдэлд алдаа гарлаа:", error);
-      toast.error("Like үйлдэлд алдаа гарлаа");
-
-      setLiked(wasLiked);
-      setLikesCount(prevLikes);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const postComment = async (
-    postId: string,
-    currentUserId: string,
-    comment: string
-  ) => {
-    try {
-      const res = await axios.post(API + `/api/posts/comment/${postId}`, {
-        userId: currentUserId,
-        comment,
-      });
-
-      const newComment = {
-        comment,
-        user: {
-          username: currentUserUsername,
-        },
-      };
-
-      // Update the comments list with the new comment
-      setComments((prevComments) => [...prevComments, newComment]);
-    } catch (err) {
-      console.error("Error posting comment:", err);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (comment.trim()) {
-      postComment(postId, currentUserId, comment);
-    }
-
-    setComment("");
-  };
 
   useEffect(() => {
     const fetchComments = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(API + `/api/posts/comment/${postId}`);
-        const data = res.data;
-        setComments(data);
-        console.log("Fetched comments:", data);
+        const res = await axios.get(`${API}/api/posts/comment/${postId}`);
+        setComments(res.data);
       } catch (error) {
         console.error("Failed to load comments:", error);
       } finally {
@@ -204,42 +74,93 @@ export function PostCard({
     fetchComments();
   }, [postId]);
 
-  const handleShare = () => {
-    setShowShareModal(true);
+  useEffect(() => {
+    const fetchSavedPosts = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          `${API}/api/getSavePost/${currentUserId}`
+        );
+        setSavedPosts(response.data.savedPosts);
+      } catch (err) {
+        console.error("Failed to fetch saved posts", err);
+        toast.error("Couldn't fetch saved posts");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (currentUserId) {
+      fetchSavedPosts();
+    }
+  }, [currentUserId]);
+
+  const handleLike = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+    const wasLiked = liked;
+    const prevLikes = likesCount;
+
+    setLiked((prev) => !prev);
+    setLikesCount((prev) => prev + (wasLiked ? -1 : 1));
+
+    try {
+      const endpoint = wasLiked ? "/api/unlike" : "/api/like";
+      const response = await axios.post(`${API}${endpoint}`, {
+        userId: currentUserId,
+        postId,
+      });
+
+      toast.success(response.data.message);
+      if (response.data.likes) {
+        setLikesCount(response.data.likes.length);
+      }
+    } catch (error) {
+      console.error("Like/unlike үйлдэлд алдаа гарлаа:", error);
+      toast.error("Like үйлдэлд алдаа гарлаа");
+      setLiked(wasLiked);
+      setLikesCount(prevLikes);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleShowComments = () => {
-    setShowComments(true);
+  const postComment = async () => {
+    try {
+      const res = await axios.post(`${API}/api/posts/comment/${postId}`, {
+        userId: currentUserId,
+        comment,
+      });
+
+      const newComment = {
+        comment,
+        user: { username: currentUserUsername },
+      };
+      setComments((prev) => [...prev, newComment]);
+      setComment("");
+    } catch (err) {
+      console.error("Error posting comment:", err);
+      toast.error("Коммент бичихэд алдаа гарлаа");
+    }
   };
 
-  const toggleCaption = () => {
-    setShowFullCaption((prev) => !prev);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (comment.trim()) {
+      postComment();
+    }
   };
-
-  const handleCloseComments = () => {
-    setShowComments(false);
-  };
-
-  const handleCloseShare = () => {
-    setShowShareModal(false);
-  };
-
-  const filteredFriends = friends.filter((friend) =>
-    friend.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const toggleSave = async () => {
     try {
       setSaved((prev) => !prev);
-
       if (saved) {
-        // устгах
         await axios.post(`${API}/api/unsavePost/${postId}`, {
           userId: currentUserId,
         });
         toast.success("Пост хадгалагдсаныг устгалаа");
       } else {
-        // хадгалах
         await axios.post(`${API}/api/savePost/${currentUserId}`, {
           userId: currentUserId,
           postId,
@@ -253,413 +174,61 @@ export function PostCard({
     }
   };
 
-  const fetchSavedPosts = async () => {
-    try {
-      setLoading(true);
-
-      const response = await axios.get(
-        `${API}/api/getSavePost/${currentUserId}`
-      );
-      console.log("Saved posts:", response.data.savedPosts);
-      setSavedPosts(response.data.savedPosts);
-      console.log("Saved posts:", response.data.savedPosts);
-    } catch (err) {
-      console.error("Failed to fetch saved posts", err);
-      setError("Couldn't fetch saved posts");
-    } finally {
-      setLoading(false);
-    }
-  };
-  console.log(savedPosts, " savedPosts");
-
-  useEffect(() => {
-    if (currentUserId) {
-      fetchSavedPosts();
-    }
-  }, [currentUserId]);
-
-  if (loading) return <p className="text-gray-400 text-sm"></p>;
+  if (loading)
+    return <p className="text-gray-400 text-sm">Ачааллаж байна...</p>;
 
   return (
     <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-6 relative">
-      {/* SHARE MODAL */}
       {showShareModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <div className="bg-neutral-900 rounded-lg w-[90%] max-w-md p-4 relative">
-            <button
-              onClick={handleCloseShare}
-              className="absolute top-3 right-3 text-white"
-            >
-              <X size={24} />
-            </button>
-            <h2 className="text-white text-lg font-semibold text-center mb-4">
-              Share
-            </h2>
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-neutral-800 text-white p-2 rounded-md mb-4 outline-none placeholder-gray-400 text-sm"
-            />
-            <div className="flex flex-wrap gap-4 overflow-y-auto max-h-48 mb-4">
-              {filteredFriends.map((friend, idx) => (
-                <div key={idx} className="flex flex-col items-center w-20">
-                  <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-600">
-                    <Image
-                      src={friend.image}
-                      alt={`${friend.name}-н профайлын зураг`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <p className="text-white text-xs mt-1 text-center truncate">
-                    {friend.name}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-around border-t border-neutral-700 pt-4">
-              <div className="flex flex-col items-center">
-                <Copy className="text-white mb-1" size={20} />
-                <span className="text-white text-xs">Copy link</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <Image
-                  src="/img/fb.png"
-                  alt="Facebook"
-                  width={20}
-                  height={20}
-                  className="mb-1"
-                />
-                <span className="text-white text-xs">Facebook</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <Image
-                  src="/img/messenger.png"
-                  alt="Messenger"
-                  width={20}
-                  height={20}
-                  className="mb-1"
-                />
-                <span className="text-white text-xs">Messenger</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <Image
-                  src="/img/whatsapp.png"
-                  alt="WhatsApp"
-                  width={20}
-                  height={20}
-                  className="mb-1"
-                />
-                <span className="text-white text-xs">WhatsApp</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ShareModal onClose={() => setShowShareModal(false)} />
       )}
-
-      {/* COMMENT MODAL Zadargaa*/}
-      {showComments ? (
-        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
-          <div className="bg-black rounded-lg overflow-hidden flex w-[90%] max-w-6xl h-[80%]">
-            <div className="w-1/2 relative bg-black">
-              <Image
-                src={imageUrl}
-                alt={`Постын зураг: ${userId.username}`}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="w-1/2 flex flex-col">
-              <div className="flex items-center justify-between py-4 px-6 border-b border-neutral-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gray-500 rounded-full">
-                    <Avatar className="w-[32px] h-[32px]">
-                      <AvatarImage
-                        src={userId.avatarImage || "/img/default-avatar.png"}
-                      />
-
-                      <AvatarFallback>
-                        <User />
-                      </AvatarFallback>
-                    </Avatar>
-                    {/* <Image
-                      src={userId.avatarImage || "/img/default-avatar.png"}
-                      alt={`${userId.username}-н профайлын зураг`}
-                      width={32}
-                      height={32}
-                      className="object-cover rounded-full"
-                    /> */}
-                  </div>
-                  <span className="text-white font-semibold text-sm">
-                    {userId.username}
-                  </span>
-                </div>
-                <button
-                  onClick={handleCloseComments}
-                  className="text-white text-2xl"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="flex gap-3 items-center px-6 py-3 text-white text-sm border-b border-neutral-800">
-                <Avatar className="w-[32px] h-[32px]">
-                  <AvatarImage
-                    src={userId?.avatarImage || "/img/default-avatar.png"}
-                  />
-                  <AvatarFallback>
-                    <User />
-                  </AvatarFallback>
-                </Avatar>
-                <span className="font-semibold">{userId.username}</span>{" "}
-                {showFullCaption ? fullCaption : shortCaption}
-                {fullCaption.length > 100 && (
-                  <button
-                    onClick={toggleCaption}
-                    className="text-gray-400 ml-1 focus:outline-none"
-                  >
-                    {showFullCaption ? "бага" : "дэлгэрэнгүй"}
-                  </button>
-                )}
-              </div>
-
-              <div className="flex-1 overflow-y-auto px-6 py-4">
-                {comments.length === 0 ? (
-                  <div className="text-gray-500 text-sm">No comment.</div>
-                ) : (
-                  comments.map((cmt, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-start border-b border-neutral-800 py-3"
-                    >
-                      <div className="flex gap-3 items-center">
-                        <Avatar className="w-[32px] h-[32px] mt-1">
-                          <AvatarImage
-                            src={
-                              userId.avatarImage || "/img/default-avatar.png"
-                            }
-                          />
-                          <AvatarFallback>
-                            <User />
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p>
-                            <span className="font-semibold mr-1">
-                              {cmt.user.username}
-                            </span>
-                            {cmt.comment}
-                          </p>
-                        </div>
-                      </div>
-                      <button className="text-gray-400 hover:text-white"></button>
-                    </div>
-                  ))
-                )}
-              </div>
-              <div className="border-t border-neutral-800 p-4">
-                <div className="flex items-center gap-4 pb-3">
-                  <Heart
-                    onClick={handleLike}
-                    className={`cursor-pointer ${
-                      liked ? "text-red-500 fill-red-500" : "text-white"
-                    } ${isLoading ? "opacity-50" : ""}`} // Ачаалалтай үед opacity бууруулах
-                  />
-                  <MessageCircle className="text-white cursor-pointer" />
-                  <Send
-                    onClick={handleShare}
-                    className="text-white cursor-pointer"
-                  />
-                </div>
-                <div className="text-white text-sm font-semibold pb-3">
-                  {likesCount.toLocaleString()} likes
-                </div>
-                <div className="flex items-center gap-3">
-                  <form onSubmit={handleSubmit} className="flex items-center">
-                    <input
-                      type="text"
-                      placeholder="Add a comment"
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      className="bg-transparent text-white text-sm flex-1 outline-none placeholder-gray-500"
-                    />
-                    {/* <button
-                      type="submit"
-                      disabled={!comment.trim()}
-                      className="ml-2 text-white text-lg disabled:text-gray-500"
-                    >
-                      Send
-                    </button> */}
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
+      {showComments && (
+        <CommentModal
+          imageUrl={imageUrl}
+          user={userId}
+          caption={caption}
+          comments={comments}
+          likesCount={likesCount}
+          liked={liked}
+          onLike={handleLike}
+          onShare={() => setShowShareModal(true)}
+          onCommentChange={setComment}
+          onCommentSubmit={handleSubmit}
+          onClose={() => setShowComments(false)}
+          comment={comment}
+        />
+      )}
+      <div className="bg-black rounded-md overflow-hidden">
+        <PostHeader user={userId} />
+        <PostImage imageUrl={imageUrl} username={userId.username} />
+        <PostActions
+          liked={liked}
+          saved={saved}
+          onLike={handleLike}
+          onComment={() => setShowComments(true)}
+          onShare={() => setShowShareModal(true)}
+          onSave={toggleSave}
+        />
+        <div className="text-sm text-white px-4 pt-2 font-semibold">
+          {likesCount.toLocaleString()} likes
         </div>
-      ) : showOptions ? (
-        /* OPTIONS MODAL */
+        <PostCaption caption={caption} username={userId.username} />
         <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center"
-          onClick={() => setShowOptions(false)}
-        ></div>
-      ) : (
-        <div className="bg-black rounded-md overflow-hidden">
-          <div className="flex items-center justify-between py-3 px-4">
-            <div className="flex items-center gap-4">
-              {/* Avatar Hover */}
-              <div
-                className="relative"
-                onMouseEnter={() => setIsHoveringAvatar(true)}
-                onMouseLeave={() => setIsHoveringAvatar(false)}
-              >
-                <Avatar className="w-[32px] h-[32px]">
-                  <AvatarImage
-                    src={userId.avatarImage || "/img/default-avatar.png"}
-                  />
-                  <AvatarFallback>
-                    <User />
-                  </AvatarFallback>
-                </Avatar>
-
-                {isHoveringAvatar && (
-                  <div className="absolute top-full left-0 z-50">
-                    <HoverProfileCard
-                      user={userId}
-                      // currentUserId="CURRENT_USER_ID"
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div
-                className="relative inline-block"
-                onMouseEnter={() => setIsHoveringName(true)}
-                onMouseLeave={() => setIsHoveringName(false)}
-              >
-                {userId ? (
-                  <span className="text-white text-sm font-medium cursor-pointer">
-                    {userId.username}
-                  </span>
-                ) : (
-                  <span className="text-white text-sm font-medium text-gray-400">
-                    @unknown
-                  </span>
-                )}
-
-                {isHoveringName && (
-                  <div className="absolute top-full mt-2 z-50">
-                    <HoverProfileCard
-                      user={userId}
-                      // currentUserId="CURRENT_USER_ID"
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="relative w-full aspect-[4/5] bg-black overflow-hidden">
-            <Image
-              src={imageUrl}
-              alt={`Постын зураг: ${
-                userId?.username || "Тодорхойгүй хэрэглэгч"
-              }`}
-              layout="fill"
-              objectFit="cover"
-              objectPosition="center"
-              className=""
-            />
-          </div>
-
-          <div className="flex items-center justify-between px-4 pt-3">
-            <div className="flex items-center gap-4">
-              <Heart
-                onClick={handleLike}
-                className={`cursor-pointer ${
-                  liked ? "text-red-500 fill-red-500" : "text-white"
-                }`}
-              />
-              <MessageCircle
-                className="text-white cursor-pointer"
-                onClick={handleShowComments}
-              />
-              <Send
-                onClick={handleShare}
-                className="text-white cursor-pointer"
-              />
-            </div>
-            {/* <Bookmark
-              onClick={handleSave}
-              className={`cursor-pointer ${
-                saved ? "text-white-400 fill-white" : "text-white"
-              }`}
-            /> */}
-            <button onClick={toggleSave}>
-              {saved ? <BookmarkMinus size={22} /> : <Bookmark size={22} />}
-            </button>
-          </div>
-
-          <div className="text-sm text-white px-4 pt-2 font-semibold">
-            {likesCount.toLocaleString()} likes
-          </div>
-
-          <div className="text-sm text-white px-4 pt-1">
-            <div
-              className="relative inline-block"
-              onMouseEnter={() => setIsHoveringAvatar(true)}
-              onMouseLeave={() => setIsHoveringAvatar(false)}
-            >
-              <span className="font-semibold">{userId.username}</span>{" "}
-              {isHoveringName && (
-                <div className="absolute top-full mt-2 z-50">
-                  <HoverProfileCard
-                    user={userId}
-                    // currentUserId="CURRENT_USER_ID"
-                  />
-                </div>
-              )}
-            </div>
-            {showFullCaption ? fullCaption : shortCaption}
-            {fullCaption.length > 100 && (
-              <button
-                onClick={toggleCaption}
-                className="text-gray-400 ml-1 focus:outline-none"
-              >
-                {showFullCaption ? "бага" : "дэлгэрэнгүй"}
-              </button>
-            )}
-          </div>
-
-          <div
-            className="text-sm text-gray-400 px-4 pt-1 cursor-pointer"
-            onClick={handleShowComments}
-          >
-            {comments.length > 0
-              ? `View all ${comments.length} comments`
-              : "No comments"}
-          </div>
-
-          <div className="flex items-center px-4 pt-3 pb-3 border-b border-neutral-800">
-            <form onSubmit={handleSubmit} className="flex items-center">
-              <input
-                type="text"
-                placeholder="Add a comment..."
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                className="bg-transparent text-white text-sm flex-1 outline-none placeholder-gray-500"
-              />
-              {/* <button
-                type="submit"
-                disabled={!comment.trim()}
-                className="ml-2 text-white text-lg disabled:text-gray-500"
-              >
-                Send
-              </button> */}
-            </form>
-          </div>
+          className="text-sm text-gray-400 px-4 pt-1 cursor-pointer"
+          onClick={() => setShowComments(true)}
+        >
+          {comments.length > 0
+            ? `View all ${comments.length} comments`
+            : "No comments"}
         </div>
-      )}
+        <PostCommentInput
+          comment={comment}
+          onCommentChange={setComment}
+          onSubmit={handleSubmit}
+        />
+      </div>
     </div>
   );
-}
+};
+
+export default PostCard;
