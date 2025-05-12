@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PostCard } from "@/components/ui/post-card";
+import PostCard from "@/components/PostCard/post-card";
 import { SuggestionsSidebar } from "@/components/ui/suggested-sidebar";
 import { API } from "@/utils/api";
 import { getUserIdFromToken } from "@/utils/TokenParse";
@@ -17,6 +17,9 @@ type Post = {
     _id: string;
     username: string;
     avatarImage: string;
+    posts: never[];
+    followers: number;
+    following: number;
   };
   likes: number | string;
   comments: {
