@@ -14,6 +14,7 @@ import axios from "axios";
 import { API } from "@/utils/api";
 import { toast } from "react-toastify";
 import { CldImage } from "next-cloudinary";
+import { useRouter } from "next/navigation";
 
 export const UserHeaderTab = () => {
 
@@ -33,6 +34,8 @@ export const UserHeaderTab = () => {
     posts?: string[];
     bio?: string;
   } | null>(null);
+
+  const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -150,6 +153,10 @@ export const UserHeaderTab = () => {
       fetchModalUsers();
     }
   }, [isModalOpen, modalType, userData]);
+
+  const handleArchiveButtonClick = () => {
+    router.push("/Home/archive");
+  }
   
 
   return (
@@ -200,7 +207,7 @@ export const UserHeaderTab = () => {
           >
             Edit profile
           </Button>
-          <Button variant="secondary">View archive</Button>
+          <Button onClick={handleArchiveButtonClick} variant="secondary">View archive</Button>
         </div>
         <div className="text-[16px] text-gray-400 flex gap-8">
           <div>{userData?.posts?.length || 0} posts</div>
