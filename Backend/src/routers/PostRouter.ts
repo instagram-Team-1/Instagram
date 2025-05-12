@@ -3,16 +3,15 @@ import createPost from "../controller/POST/CreatePost";
 import updatePost from "../controller/POST/Updatepost";
 import { deletePost } from "../controller/POST/DeletePost";
 import { getPostsByUser } from "../controller/POST/GetPost";
-import  Createcomment  from "../controller/Comment/CreateComment";
-
-
+import editPost from "../controller/POST/EditPost";
 
 const router = express.Router();
 
 router.post("/CreatePost", createPost);
-router.put("/UpdatePost", updatePost);
 router.post("/posts/:postId", updatePost);
-router.delete("/Delete/:postId" , deletePost);
+router.put("/UpdatePost", updatePost);
+router.put("/:postId", editPost);
 router.get("/posts/user/:username", getPostsByUser);
+router.delete("/Delete/:postId" , deletePost);
 
 export default router;

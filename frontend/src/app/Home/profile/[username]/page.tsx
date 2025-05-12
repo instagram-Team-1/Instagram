@@ -18,21 +18,6 @@ import { UserHeaderTab } from "../_components/UserHeaderTab";
 import Highlight from "../_components/Highligth";
 import PostAndSave from "../_components/PostAndSave";
 import Footer from "../_components/Footer";
-
-
-
-// import ProfileImage from "./_components/ProfileImage";
-// import ProfileHeader from "./_components/ProfileHeader";
-// import ProfileHighlights from "./_components/ProfileHighlights";
-// import ProfileTabs from "./_components/ProfileTabs";
-// import ProfileFooter from "./_components/ProfileFooter";
-// import PostsGrid from "./_components/PostsGrid";
-
-// import { UserHeaderTab } from "./_components/UserHeaderTab";
-// import Highlight from "./_components/Highligth";
-// import PostAndSave from "./_components/PostAndSave";
-// import Footer from "./_components/Footer";
-
 export default function ProfilePage() {
   const { username } = useParams();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
