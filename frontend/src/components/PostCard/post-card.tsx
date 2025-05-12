@@ -16,48 +16,11 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import HoverProfileCard from "./HoverProfileCard";
+
 import { User } from "lucide-react";
-import { jwtDecode } from "jwt-decode";
-import { UserDataType } from "@/lib/types";
 
-type PostCardProps = {
-  imageUrl: string;
-  caption: string;
-  userId: {
-    username: string;
-    avatarImage: string;
-  };
-  likes: number;
-  comments: {
-    userId: string;
-    comment: string;
-    createdAt: string;
-    _id: string;
-  }[];
-  postId: string;
-  currentUserId: string;
-  currentUserUsername: string;
-};
-
-type Post = {
-  imageUrl: string;
-  _id: string;
-  image: string;
-  caption: string;
-  userId: {
-    _id: string;
-    username: string;
-    avatarImage: string;
-  };
-  likes: number | string;
-  comments: {
-    userId: string;
-    comment: string;
-    createdAt: string;
-    _id: string;
-  }[];
-  createdAt: string;
-};
+import { UserDataType, PostCardProps, Post } from "@/lib/types";
 
 interface Comment {
   comment: string;
@@ -90,11 +53,12 @@ export function PostCard({
   const [searchQuery, setSearchQuery] = useState("");
   const [showOptions, setShowOptions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const fullCaption = caption || "Тайлбар байхгүй.";
+  const fullCaption = caption || "";
   const shortCaption = fullCaption.slice(0, 100);
+  const [isHovering, setIsHovering] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tokenData, setTokenData] = useState<UserDataType | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
+  // const [tokenData, setTokenData] = useState<UserDataType | null>(null);
+  // const [username, setUsername] = useState<string | null>(null);
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
@@ -103,6 +67,9 @@ export function PostCard({
     { name: "Juliana", image: "/img/user1.png" },
     { name: "Pine", image: "/img/user2.png" },
   ];
+
+  const [isHoveringAvatar, setIsHoveringAvatar] = useState(false);
+  const [isHoveringName, setIsHoveringName] = useState(false);
 
   useEffect(() => {
     const isSaved = savedPosts.some(
@@ -178,7 +145,6 @@ export function PostCard({
       console.error("Like/unlike үйлдэлд алдаа гарлаа:", error);
       toast.error("Like үйлдэлд алдаа гарлаа");
 
-      // UI-г буцаах
       setLiked(wasLiked);
       setLikesCount(prevLikes);
     } finally {
@@ -268,9 +234,9 @@ export function PostCard({
 
       if (saved) {
         // устгах
-       await axios.post(`${API}/api/unsavePost/${postId}`, {
-         userId: currentUserId,
-       });
+        await axios.post(`${API}/api/unsavePost/${postId}`, {
+          userId: currentUserId,
+        });
         toast.success("Пост хадгалагдсаныг устгалаа");
       } else {
         // хадгалах
@@ -278,7 +244,7 @@ export function PostCard({
           userId: currentUserId,
           postId,
         });
-        toast.success("Пост хадгаллаа");
+        toast.success("Post saved");
       }
     } catch (error) {
       console.error("Пост хадгалах/устгахад алдаа гарлаа:", error);
@@ -312,8 +278,7 @@ export function PostCard({
     }
   }, [currentUserId]);
 
-  if (loading)
-    return <p className="text-gray-400 text-sm">Түр хүлээнэ үү...</p>;
+  if (loading) return <p className="text-gray-400 text-sm"></p>;
 
   return (
     <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-6 relative">
@@ -328,11 +293,11 @@ export function PostCard({
               <X size={24} />
             </button>
             <h2 className="text-white text-lg font-semibold text-center mb-4">
-              Хуваалцах
+              Share
             </h2>
             <input
               type="text"
-              placeholder="Хайх"
+              placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-neutral-800 text-white p-2 rounded-md mb-4 outline-none placeholder-gray-400 text-sm"
@@ -357,7 +322,7 @@ export function PostCard({
             <div className="flex justify-around border-t border-neutral-700 pt-4">
               <div className="flex flex-col items-center">
                 <Copy className="text-white mb-1" size={20} />
-                <span className="text-white text-xs">Холбоос хуулах</span>
+                <span className="text-white text-xs">Copy link</span>
               </div>
               <div className="flex flex-col items-center">
                 <Image
@@ -394,7 +359,7 @@ export function PostCard({
         </div>
       )}
 
-      {/* COMMENT MODAL */}
+      {/* COMMENT MODAL Zadargaa*/}
       {showComments ? (
         <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
           <div className="bg-black rounded-lg overflow-hidden flex w-[90%] max-w-6xl h-[80%]">
@@ -410,8 +375,6 @@ export function PostCard({
               <div className="flex items-center justify-between py-4 px-6 border-b border-neutral-800">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gray-500 rounded-full">
-
-
                     <Avatar className="w-[32px] h-[32px]">
                       <AvatarImage
                         src={userId.avatarImage || "/img/default-avatar.png"}
@@ -440,7 +403,15 @@ export function PostCard({
                   ✕
                 </button>
               </div>
-              <div className="px-6 py-3 text-white text-sm border-b border-neutral-800">
+              <div className="flex gap-3 items-center px-6 py-3 text-white text-sm border-b border-neutral-800">
+                <Avatar className="w-[32px] h-[32px]">
+                  <AvatarImage
+                    src={userId?.avatarImage || "/img/default-avatar.png"}
+                  />
+                  <AvatarFallback>
+                    <User />
+                  </AvatarFallback>
+                </Avatar>
                 <span className="font-semibold">{userId.username}</span>{" "}
                 {showFullCaption ? fullCaption : shortCaption}
                 {fullCaption.length > 100 && (
@@ -452,17 +423,37 @@ export function PostCard({
                   </button>
                 )}
               </div>
+
               <div className="flex-1 overflow-y-auto px-6 py-4">
                 {comments.length === 0 ? (
-                  <div className="text-gray-500 text-sm">Коммент байхгүй.</div>
+                  <div className="text-gray-500 text-sm">No comment.</div>
                 ) : (
                   comments.map((cmt, index) => (
                     <div
                       key={index}
-                      className="text-sm text-white pt-2 border-b border-neutral-800 pb-2"
+                      className="flex justify-between items-start border-b border-neutral-800 py-3"
                     >
-                      <span className="font-semibold">{cmt.user.username}</span>{" "}
-                      {cmt.comment}
+                      <div className="flex gap-3 items-center">
+                        <Avatar className="w-[32px] h-[32px] mt-1">
+                          <AvatarImage
+                            src={
+                              userId.avatarImage || "/img/default-avatar.png"
+                            }
+                          />
+                          <AvatarFallback>
+                            <User />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p>
+                            <span className="font-semibold mr-1">
+                              {cmt.user.username}
+                            </span>
+                            {cmt.comment}
+                          </p>
+                        </div>
+                      </div>
+                      <button className="text-gray-400 hover:text-white"></button>
                     </div>
                   ))
                 )}
@@ -471,8 +462,9 @@ export function PostCard({
                 <div className="flex items-center gap-4 pb-3">
                   <Heart
                     onClick={handleLike}
-                    className={`cursor-pointer ${liked ? "text-red-500 fill-red-500" : "text-white"
-                      } ${isLoading ? "opacity-50" : ""}`} // Ачаалалтай үед opacity бууруулах
+                    className={`cursor-pointer ${
+                      liked ? "text-red-500 fill-red-500" : "text-white"
+                    } ${isLoading ? "opacity-50" : ""}`} // Ачаалалтай үед opacity бууруулах
                   />
                   <MessageCircle className="text-white cursor-pointer" />
                   <Send
@@ -487,18 +479,18 @@ export function PostCard({
                   <form onSubmit={handleSubmit} className="flex items-center">
                     <input
                       type="text"
-                      placeholder="Add a comment..."
+                      placeholder="Add a comment"
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       className="bg-transparent text-white text-sm flex-1 outline-none placeholder-gray-500"
                     />
-                    <button
+                    {/* <button
                       type="submit"
                       disabled={!comment.trim()}
                       className="ml-2 text-white text-lg disabled:text-gray-500"
                     >
                       Send
-                    </button>
+                    </button> */}
                   </form>
                 </div>
               </div>
@@ -507,97 +499,75 @@ export function PostCard({
         </div>
       ) : showOptions ? (
         /* OPTIONS MODAL */
-        <div className="fixed inset-0 bg-opacity-70 flex items-center justify-center z-50">
-          <div className="bg-neutral-800 rounded-lg w-[100%] max-w-xs p-4 relative">
-            <button
-              onClick={() => setShowOptions(false)}
-              className="absolute top-3 right-3 text-white"
-            >
-              <X size={24} />
-            </button>
-            <div className="flex flex-col space-y-4 mt-6">
-              <button className="text-red-500 text-center font-semibold">
-                Мэдээлэх
-              </button>
-              <button className="text-red-500 text-center font-semibold">
-                Дагахаа болих
-              </button>
-              <button className="text-white text-center">
-                Дуртайдаа нэмэх
-              </button>
-              <button className="text-white text-center">Пост руу очих</button>
-              <button className="text-white text-center">Хуваалцах...</button>
-              <button className="text-white text-center">Холбоос хуулах</button>
-              <button className="text-white text-center">Embed</button>
-              <button className="text-white text-center">
-                Энэ хаягийн тухай
-              </button>
-              <button
-                onClick={() => setShowOptions(false)}
-                className="text-white text-center font-semibold mt-2"
-              >
-                Цуцлах
-              </button>
-            </div>
-          </div>
-        </div>
+        <div
+          className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center"
+          onClick={() => setShowOptions(false)}
+        ></div>
       ) : (
         <div className="bg-black rounded-md overflow-hidden">
           <div className="flex items-center justify-between py-3 px-4">
             <div className="flex items-center gap-4">
+              {/* Avatar Hover */}
+              <div
+                className="relative"
+                onMouseEnter={() => setIsHoveringAvatar(true)}
+                onMouseLeave={() => setIsHoveringAvatar(false)}
+              >
+                <Avatar className="w-[32px] h-[32px]">
+                  <AvatarImage
+                    src={userId.avatarImage || "/img/default-avatar.png"}
+                  />
+                  <AvatarFallback>
+                    <User />
+                  </AvatarFallback>
+                </Avatar>
 
-              <div className="w-8 h-8 bg-gray-500 rounded-full">
-                {userId ? (
-                  <Avatar className="w-[32px] h-[32px]">
-                    <AvatarImage
-                      src={userId.avatarImage || "/img/default-avatar.png"}
+                {isHoveringAvatar && (
+                  <div className="absolute top-full left-0 z-50">
+                    <HoverProfileCard
+                      user={userId}
+                      // currentUserId="CURRENT_USER_ID"
                     />
-                    <AvatarFallback>
-                      <User />
-                    </AvatarFallback>
-                  </Avatar>
-                ) : (
-                  <Avatar className="w-[32px] h-[32px]">
-                    <AvatarImage src="/img/default-avatar.png" />
-                    <AvatarFallback>
-                      <User />
-                    </AvatarFallback>
-                  </Avatar>
+                  </div>
                 )}
-                {/* <Image
-                  src={userId.avatarImage || "/img/default-avatar.png"}
-                  alt={`${userId.username}-н профайлын зураг`}
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                /> */}
               </div>
 
-              {userId ? (
-                <span className="text-white text-sm font-medium">
-                  {userId.username}
-                </span>
-              ) : (
-                <span className="text-white text-sm font-medium text-gray-400">
-                  @unknown
-                </span>
-              )}
+              <div
+                className="relative inline-block"
+                onMouseEnter={() => setIsHoveringName(true)}
+                onMouseLeave={() => setIsHoveringName(false)}
+              >
+                {userId ? (
+                  <span className="text-white text-sm font-medium cursor-pointer">
+                    {userId.username}
+                  </span>
+                ) : (
+                  <span className="text-white text-sm font-medium text-gray-400">
+                    @unknown
+                  </span>
+                )}
+
+                {isHoveringName && (
+                  <div className="absolute top-full mt-2 z-50">
+                    <HoverProfileCard
+                      user={userId}
+                      // currentUserId="CURRENT_USER_ID"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-            <button
-              className="text-white text-lg"
-              onClick={() => setShowOptions(true)}
-            >
-              •••
-            </button>
           </div>
 
           <div className="relative w-full aspect-[4/5] bg-black overflow-hidden">
             <Image
               src={imageUrl}
-              alt={`Постын зураг: ${userId?.username || "Тодорхойгүй хэрэглэгч"
-                }`}
-              width={468}
-              height={585}
+              alt={`Постын зураг: ${
+                userId?.username || "Тодорхойгүй хэрэглэгч"
+              }`}
+              layout="fill"
+              objectFit="cover"
+              objectPosition="center"
               className=""
             />
           </div>
@@ -606,8 +576,9 @@ export function PostCard({
             <div className="flex items-center gap-4">
               <Heart
                 onClick={handleLike}
-                className={`cursor-pointer ${liked ? "text-red-500 fill-red-500" : "text-white"
-                  }`}
+                className={`cursor-pointer ${
+                  liked ? "text-red-500 fill-red-500" : "text-white"
+                }`}
               />
               <MessageCircle
                 className="text-white cursor-pointer"
@@ -634,7 +605,21 @@ export function PostCard({
           </div>
 
           <div className="text-sm text-white px-4 pt-1">
-            <span className="font-semibold">{userId.username}</span>{" "}
+            <div
+              className="relative inline-block"
+              onMouseEnter={() => setIsHoveringAvatar(true)}
+              onMouseLeave={() => setIsHoveringAvatar(false)}
+            >
+              <span className="font-semibold">{userId.username}</span>{" "}
+              {isHoveringName && (
+                <div className="absolute top-full mt-2 z-50">
+                  <HoverProfileCard
+                    user={userId}
+                    // currentUserId="CURRENT_USER_ID"
+                  />
+                </div>
+              )}
+            </div>
             {showFullCaption ? fullCaption : shortCaption}
             {fullCaption.length > 100 && (
               <button
@@ -652,7 +637,7 @@ export function PostCard({
           >
             {comments.length > 0
               ? `View all ${comments.length} comments`
-              : "Коммент байхгүй"}
+              : "No comments"}
           </div>
 
           <div className="flex items-center px-4 pt-3 pb-3 border-b border-neutral-800">
@@ -664,13 +649,13 @@ export function PostCard({
                 onChange={(e) => setComment(e.target.value)}
                 className="bg-transparent text-white text-sm flex-1 outline-none placeholder-gray-500"
               />
-              <button
+              {/* <button
                 type="submit"
                 disabled={!comment.trim()}
                 className="ml-2 text-white text-lg disabled:text-gray-500"
               >
                 Send
-              </button>
+              </button> */}
             </form>
           </div>
         </div>
