@@ -454,9 +454,7 @@ export function PostCard({
                           </p>
                         </div>
                       </div>
-                      <button className="text-gray-400 hover:text-white">
-                        
-                      </button>
+                      <button className="text-gray-400 hover:text-white"></button>
                     </div>
                   ))
                 )}
@@ -502,39 +500,10 @@ export function PostCard({
         </div>
       ) : showOptions ? (
         /* OPTIONS MODAL */
-        <div className="bg-opacity-70 flex items-center justify-center z-50">
-          <div className="bg-neutral-800 border-t rounded-lg w-full max-w-xs p-4 relative">
-            {/* Close button */}
-            <button
-              onClick={() => setShowOptions(false)}
-              className="absolute top-3 right-3 text-white"
-            >
-              <X size={24} />
-            </button>
-
-            <div className="flex flex-col space-y-4 mt-6">
-              <button className="text-red-500 text-center font-semibold">
-                Report
-              </button>
-              <button className="text-red-500 text-center font-semibold">
-                Unfollow
-              </button>
-              <button className="text-white text-center">
-                Add to favorites
-              </button>
-              <button className="text-white text-center">Go to post</button>
-              <button className="text-white text-center">
-                About this account
-              </button>
-              <button
-                onClick={() => setShowOptions(false)}
-                className="text-white text-center"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <div
+          className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center"
+          onClick={() => setShowOptions(false)}
+        ></div>
       ) : (
         <div className="bg-black rounded-md overflow-hidden">
           <div className="flex items-center justify-between py-3 px-4">
@@ -590,12 +559,6 @@ export function PostCard({
                 )}
               </div>
             </div>
-            <button
-              className="text-white text-lg"
-              onClick={() => setShowOptions(true)}
-            >
-              •••
-            </button>
           </div>
 
           <div className="relative w-full aspect-[4/5] bg-black overflow-hidden">
