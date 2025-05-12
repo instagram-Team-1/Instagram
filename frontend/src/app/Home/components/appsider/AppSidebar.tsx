@@ -7,6 +7,7 @@ import MesageButtonPanel from "./_components/MessageButtonPanel";
 import SearchButtonPanel from "./_components/SearchButtonPanel";
 import AppSidebarMenu from "./_components/AppSidebarMenu";
 import { useRouter } from "next/navigation";
+import { API } from "@/utils/api";
 
 
 export function AppSidebar() {
@@ -42,7 +43,7 @@ const router = useRouter()
     setActivePanel((prev) => (prev === panel ? "none" : panel));
   };
 if (activePanel === 'messages') {
-  router.push('http://localhost:3000/Home/message')
+  router.push(API+'/Home/message')
 }
   return (
     <div className="flex h-screen z-40 ">
