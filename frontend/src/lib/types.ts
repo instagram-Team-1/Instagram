@@ -73,3 +73,20 @@ export type Post = {
   createdAt: string;
   updatedAt: string;
 };
+
+export interface User {
+  _id: string;
+  username: string;
+  avatarImage?: string;
+  posts: Post[];
+  followers: number | any[];
+  following: number | any[];
+}
+
+
+export interface Comment {
+  comment: string;
+  user: {
+    username: string;
+  };
+}
