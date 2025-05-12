@@ -23,12 +23,11 @@ const createAccount = async (req: Request, res: Response) => {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(preUser.password, 10);
 
     const newUser = await User.create({
       username: preUser.username,
       fullname: preUser.fullname,
-      password: hashedPassword,
+      password: preUser.password,
       email: preUser.email,
       avatarImage:
         "https://res.cloudinary.com/dvfl0oxmj/image/upload/v1746372697/gbbju93p0xiwunwz8hie.gif",
