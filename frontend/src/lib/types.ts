@@ -36,3 +36,9 @@ export interface Story {
   isLive?: boolean;
   timestamp: string;
 }
+
+export interface HighlightType {
+  id: string;
+  title: string;
+  // stories: Story[];
+}
