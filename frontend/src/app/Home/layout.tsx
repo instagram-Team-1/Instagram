@@ -7,8 +7,6 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/appsider/AppSidebar";
 import { ThemeProvider } from "./components/Theme-provider";
 
-
-
 type DecodedToken = {
   userId: string;
   exp: number;
@@ -53,7 +51,6 @@ export default function HomeLayout({
   if (loading) return <p>Loading...</p>;
   return (
     <>
-    <userContext.Provider value={userData}>
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
@@ -66,7 +63,6 @@ export default function HomeLayout({
           {children}
         </SidebarProvider>
       </ThemeProvider>
-      </userContext.Provider>
     </>
   );
 }
