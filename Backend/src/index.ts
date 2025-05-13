@@ -28,7 +28,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://instagramm-eta.vercel.app"],
+    origin: ["http://localhost:3000", "https://newinstagram-theta.vercel.app"],
   })
 );
 
@@ -61,7 +61,7 @@ app.use("/api/chat", chatRoute)
 // Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://instagramm-eta.vercel.app"],
+    origin: ["http://localhost:3000", "https://newinstagram-theta.vercel.app"],
     methods: ["GET", "POST"],
     credentials: true,
   },
