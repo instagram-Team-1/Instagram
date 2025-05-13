@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { API } from "@/utils/api";
-import { StoryViewer } from "@/components/stories/_components/StoryViewer";
+import { StoryViewer } from "./Storyviewo";
 
 type User = {
   _id: string;

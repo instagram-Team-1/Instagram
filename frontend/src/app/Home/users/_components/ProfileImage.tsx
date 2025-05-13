@@ -4,10 +4,13 @@ import { log } from "console";
 
 type Props = {
   user: UserDataType;
+  currentUserId: string;
+  storyGroup?: any;
 };
 
 export default function ProfileImage({ user }: Props) {
-  const DEFAULT_IMAGE = "https://i.pinimg.com/originals/0f/78/5d/0f785d55cea2a407ac8c1d0c6ef19292.jpg";
+  const DEFAULT_IMAGE =
+    "https://i.pinimg.com/originals/0f/78/5d/0f785d55cea2a407ac8c1d0c6ef19292.jpg";
 
   const imageUrl = user.avatarImage;
 
@@ -26,4 +29,3 @@ export default function ProfileImage({ user }: Props) {
     </div>
   );
 }
-

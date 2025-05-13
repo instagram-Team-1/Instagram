@@ -24,9 +24,7 @@ interface Post {
 }
 
 const PostAndSave = () => {
-  const [selectedTab, setSelectedTab] = useState<"posts" | "saved" | "tagged">(
-      "posts"
-    );
+  const [selectedTab, setSelectedTab] = useState<"posts" | "saved">("posts");
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
@@ -38,11 +36,9 @@ const PostAndSave = () => {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [UserId, setUserId] = useState<string | null>(null);
 
-
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    
     if (!token) {
       setError("No token found. Please log in.");
       setLoading(false);
@@ -53,8 +49,7 @@ const PostAndSave = () => {
       const decoded = jwtDecode<UserDataType & DecodedToken>(token);
       setTokenData(decoded);
       setUsername(decoded.username);
-      setUserId(decoded.id)
-      
+      setUserId(decoded.id);
     } catch (err) {
       console.error("Invalid token:", err);
       setError("Invalid token. Please log in again.");
@@ -64,17 +59,15 @@ const PostAndSave = () => {
 
   useEffect(() => {
     if (!tokenData?.id) return;
-  
 
     const fetchSavedPosts = async () => {
       try {
         setLoading(true);
-        
-        
+
         const response = await axios.get(
           `${API}/api/getSavePost/${tokenData.id}`
         );
-          console.log("Saved posts:", response.data.savedPosts);
+        console.log("Saved posts:", response.data.savedPosts);
         setSavedPosts(response.data.savedPosts);
         console.log("Saved posts:", response.data.savedPosts);
       } catch (err) {
@@ -145,19 +138,6 @@ const PostAndSave = () => {
           }`}
         >
           <p className="mt-[20px]">Saved</p>
-        </button>
-
-        <button
-          role="tab"
-          aria-selected={selectedTab === "tagged"}
-          onClick={() => setSelectedTab("tagged")}
-          className={`text-[16px] font-medium ${
-            selectedTab === "tagged"
-              ? "text-white border-t border-t-[var(--foreground)]"
-              : "text-gray-500 hover:text-white hover:border-t border-t-transparent"
-          }`}
-        >
-          <p className="mt-[20px]">Tagged</p>
         </button>
       </div>
 

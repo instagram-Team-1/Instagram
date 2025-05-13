@@ -112,7 +112,7 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
   }, [userId?.id]);
 
   return (
-    <div className="flex gap-1 overflow-x-auto py-4 px-4 scrollbar-hide">
+    <div className="flex gap-1 bg-white dark:text-black dark:bg-black overflow-x-auto py-4 px-4 scrollbar-hide">
       {stories.length > 0 && (
         <AddStoryButton
           username={username?.username || "Username"}

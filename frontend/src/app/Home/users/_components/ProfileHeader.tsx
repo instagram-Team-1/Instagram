@@ -19,21 +19,29 @@ type Props = {
   onUserDataUpdate?: (user: UserDataType) => void;
 };
 
-export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }: Props) {
-  const [isFollowing, setIsFollowing] = useState<boolean>(user.followers?.some(f => f === currentUserId) || false);
+export default function ProfileHeader({
+  user,
+  currentUserId,
+  onUserDataUpdate,
+}: Props) {
+  const [isFollowing, setIsFollowing] = useState<boolean>(
+    user.followers?.some((f) => f === currentUserId) || false
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [modalUsers, setModalUsers] = useState<{ _id: string; username: string }[]>([]);
-  const [modalType, setModalType] = useState<"followers" | "following" | null>(null);
+  const [modalUsers, setModalUsers] = useState<
+    { _id: string; username: string }[]
+  >([]);
+  const [modalType, setModalType] = useState<"followers" | "following" | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState<{
-      _id?: string;
-      avatarImage?: string;
-      followers?: string[];
-      following?: string[];
-      posts?: string[];
-    } | null>(null);
-
-
+    _id?: string;
+    avatarImage?: string;
+    followers?: string[];
+    following?: string[];
+    posts?: string[];
+  } | null>(null);
 
   const router = useRouter();
 
@@ -66,50 +74,53 @@ export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }:
     }
   };
 
-const createChatRoom = async () => {
-  const storedData = localStorage.getItem("userInfo");
-  let myId = null;
-  let myUsername = "";
+  const createChatRoom = async () => {
+    const storedData = localStorage.getItem("userInfo");
+    let myId = null;
+    let myUsername = "";
 
-  if (storedData) {
-    const parsedData = JSON.parse(storedData);
-    myId = parsedData.userId?.id;
-    myUsername = parsedData.username?.username;
-  }
-
-  if (!myId || !myUsername) {
-    toast.error("User information not found. Please login.");
-    return;
-  }
-
-  const selectedUsers = [
-    { name: user.username, id: user._id },
-    { name: myUsername, id: myId },
-  ];
-  console.log("Selected Users:", selectedUsers);
-
-  try {
-    const checkRoomRes = await axios.post(`${API}/api/chat/checkRoom`, { selectedUsers });
-    console.log("Check Room Response:", checkRoomRes.data);
-
-    if (checkRoomRes.data.roomExists) {
-      console.log("Room exists");
-      router.push(`/Home/actualRoom/${checkRoomRes.data.roomId}`);
-    } else {
-      const createRoomRes = await axios.post(`${API}/api/auth/Room`, { selectedUsers });
-      console.log("Create Room Response:", createRoomRes.data);
-
-      if (createRoomRes.data.message === "Room created successfully") {
-        console.log("Room created successfully");
-        router.push(`/Home/actualRoom/${createRoomRes.data.roomId}`);
-      }
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      myId = parsedData.userId?.id;
+      myUsername = parsedData.username?.username;
     }
-  } catch (error) {
-    console.error("Error handling chat room:", error);
-    toast.error("Failed to handle chat room.");
-  }
-};
 
+    if (!myId || !myUsername) {
+      toast.error("User information not found. Please login.");
+      return;
+    }
+
+    const selectedUsers = [
+      { name: user.username, id: user._id },
+      { name: myUsername, id: myId },
+    ];
+    console.log("Selected Users:", selectedUsers);
+
+    try {
+      const checkRoomRes = await axios.post(`${API}/api/chat/checkRoom`, {
+        selectedUsers,
+      });
+      console.log("Check Room Response:", checkRoomRes.data);
+
+      if (checkRoomRes.data.roomExists) {
+        console.log("Room exists");
+        router.push(`/Home/actualRoom/${checkRoomRes.data.roomId}`);
+      } else {
+        const createRoomRes = await axios.post(`${API}/api/auth/Room`, {
+          selectedUsers,
+        });
+        console.log("Create Room Response:", createRoomRes.data);
+
+        if (createRoomRes.data.message === "Room created successfully") {
+          console.log("Room created successfully");
+          router.push(`/Home/actualRoom/${createRoomRes.data.roomId}`);
+        }
+      }
+    } catch (error) {
+      console.error("Error handling chat room:", error);
+      toast.error("Failed to handle chat room.");
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -130,7 +141,7 @@ const createChatRoom = async () => {
       <div className="text-[20px] font-normal flex flex-row items-center gap-[8px]">
         <div>{user.username}</div>
         <Button
-          className={`${isFollowing ? 'bg-gray-200' : 'bg-blue-400'} text-white`}
+          className={`${isFollowing ? "bg-gray-200" : "bg-blue-400"} text-white`}
           onClick={handleFollow}
           disabled={isLoading || currentUserId === user._id}
         >
@@ -142,7 +153,11 @@ const createChatRoom = async () => {
             "Follow"
           )}
         </Button>
-        <Button variant="secondary" className="hover:bg-gray-200" onClick={createChatRoom}>
+        <Button
+          variant="secondary"
+          className="hover:bg-gray-200"
+          onClick={createChatRoom}
+        >
           Message
         </Button>
       </div>

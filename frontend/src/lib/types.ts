@@ -14,6 +14,7 @@ export type UserDataType = {
   createdAt: Date;
   updatedAt: Date;
   isPrivate: boolean;
+  storyGroup?: string[];
 };
 
 export type PostType = {
@@ -93,5 +94,17 @@ export interface Comment {
 export type HighlightType = {
   id: string;
   title: string;
-  stories: { _id: string; imageUrl: string }[];
+  stories: {
+    [x: string]: string | undefined;
+    _id: string;
+    image: string;
+  }[];
+};
+
+export type StoryType = {
+  [x: string]: string | undefined;
+  _id: string;
+  image: string;
+  createdAt: string;
+  archived: boolean;
 };

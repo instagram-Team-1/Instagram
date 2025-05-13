@@ -40,7 +40,6 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
 
   const userId = decoded.id;
 
-  const username = decoded.username;
   const image = decoded.avatarImage;
   const fullname = decoded.fullname;
 

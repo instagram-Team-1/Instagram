@@ -178,7 +178,7 @@ const PostCard: FC<PostCardProps> = ({
     return <p className="text-gray-400 text-sm">Ачааллаж байна...</p>;
 
   return (
-    <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-6 relative">
+    <div className="rounded-md bg-white dark:text-black dark:bg-black max-w-md mx-auto my-6 relative">
       {showShareModal && (
         <ShareModal onClose={() => setShowShareModal(false)} />
       )}
@@ -198,7 +198,7 @@ const PostCard: FC<PostCardProps> = ({
           comment={comment}
         />
       )}
-      <div className="bg-black rounded-md overflow-hidden">
+      <div className="bg-white text-black dark:bg-black  rounded-md overflow-hidden">
         <PostHeader user={userId} />
         <PostImage imageUrl={imageUrl} username={userId.username} />
         <PostActions
@@ -209,10 +209,12 @@ const PostCard: FC<PostCardProps> = ({
           onShare={() => setShowShareModal(true)}
           onSave={toggleSave}
         />
-        <div className="text-sm text-white px-4 pt-2 font-semibold">
+        <div className="text-sm text-black dark:text-white px-4 pt-2 font-semibold">
           {likesCount.toLocaleString()} likes
         </div>
+
         <PostCaption caption={caption} username={userId.username} />
+
         <div
           className="text-sm text-gray-400 px-4 pt-1 cursor-pointer"
           onClick={() => setShowComments(true)}

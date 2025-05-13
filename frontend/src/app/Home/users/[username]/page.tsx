@@ -1,10 +1,11 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { API } from "@/utils/api";
 import { UserDataType, PostType } from "@/lib/types";
-import { useRouter } from "next/navigation";
+import { jwtDecode } from "jwt-decode";
 
 import ProfileImage from "../_components/ProfileImage";
 import ProfileHeader from "../_components/ProfileHeader";
@@ -12,11 +13,11 @@ import ProfileHighlights from "../_components/ProfileHighlights";
 import ProfileTabs from "../_components/ProfileTabs";
 import ProfileFooter from "../_components/ProfileFooter";
 import PostsGrid from "../../profile/_components/PostsGrid";
-import { jwtDecode } from "jwt-decode";
-import { FollowerType } from "@/lib/types";
 
 export default function ProfilePage() {
   const { username } = useParams();
+  const router = useRouter();
+
   const [userPosts, setUserPosts] = useState<PostType[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [showHighlightModal, setShowHighlightModal] = useState(false);
@@ -92,53 +93,6 @@ export default function ProfilePage() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!user) return <div>User not found</div>;
-  const router = useRouter()
-  // const createChatRoom = async () => {
-  //   const storedData = localStorage.getItem("userInfo");
-  //   let myId = null;
-  //   let myUsername = "";
-  
-  //   if (storedData) {
-  //     const parsedData = JSON.parse(storedData);
-  //     myId = parsedData.userId?.id;
-  //     myUsername = parsedData.username?.username;
-  //   }
-  
-  //   if (!myId || !myUsername) {
-  //    console.log('user not found');
-     
-  //     return;
-  //   }
-  
-  //   const selectedUsers = [
-  //     { name: user.username, id: user._id },
-  //     { name: myUsername, id: myId },
-  //   ];
-  //   console.log("Selected Users:", selectedUsers);
-  
-  //   try {
-  //     const checkRoomRes = await axios.post(`${API}/api/chat/checkRoom`, { selectedUsers });
-  //     console.log("Check Room Response:", checkRoomRes.data);
-  
-  //     if (checkRoomRes.data.roomExists) {
-  //       console.log("Room exists");
-  //       router.push(`/Home/actualRoom/${checkRoomRes.data.roomId}`);
-  //     } else {
-  //       const createRoomRes = await axios.post(`${API}/api/auth/Room`, { selectedUsers });
-  //       console.log("Create Room Response:", createRoomRes.data);
-  
-  //       if (createRoomRes.data.message === "Room created successfully") {
-  //         console.log("Room created successfully");
-  //         router.push(`/Home/actualRoom/${createRoomRes.data.roomId}`);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error handling chat room:", error);
-  //     console.log('error');
-      
-  //   }
-  // };
-  console.log(user.followers, "followers");
 
   const isOwnProfile = user?.id === userId?.id;
   const canViewPosts =
@@ -151,7 +105,11 @@ export default function ProfilePage() {
       <div className="w-[935px] h-full px-[20px] pt-[30px] flex flex-col">
         <div className="flex flex-col gap-[30px]">
           <div className="flex flex-row">
-            <ProfileImage user={user} />
+            <ProfileImage
+              user={user}
+              currentUserId={userId?.id || ""}
+              storyGroup={user.storyGroup || null}
+            />
             <ProfileHeader
               user={user}
               currentUserId={userId?.id || ""}

@@ -4,8 +4,8 @@ import axios from "axios";
 import { API } from "@/utils/api";
 import { StoryView } from "@/components/stories/_components/story-view";
 import { Pause, Play, MoreVertical } from "lucide-react";
-import { ProgressBar } from "./_components/ProgressBar";
-import { NavigationArrows } from "./_components/NavigationArrows";
+import { ProgressBar } from "@/components/stories/_components/_components/ProgressBar";
+import { NavigationArrows } from "@/components/stories/_components/_components/NavigationArrows";
 
 type StoryViewerProps = {
   storyGroup: GroupedStory;
