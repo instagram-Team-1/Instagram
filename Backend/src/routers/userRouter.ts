@@ -14,13 +14,8 @@ userRouter.get("/search", searchUser);
 userRouter.get("/:id", getUsers);
 userRouter.get("/", getUsers);
 userRouter.put("/update/:id", updateUser);
-userRouter.get("/username/:username", getUserByUsername)
+userRouter.get("/username/:username", getUserByUsername);
 userRouter.get("/feed/:id", getFeedPosts);
-// saved postiin hesg
-
-
 userRouter.get("/ConvertUsername/:userId", convertUserIdToUsername);
-
-
 
 export default userRouter
