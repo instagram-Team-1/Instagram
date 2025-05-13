@@ -1,108 +1,24 @@
-"use client";
+// FeedPage.tsx
+"use client"
 
-import { useEffect, useState } from "react";
+import { useFeed } from "./Context/FeedPage";
 import PostCard from "@/components/PostCard/post-card";
 import { SuggestionsSidebar } from "@/components/Suggestions/suggested-sidebar";
-import { API } from "@/utils/api";
-import { getUserIdFromToken } from "@/utils/TokenParse";
-import { StoriesBar } from "@/components/stories/story";
-import axios from "axios";
-
-// Постын төрөл тодорхойлох
-type Post = {
-  imageUrl: string;
-  _id: string;
-  image: string;
-  caption: string;
-  userId: {
-    _id: string;
-    username: string;
-    avatarImage: string;
-    posts: never[];
-    followers: number;
-    following: number;
-  };
-  likes: number | string;
-  comments: {
-    userId: string;
-    comment: string;
-    createdAt: string;
-    _id: string;
-  }[];
-  createdAt: string;
-};
+import { StoriesBar } from "./components/stories/story";
 
 export default function FeedPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [userId, setId] = useState<{ id: string } | null>(null);
-  const [username, setusername] = useState<{ username: string } | null>(null);
+  const data = useFeed();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const parsedToken = getUserIdFromToken(token);
+  if (!data) return <div>Loading...</div>;
 
-    if (parsedToken?.id) {
-      setId({ id: parsedToken.id });
-    } else {
-      setId(null);
-    }
-
-    
-  }, []);
-
-  useEffect(() => {
-    const fetchUsername = async () => {
-      try {
-        if (userId?.id) {
-          const res = await axios.get(
-            API+`/api/users/ConvertUsername/${userId.id}`
-          );
-          setusername({ username: res.data.username });
-        }
-      } catch (err) {
-        console.error("Failed to get username:", err);
-      }
-    };
-
-    fetchUsername();
-  }, [userId]);
-  
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      if (!userId?.id) {
-        console.warn("Cannot fetch posts: userId is null");
-        return;
-      }
-
-      try {
-        const res = await fetch(API + `/api/users/feed/${userId.id}`);
-
-        if (!res.ok) {
-          throw new Error(`Server returned ${res.status}`);
-        }
-
-        const data = await res.json();
-
-        const processedPosts = data.map((post: Post) => ({
-          ...post,
-          likes: Array.isArray(post.likes) ? post.likes.length : post.likes,
-        }));
-
-        setPosts(processedPosts);
-      } catch (error) {
-        console.error("Failed to fetch posts:", error);
-      }
-    };
-
-    fetchPosts();
-    localStorage.setItem('userInfo', JSON.stringify({ userId, username }));
-  }, [userId]);
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
       <div className="w-full max-w-[630px]">
-        <StoriesBar userId={userId} username={username} />
-        {posts.map((post) => (
+        <StoriesBar
+          userId={{ id: data.userId }}
+          username={{ username: data.username }}
+        />
+        {data.posts.map((post) => (
           <PostCard
             key={post._id}
             imageUrl={post.imageUrl}
@@ -112,24 +28,24 @@ export default function FeedPage() {
                 : "No caption provided"
             }
             userId={post.userId}
-            likes={
-              typeof post.likes === "string"
-                ? parseInt(post.likes, 10)
-                : post.likes || 0
-            }
+            likes={post.likes || 0}
             comments={post.comments || []}
             postId={post._id}
-            currentUserId={userId?.id || ""}
-            currentUserUsername={username?.username || ""}
+            currentUserId={data.userId}
+            currentUserUsername={data.username}
           />
         ))}
       </div>
 
       <div className="hidden lg:block w-[320px] pl-10 pt-8">
         <div className="sticky top-20">
-          <SuggestionsSidebar username={username ? { username: username.username } : null} />
+          <SuggestionsSidebar username={{ username: data.username }} />
         </div>
       </div>
     </div>
   );
 }
+
+// _app.tsx буюу layout.tsx эсвэл app/providers.tsx -д:
+// <FeedProvider> компонентоо wrapper болгож оруулаарай
+// <FeedProvider><HomeLayout>{children}</HomeLayout></FeedProvider>
