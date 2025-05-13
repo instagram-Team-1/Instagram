@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { API } from "@/utils/api";
-
+import { userContext } from "../../layout";
+import ChatSkeleton from "./chatSkeleton";
 type Participant = {
   avatarImage: string;
   name: string;
@@ -16,15 +17,9 @@ type Chat = {
   participants: Participant[];
 };
 
-type User = {
-  userId: {
-    id: string;
-  };
-};
-
 const Msgs = () => {
   const router = useRouter();
-  const [userId, setUserId] = useState<string | null>(null);
+  const context = useContext(userContext);
   const [allChats, setAllChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,26 +27,14 @@ const Msgs = () => {
   useEffect(() => {
     const fetchChats = async () => {
       try {
-        const userInfo = localStorage.getItem("userInfo");
-        if (!userInfo) {
+        if (!context || !context.id) {
           setError("User not logged in");
           setLoading(false);
           return;
         }
 
-        const storedUser = JSON.parse(userInfo) as User;
-        if (!storedUser) {
-          setError("User ID not found in localStorage");
-          setLoading(false);
-          return;
-        }
-
-        setUserId(storedUser.userId.id);
-
-        const res = await axios.get(`${API}/api/auth/chats/${storedUser.userId.id}`);
+        const res = await axios.get(`${API}/api/auth/chats/${context.id}`);
         setAllChats(res.data);
-        console.log(res.data);
-        
       } catch (err) {
         console.error("Failed to fetch chats:", err);
         setError("Failed to fetch chats");
@@ -61,7 +44,7 @@ const Msgs = () => {
     };
 
     fetchChats();
-  }, []);
+  }, [context]);
 
   const jumpTo = (id: string) => {
     router.push(`/Home/actualRoom/${id}`);
@@ -70,7 +53,7 @@ const Msgs = () => {
   return (
     <div className="flex flex-col gap-[20px] text-white">
       {loading ? (
-        <p>Loading chats...</p>
+       <ChatSkeleton/>
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : allChats.length > 0 ? (
@@ -88,7 +71,6 @@ const Msgs = () => {
                     className="w-[40px] h-[40px] border-1 border-white"
                   >
                     <AvatarImage src={user.avatarImage} />
-                    {/* <AvatarFallback>{user.name.charAt(0)}</AvatarFallback> */}
                   </Avatar>
                 ))}
               </div>
