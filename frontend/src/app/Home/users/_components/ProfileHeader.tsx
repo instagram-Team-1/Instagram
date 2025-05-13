@@ -26,12 +26,14 @@ export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }:
   const [modalType, setModalType] = useState<"followers" | "following" | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState<{
-    _id?: string;
-    avatarImage?: string;
-    followers?: string[];
-    following?: string[];
-    posts?: string[];
-  } | null>(null);
+      _id?: string;
+      avatarImage?: string;
+      followers?: string[];
+      following?: string[];
+      posts?: string[];
+    } | null>(null);
+
+
 
   const router = useRouter();
 
