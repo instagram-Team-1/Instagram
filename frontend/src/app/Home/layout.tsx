@@ -6,7 +6,8 @@ import { jwtDecode } from "jwt-decode";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/appsider/AppSidebar";
 import { ThemeProvider } from "./components/Theme-provider";
-import { FeedProvider } from "./Context/FeedPage"; // 🔥 FeedContext нэмсэн
+import { FeedProvider } from "./Context/FeedPage"; 
+import { Toaster } from "sonner";
 
 type DecodedToken = {
   userId: string;
@@ -59,6 +60,7 @@ export default function HomeLayout({
           <AppSidebar />
           <SidebarTrigger />
           {children}
+          <Toaster richColors /> {/* sonner toaster */}
         </FeedProvider>
       </SidebarProvider>
     </ThemeProvider>

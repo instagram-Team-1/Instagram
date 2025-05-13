@@ -18,6 +18,9 @@ import http from "http";
 import { Server } from "socket.io";
 import checkMsg from "./utils/auth/checkMsg";
 import savedRouter from "./routers/SaveRouter";
+import Notification from "./models/notification";
+import { User } from "./models/userModel";
+import notificationRoutes from "./routers/notification";
 
 dotenv.config();
 const app = express();
@@ -56,6 +59,7 @@ app.use("/api", storyRouter);
 app.use("/api", savedRouter);
 app.use("/api", SuggestRouter);
 app.use("/api/chat", chatRoute);
+app.use("/api/notifications", notificationRoutes);
 
 // Socket.IO
 const io = new Server(server, {
@@ -68,6 +72,8 @@ const io = new Server(server, {
 
 type RoomUsers = { [roomId: string]: string[] };
 let roomUsers: RoomUsers = {};
+
+const users = new Map();
 
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
@@ -144,6 +150,129 @@ io.on("connection", (socket) => {
             );
           }
         }
+        break;
+      }
+    }
+  });
+
+  socket.on("join-user", (userId) => {
+    socket.join(userId);
+    console.log(`User ${userId} joined personal room`);
+  });
+
+  socket.on("addUser", (userId) => {
+    users.set(userId, socket.id); // холбоод хадгална
+  });
+
+  socket.on("sendNotification", async ({ senderId, receiverId, type }) => {
+    try {
+      const senderUser = await User.findById(senderId);
+      if (!senderUser) return console.error("Sender user not found");
+
+      const username = senderUser.username;
+      const receiverSocketId = users.get(receiverId);
+
+      // -------------------- FOLLOW --------------------
+      if (type === "follow") {
+        const newNotification = new Notification({
+          senderId,
+          receiverId,
+          type,
+          message: `${username} followed you.`,
+        });
+
+        await newNotification.save();
+
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("getNotification", {
+            senderId,
+            username,
+            type,
+          });
+        }
+      }
+
+      // -------------------- UNFOLLOW --------------------
+      if (type === "unfollow") {
+        await Notification.deleteMany({
+          senderId,
+          receiverId,
+          type: "follow",
+        });
+
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("deleteNotification", {
+            senderId,
+            type: "follow",
+          });
+        }
+      }
+
+      // -------------------- LIKE --------------------
+      if (type === "like") {
+        const newNotification = new Notification({
+          senderId,
+          receiverId,
+          type,
+          message: `${username} liked your post.`,
+        });
+
+        await newNotification.save();
+
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("getNotification", {
+            senderId,
+            username,
+            type,
+            message: newNotification.message,
+          });
+        }
+      }
+
+      // -------------------- UNLIKE --------------------
+      if (type === "unlike") {
+        await Notification.deleteMany({
+          senderId,
+          receiverId,
+          type: "like",
+        });
+
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("deleteNotification", {
+            senderId,
+            type: "like",
+          });
+        }
+      }
+
+      // -------------------- COMMENT --------------------
+      if (type === "comment") {
+        const newNotification = new Notification({
+          senderId,
+          receiverId,
+          type,
+          message: `${username} commented on your post.`,
+        });
+
+        await newNotification.save();
+
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("getNotification", {
+            senderId,
+            username,
+            type,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("❌ Notification хадгалахад эсвэл устгахад алдаа:", error);
+    }
+  });
+  socket.on("disconnect", () => {
+    for (const [userId, socketId] of users.entries()) {
+      if (socketId === socket.id) {
+        users.delete(userId);
+        console.log("🔴 Хэрэглэгч салсан:", userId);
         break;
       }
     }
