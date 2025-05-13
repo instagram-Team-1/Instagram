@@ -12,13 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
 type Props = {
   user: UserDataType;
   currentUserId: string;
   onUserDataUpdate?: (user: UserDataType) => void;
 };
-
 export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }: Props) {
   const [isFollowing, setIsFollowing] = useState<boolean>(user.followers?.some(f => f === currentUserId) || false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -26,14 +24,12 @@ export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }:
   const [modalType, setModalType] = useState<"followers" | "following" | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState<{
-      _id?: string;
-      avatarImage?: string;
-      followers?: string[];
-      following?: string[];
-      posts?: string[];
-    } | null>(null);
-
-
+    _id?: string;
+    avatarImage?: string;
+    followers?: string[];
+    following?: string[];
+    posts?: string[];
+  } | null>(null);
 
   const router = useRouter();
 
@@ -70,47 +66,27 @@ const createChatRoom = async () => {
   const storedData = localStorage.getItem("userInfo");
   let myId = null;
   let myUsername = "";
-
   if (storedData) {
     const parsedData = JSON.parse(storedData);
     myId = parsedData.userId?.id;
     myUsername = parsedData.username?.username;
   }
-
   if (!myId || !myUsername) {
     toast.error("User information not found. Please login.");
     return;
   }
-
   const selectedUsers = [
     { name: user.username, id: user._id },
     { name: myUsername, id: myId },
   ];
-  console.log("Selected Users:", selectedUsers);
-
   try {
     const checkRoomRes = await axios.post(`${API}/api/chat/checkRoom`, { selectedUsers });
-    console.log("Check Room Response:", checkRoomRes.data);
-
-    if (checkRoomRes.data.roomExists) {
-      console.log("Room exists");
-      router.push(`/Home/actualRoom/${checkRoomRes.data.roomId}`);
-    } else {
-      const createRoomRes = await axios.post(`${API}/api/auth/Room`, { selectedUsers });
-      console.log("Create Room Response:", createRoomRes.data);
-
-      if (createRoomRes.data.message === "Room created successfully") {
-        console.log("Room created successfully");
-        router.push(`/Home/actualRoom/${createRoomRes.data.roomId}`);
-      }
-    }
+    router.push(`/Home/actualRoom/${checkRoomRes.data.roomId}`);
   } catch (error) {
     console.error("Error handling chat room:", error);
     toast.error("Failed to handle chat room.");
   }
 };
-
-
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -121,7 +97,6 @@ const createChatRoom = async () => {
         toast.error("Хэрэглэгчийн мэдээллийг татахад алдаа гарлаа!");
       }
     };
-
     fetchUserData();
   }, [user._id]);
 

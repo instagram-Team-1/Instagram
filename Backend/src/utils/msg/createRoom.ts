@@ -28,7 +28,7 @@ const createRoom = async (req: Request, res: Response) => {
 
 
   const newRoom = new room({
-    name: data[0].name,
+    name: 'test',
     participants: data.map((user: { id: string; name: string }) => ({
       _id: user.id,
       username: user.name,
