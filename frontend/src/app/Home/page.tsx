@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PostCard from "@/components/PostCard/post-card";
-import { SuggestionsSidebar } from "@/components/ui/suggested-sidebar";
+import { SuggestionsSidebar } from "@/components/Suggestions/suggested-sidebar";
 import { API } from "@/utils/api";
 import { getUserIdFromToken } from "@/utils/TokenParse";
 import { StoriesBar } from "@/components/stories/story";

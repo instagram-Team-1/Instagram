@@ -61,6 +61,8 @@ export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }:
         const userRes = await axios.get(`${API}/api/users/${user._id}`);
         setUserData(userRes.data);
         onUserDataUpdate?.(userRes.data); 
+
+        
         
       } catch (error: any) {
         console.error("Алдаа:", error.response?.data || error.message);
