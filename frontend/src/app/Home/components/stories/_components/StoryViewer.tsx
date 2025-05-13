@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { API } from "@/utils/api";
-import { StoryView } from "@/components/stories/_components/story-view";
+import { StoryView } from "../../../components/stories/_components/story-view";
 import { Pause, Play } from "lucide-react";
 import { ProgressBar } from "./_components/ProgressBar";
 import { NavigationArrows } from "./_components/NavigationArrows";

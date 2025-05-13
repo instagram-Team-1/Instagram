@@ -1,92 +1,30 @@
-"use client";
+// FeedPage.tsx
+"use client"
 
-import { useEffect, useState } from "react";
+import { useFeed } from "./Context/FeedPage";
 import PostCard from "@/components/PostCard/post-card";
-import { SuggestionsSidebar } from "@/components/ui/suggested-sidebar";
-import { API } from "@/utils/api";
-import { getUserIdFromToken } from "@/utils/TokenParse";
-import { StoriesBar } from "@/components/stories/story";
-
-// Постын төрөл тодорхойлох
-type Post = {
-  imageUrl: string;
-  _id: string;
-  image: string;
-  caption: string;
-  userId: {
-    _id: string;
-    username: string;
-    avatarImage: string;
-    posts: never[];
-    followers: number;
-    following: number;
-  };
-  likes: number | string;
-  comments: {
-    userId: string;
-    comment: string;
-    createdAt: string;
-    _id: string;
-  }[];
-  createdAt: string;
-};
+import { SuggestionsSidebar } from "@/components/Suggestions/suggested-sidebar";
+import { StoriesBar } from "./components/stories/story";
 
 export default function FeedPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [userId, setId] = useState<{ id: string } | null>(null);
-  const [username, setusername] = useState<{ username: string } | null>(null);
+  const data = useFeed();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const parsedToken = getUserIdFromToken(token);
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center min-h-screen w-full">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
-    if (parsedToken?.id) {
-      setId({ id: parsedToken.id });
-    } else {
-      setId(null);
-    }
-    if (parsedToken?.username) {
-      setusername({ username: parsedToken.username });
-    } else {
-      setusername(null);
-    }
-  }, []);
-  
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      if (!userId?.id) {
-        console.warn("Cannot fetch posts: userId is null");
-        return;
-      }
-
-      try {
-        const res = await fetch(API + `/api/users/feed/${userId.id}`);
-
-        if (!res.ok) {
-          throw new Error(`Server returned ${res.status}`);
-        }
-
-        const data = await res.json();
-
-        const processedPosts = data.map((post: Post) => ({
-          ...post,
-          likes: Array.isArray(post.likes) ? post.likes.length : post.likes,
-        }));
-
-        setPosts(processedPosts);
-      } catch (error) {
-        console.error("Failed to fetch posts:", error);
-      }
-    };
-
-    fetchPosts();
-  }, [userId]);
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
       <div className="w-full max-w-[630px]">
-        <StoriesBar userId={userId} username={username} />
-        {posts.map((post) => (
+        <StoriesBar
+          userId={{ id: data.userId }}
+          username={{ username: data.username }}
+        />
+        {data.posts.map((post) => (
           <PostCard
             key={post._id}
             imageUrl={post.imageUrl}
@@ -96,24 +34,22 @@ export default function FeedPage() {
                 : "No caption provided"
             }
             userId={post.userId}
-            likes={
-              typeof post.likes === "string"
-                ? parseInt(post.likes, 10)
-                : post.likes || 0
-            }
+            likes={post.likes || 0}
             comments={post.comments || []}
             postId={post._id}
-            currentUserId={userId?.id || ""}
-            currentUserUsername={username?.username || ""}
+            currentUserId={data.userId}
+            currentUserUsername={data.username}
           />
         ))}
       </div>
 
       <div className="hidden lg:block w-[320px] pl-10 pt-8">
         <div className="sticky top-20">
-          <SuggestionsSidebar />
+          <SuggestionsSidebar username={{ username: data.username }} />
         </div>
       </div>
     </div>
   );
 }
+
+

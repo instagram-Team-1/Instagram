@@ -9,7 +9,6 @@ export default function ProfileImage({ user }: Props) {
   const DEFAULT_IMAGE = "https://i.pinimg.com/originals/0f/78/5d/0f785d55cea2a407ac8c1d0c6ef19292.jpg";
 
   const imageUrl = user.avatarImage;
-  console.log(imageUrl);
 
   return (
     <div className="w-[283.67px] h-[181px] flex items-center justify-center">

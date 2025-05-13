@@ -8,13 +8,13 @@ import PostCommentInput from "./PostCommentInput";
 
 interface Comment {
   comment: string;
-  user: { 
+  user: {
     username: string;
-    avatarImage?:string; 
+    avatarImage?: string; // → нэмэгдүүлсэн хэсэг
   };
 }
 
-interface CommentModalProps {
+interface SharedPostProps {
   imageUrl: string;
   user: { username: string; avatarImage?: string };
   caption: string;
@@ -29,7 +29,7 @@ interface CommentModalProps {
   comment: string;
 }
 
-const CommentModal: FC<CommentModalProps> = ({
+const SharedPost: FC<SharedPostProps> = ({
   imageUrl,
   user,
   caption,
@@ -50,7 +50,7 @@ const CommentModal: FC<CommentModalProps> = ({
   const toggleCaption = () => setShowFullCaption((prev) => !prev);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+    <div className="fixed inset-0  bg-opacity-90 flex items-center justify-center ">
       <div className="bg-black rounded-lg overflow-hidden flex w-[90%] max-w-6xl h-[80%]">
         <div className="w-1/2 relative bg-black">
           <Image
@@ -75,9 +75,6 @@ const CommentModal: FC<CommentModalProps> = ({
                 {user.username}
               </span>
             </div>
-            <button onClick={onClose} className="text-white text-2xl">
-              ✕
-            </button>
           </div>
           <div className="flex gap-3 items-center px-6 py-3 text-white text-sm border-b border-neutral-800">
             <Avatar className="w-[32px] h-[32px]">
@@ -157,4 +154,4 @@ const CommentModal: FC<CommentModalProps> = ({
   );
 };
 
-export default CommentModal;
+export default SharedPost;

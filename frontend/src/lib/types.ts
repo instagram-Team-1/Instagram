@@ -83,10 +83,15 @@ export interface User {
   following: number | any[];
 }
 
-
 export interface Comment {
   comment: string;
   user: {
     username: string;
   };
 }
+
+export type HighlightType = {
+  id: string;
+  title: string;
+  stories: { _id: string; imageUrl: string }[];
+};

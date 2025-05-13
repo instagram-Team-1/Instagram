@@ -21,16 +21,14 @@ export const NewMessageDialog = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    const stored = localStorage.getItem('id');
-    try {
-      const parsed = stored ? JSON.parse(stored) : null;
-      const id = typeof parsed === 'object' && parsed?.id ? parsed.id : stored;
-      setCurrentUserId(id);
-    } catch {
-      setCurrentUserId(stored);
-    }
-  }, []);
+   useEffect(() => {
+      const userIdFromStorage = JSON.parse(localStorage.getItem("userInfo") || "{}");  
+      if (userIdFromStorage && userIdFromStorage.userId) {
+        setCurrentUserId(userIdFromStorage.userId.id);
+      } else {
+        console.log("User not logged in or userId not found in localStorage");
+      }
+    }, []);
 
   useEffect(() => {
     if (currentUserId) {

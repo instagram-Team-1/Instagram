@@ -5,32 +5,25 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Settings, Heart, CircleUserRound, AlignJustify } from "lucide-react";
 import {
-    Settings,
-    Heart,
-    CircleUserRound,
-    AlignJustify,
-  } from "lucide-react";
-  import {
-
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-  } from "@/components/ui/sidebar";
-  import { DarkModeButton } from "../../DarkModeButton";
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { DarkModeButton } from "../../DarkModeButton";
 
 function MoreButtonPopover() {
+  const router = useRouter();
 
-    const router = useRouter();
-
-    const logout = async () => {
-        try {
-          localStorage.removeItem("token");
-          router.push("/login");
-        } catch (error) {
-          console.error("Logout failed:", error);
-        }
-      };
+  const logout = async () => {
+    try {
+      localStorage.removeItem("token");
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <div>
@@ -53,16 +46,6 @@ function MoreButtonPopover() {
                 <button className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 w-full text-left">
                   <Settings size={20} />
                   <span>Settings</span>
-                </button>
-
-                <button className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 w-full text-left">
-                  <Heart size={20} />
-                  <span>Saved</span>
-                </button>
-
-                <button className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 w-full text-left">
-                  <CircleUserRound size={20} />
-                  <span>Switch account</span>
                 </button>
 
                 <div className="flex items-center gap-2">
