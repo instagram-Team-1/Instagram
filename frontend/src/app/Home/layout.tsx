@@ -1,4 +1,3 @@
-// app/home/layout.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,8 +6,9 @@ import { jwtDecode } from "jwt-decode";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/appsider/AppSidebar";
 import { ThemeProvider } from "./components/Theme-provider";
-import { createContext} from "react";
-export const userContext = createContext()
+
+
+
 
 type DecodedToken = {
   userId: string;
@@ -26,18 +26,19 @@ export default function HomeLayout({
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-   
     if (!token) {
       router.push("/login");
       return;
     }
 
     try {
+
       const decoded = jwtDecode<DecodedToken>(token);   
 
     setUserData(decoded)
    
     
+
       const currentTime = Date.now() / 1000;
       if (decoded.exp < currentTime) {
         localStorage.removeItem("token");
@@ -55,7 +56,8 @@ export default function HomeLayout({
   if (loading) return <p>Loading...</p>;
   return (
     <>
-    <userContext.Provider value={userData}>
+
+
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
@@ -68,7 +70,8 @@ export default function HomeLayout({
           {children}
         </SidebarProvider>
       </ThemeProvider>
-      </userContext.Provider>
+
+      
     </>
   );
 }

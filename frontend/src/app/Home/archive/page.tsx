@@ -64,10 +64,7 @@ const MyStories = () => {
           {loading
             ? [...Array(6)].map((_, index) => <SkeletonArchive key={index} />)
             : stories.map((story: any) => (
-                <div
-                  key={story._id}
-                  className=" p-2 w-[300px] h-[300px]"
-                >
+                <div key={story._id} className=" p-2 w-[300px] h-[300px]">
                   <Image
                     src={story.imageUrl}
                     alt="archive"

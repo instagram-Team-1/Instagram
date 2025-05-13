@@ -4,40 +4,29 @@ import roomModel from "../../models/roomModel";
 const createRoom = async (req: Request, res: Response) => {
   try {
     const { selectedUsers } = req.body;
-    
     if (!Array.isArray(selectedUsers) || selectedUsers.length === 0) {
        res.status(400).json({ message: "Invalid selectedUsers array" });
        return
     }
-
     console.log("Selected Users:", selectedUsers);
-
-    // Filter out any undefined users
     const validUsers = selectedUsers.filter(user => user && user.name && user.id);
     if (validUsers.length < 2) {
        res.status(400).json({ message: "At least two valid users are required" });
        return
     }
-
     const userNames = validUsers.map((user) => user.name);
     console.log("User Names:", userNames);
-
-    // Check if a room with these participants already exists
     const existingRoom = await roomModel.findOne({
       participants: { $all: validUsers.map((user) => user.id) },
     });
-
     if (existingRoom) {
        res.status(200).json({ roomExists: true, roomId: existingRoom._id });
        return
     }
-
-    // Create a new room if not exists
     const newRoom = await roomModel.create({
       participants: validUsers.map((user) => user.id),
       name: userNames.join(", "),
     });
-
     res.status(201).json({
       message: "Room created successfully",
       roomId: newRoom._id,
