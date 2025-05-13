@@ -42,8 +42,9 @@ export default function ProfilePage() {
 
   const isOwnProfile = userData?.id === currentUserId;
   const canViewPosts =
-  !userData?.isPrivate || isOwnProfile || userData?.followers?.some(f => f === currentUserId);
-
+    !userData?.isPrivate ||
+    isOwnProfile ||
+    userData?.followers?.some((f) => f === currentUserId);
 
   // if (userData?.isPrivate && userData.id !== currentUserId) {
   //   return (
@@ -67,7 +68,7 @@ export default function ProfilePage() {
             <p className="text-sm text-gray-500">Follow to see their photos.</p>
           </div>
         ) : ( */}
-          <PostAndSave />
+        <PostAndSave />
         {/* )} */}
         <Footer />
       </div>

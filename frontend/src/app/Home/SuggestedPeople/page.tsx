@@ -1,6 +1,5 @@
-"use client"
-import React from 'react'
-
+"use client";
+import React from "react";
 
 import * as Avatar from "@radix-ui/react-avatar";
 import { useEffect, useState } from "react";
@@ -10,29 +9,28 @@ import { API } from "@/utils/api";
 import { useRouter } from "next/navigation";
 
 const page = () => {
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const router = useRouter();
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-     const [suggestions, setSuggestions] = useState<any[]>([]);
-     const token = localStorage.getItem("token");
-        const router = useRouter();
-     const decoded = parseJwt(token || undefined);
-     console.log("Decoded JWT:", decoded);
+    const decoded = parseJwt(token);
+    const userId = decoded.id;
 
-     const userId = decoded.id;
+    const fetchSuggestedUsers = async () => {
+      try {
+        const response = await axios.get(API + `/api/suggested/${userId}`);
+        setSuggestions(response.data);
+      } catch (error) {
+        console.error("Error fetching suggested users:", error);
+      }
+    };
 
-     useEffect(() => {
-       const fetchSuggestedUsers = async () => {
-         try {
-           const response = await axios.get(API + `/api/suggested/${userId}`);
-           setSuggestions(response.data);
-           console.log("Suggested users:", response.data);
-         } catch (error) {
-           console.error("Error fetching suggested users:", error);
-         }
-       };
+    fetchSuggestedUsers();
+  }, []);
 
-       fetchSuggestedUsers();
-     }, [userId]);
-     
+
 
   return (
     <div className="w-screen h-screen flex justify-center items-center flex-col overflow-scroll">
@@ -74,6 +72,6 @@ const page = () => {
       </div>
     </div>
   );
-}
+};
 
-export default page
+export default page;

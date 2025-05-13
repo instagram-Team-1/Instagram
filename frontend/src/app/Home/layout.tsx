@@ -1,4 +1,3 @@
-// app/home/layout.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,6 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/appsider/AppSidebar";
 import { ThemeProvider } from "./components/Theme-provider";
+import { FeedProvider } from "./Context/FeedPage"; // 🔥 FeedContext нэмсэн
 
 type DecodedToken = {
   userId: string;
@@ -23,6 +23,7 @@ export default function HomeLayout({
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (!token) {
       router.push("/login");
       return;
@@ -47,19 +48,19 @@ export default function HomeLayout({
   if (loading) return <p>Loading...</p>;
 
   return (
-    <>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <SidebarProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <SidebarProvider>
+        <FeedProvider>
           <AppSidebar />
           <SidebarTrigger />
           {children}
-        </SidebarProvider>
-      </ThemeProvider>
-    </>
+        </FeedProvider>
+      </SidebarProvider>
+    </ThemeProvider>
   );
 }
