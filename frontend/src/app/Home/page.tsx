@@ -81,6 +81,7 @@ export default function FeedPage() {
     };
 
     fetchPosts();
+    localStorage.setItem('userInfo', JSON.stringify({ userId, username }));
   }, [userId]);
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
