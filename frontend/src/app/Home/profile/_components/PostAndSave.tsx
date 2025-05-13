@@ -1,11 +1,13 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { FC, useState, useEffect } from "react";
 import { CldImage } from "next-cloudinary";
 import { UserDataType } from "@/lib/types";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { API } from "@/utils/api";
-import { Skeleton } from "@/components/ui/skeleton";
+import CommentModal from "@/components/PostCard/_components/CommentModal";
+import { PostCardProps, Comment } from "@/lib/types";
+import { toast } from "react-toastify";
 
 interface DecodedToken {
   username: string;
@@ -23,7 +25,7 @@ interface Post {
   createdAt: string;
 }
 
-const PostAndSave = () => {
+const PostAndSave: FC<PostCardProps>  = ({likes, postId, currentUserUsername}) => {
   const [selectedTab, setSelectedTab] = useState<"posts" | "saved" | "tagged">(
       "posts"
     );
@@ -36,32 +38,37 @@ const PostAndSave = () => {
   const [username, setUsername] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const [UserId, setUserId] = useState<string | null>(null);
-
+  const [showComments, setShowComments] = useState(false);
+  const [liked, setLiked] = useState<boolean>(false);
+  const [likesCount, setLikesCount] = useState<number>(likes || 0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [userId, setUserId] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    
     if (!token) {
       setError("No token found. Please log in.");
-      setLoading(false);
       return;
     }
 
     try {
       const decoded = jwtDecode<UserDataType & DecodedToken>(token);
-      setTokenData(decoded);
-      setUsername(decoded.username);
-      setUserId(decoded.id)
-      
+      setTokenData(decoded);      
+      setUsername(decoded.username);      
+      setUserId(decoded.id);
     } catch (err) {
       console.error("Invalid token:", err);
       setError("Invalid token. Please log in again.");
-      setLoading(false);
     }
   }, []);
 
+  console.log(username, userId , "usernameeee");
+  console.log(postId, "post id");
+  
   useEffect(() => {
     if (!tokenData?.id) return;
   
@@ -70,13 +77,10 @@ const PostAndSave = () => {
       try {
         setLoading(true);
         
-        
         const response = await axios.get(
           `${API}/api/getSavePost/${tokenData.id}`
         );
-          console.log("Saved posts:", response.data.savedPosts);
-        setSavedPosts(response.data.savedPosts);
-        console.log("Saved posts:", response.data.savedPosts);
+        setSavedPosts(response.data.savedPosts)
       } catch (err) {
         console.error("Failed to fetch saved posts", err);
         setError("Couldn't fetch saved posts");
@@ -91,14 +95,14 @@ const PostAndSave = () => {
   }, [selectedTab, tokenData]);
 
   useEffect(() => {
-    if (!UserId) {
+    if (!userId) {
       return;
     }
 
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API}/api/getPostsUserId/${UserId}`);
+        const response = await axios.get(`${API}/api/getPostsUserId/${userId}`);
         const fetchedPosts = response.data.posts || response.data || [];
         setPosts(fetchedPosts);
       } catch (error) {
@@ -110,13 +114,138 @@ const PostAndSave = () => {
     };
 
     fetchPosts();
-  }, [UserId]);
+  }, [username]);
 
-  const SkeletonPostCard = () => (
-    <div className="w-full h-[400px]">
-      <Skeleton className="w-full h-full rounded-md" />
-    </div>
-  );
+  const handleLike = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+    const wasLiked = liked;
+    const prevLikes = likesCount;
+
+    setLiked((prev) => !prev);
+    setLikesCount((prev) => prev + (wasLiked ? -1 : 1));
+
+    try {
+      const endpoint = wasLiked ? "/api/unlike" : "/api/like";
+      const response = await axios.post(`${API}${endpoint}`, {
+        userId: userId,
+        postId,
+      });
+
+      toast.success(response.data.message);
+      if (response.data.likes) {
+        setLikesCount(response.data.likes.length);
+      }
+    } catch (error) {
+      console.error("Like/unlike үйлдэлд алдаа гарлаа:", error);
+      toast.error("Like үйлдэлд алдаа гарлаа");
+      setLiked(wasLiked);
+      setLikesCount(prevLikes);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+   const postComment = async () => {
+    try {
+      const res = await axios.post(`${API}/api/posts/comment/${postId}`, {
+        userId,
+        comment,
+      });
+
+      const newComment = {
+        comment,
+        user: { username: currentUserUsername },
+      };
+      setComments((prev) => [...prev, newComment]);
+      setComment("");
+    } catch (err) {
+      console.error("Error posting comment:", err);
+      toast.error("Коммент бичихэд алдаа гарлаа");
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (comment.trim()) {
+      postComment();
+    }
+  };
+
+    useEffect(() => {
+    const checkIfLiked = async () => {
+      try {
+        const response = await axios.get(`${API}/api/check-like`, {
+          params: { userId, postId },
+        });
+        setLiked(response.data.liked);
+      } catch (error) {
+        console.error("Like төлвийг шалгахад алдаа гарлаа:", error);
+        toast.error("Постын төлвийг ачааллахад алдаа гарлаа");
+      }
+    };
+
+    if (postId && userId) {
+      checkIfLiked();
+    }
+
+    console.log("likes", liked);
+    
+  }, [postId, userId]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`${API}/api/posts/comment/${postId}`);
+        setComments(res.data);
+      } catch (error) {
+        console.error("Failed to load comments:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchComments();
+  }, [postId]);
+
+  useEffect(() => {
+  if (!selectedPost) return;
+
+  const fetchLikeStatus = async () => {
+    try {
+      const response = await axios.get(`${API}/api/check-like`, {
+        params: { userId, postId: selectedPost._id },
+      });
+      setLiked(response.data.liked);
+      setLikesCount(selectedPost.likes?.length || 0);
+    } catch (error) {
+      console.error("Failed to load likes:", error);
+    }
+  };
+
+  fetchLikeStatus();
+}, [selectedPost]);
+
+
+  useEffect(() => {
+  if (!selectedPost) return;
+  const fetchComments = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API}/api/posts/comment/${selectedPost._id}`);
+      setComments(res.data);
+    } catch (error) {
+      console.error("Failed to load comments:", error);
+    } finally {
+      setLoading(false);
+    }
+    
+  };
+
+  fetchComments();
+}, [selectedPost]);
 
   return (
     <div className="flex flex-col mt-[30px]">
@@ -159,6 +288,15 @@ const PostAndSave = () => {
         >
           <p className="mt-[20px]">Tagged</p>
         </button>
+
+        {selectedTab === "tagged" && (
+          <div className="text-center mt-24">
+            <h2 className="text-[24px] font-semibold mb-2">No Tagged Posts</h2>
+            <p className="text-gray-400">
+              You haven't been tagged in any posts yet.
+            </p>
+          </div>
+        )}
       </div>
 
       <div>
@@ -245,56 +383,24 @@ const PostAndSave = () => {
           </>
         )}
       </div>
-      {showModal && selectedPost && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 bg-opacity-80">
-          <div className="bg-black w-full max-w-5xl h-[80vh] flex rounded-lg overflow-hidden">
-            <div className="w-1/2 relative">
-              <CldImage
-                src={selectedPost.imageUrl}
-                alt="selected post"
-                fill
-                className="object-cover"
-              />
-            </div>
 
-            <div className="w-1/2 flex flex-col">
-              <div className="flex items-center justify-between p-4 border-b border-neutral-800">
-                <span className="text-white font-bold">
-                  {selectedPost.username}
-                </span>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="text-white text-xl"
-                >
-                  ✕
-                </button>
-              </div>
+    {showModal && selectedPost && (
+      <CommentModal
+        imageUrl={selectedPost.imageUrl}
+        user={{ username: selectedPost.username, avatarImage: '/placeholder.jpg' }}
+        caption={selectedPost.caption}
+        comments={comments}
+        likesCount={likesCount}
+        liked={liked}
+        onLike={handleLike}
+        onShare={() => setShowShareModal(true)}
+        onCommentChange={setComment}
+        onCommentSubmit={handleSubmit}
+        onClose={() => setShowModal(false)}
+        comment={comment}
+      />
+    )}
 
-              <div className="text-white p-4 text-sm border-b border-neutral-800">
-                {selectedPost.caption}
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-4">
-                {selectedPost.comments?.length === 0 ? (
-                  <p className="text-neutral-400 text-sm">No comments yet.</p>
-                ) : (
-                  selectedPost.comments?.map((comment, idx) => (
-                    <div
-                      key={idx}
-                      className="text-white text-sm py-2 border-b border-neutral-800"
-                    >
-                      <span className="font-semibold">
-                        {comment?.user?.username}
-                      </span>{" "}
-                      {comment.comment}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
