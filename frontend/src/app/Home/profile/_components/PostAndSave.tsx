@@ -8,6 +8,7 @@ import { API } from "@/utils/api";
 import CommentModal from "@/components/PostCard/_components/CommentModal";
 import { PostCardProps, Comment } from "@/lib/types";
 import { toast } from "react-toastify";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DecodedToken {
   username: string;
@@ -246,6 +247,12 @@ const PostAndSave: FC<PostCardProps>  = ({likes, postId, currentUserUsername}) =
 
   fetchComments();
 }, [selectedPost]);
+
+const SkeletonPostCard = () => (
+  <div className="w-full h-[400px]">
+    <Skeleton className="w-full h-full rounded-md" />
+  </div>
+);
 
   return (
     <div className="flex flex-col mt-[30px]">
