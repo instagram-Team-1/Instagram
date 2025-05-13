@@ -6,6 +6,7 @@ import { API } from "@/utils/api";
 import { StoryAvatar } from "./_components/StoryAvatar";
 import { AddStoryButton } from "./_components/AddStoryButton";
 import { StoryViewer } from "./_components/StoryViewer";
+import { StoryAvatarSkeleton } from "./_components/StoryLoading";
 
 type StoriesBarProps = {
   userId: { id: string } | null;
@@ -37,10 +38,11 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
     useState<GroupedStory | null>(null);
   const [viewedStoryIds, setViewedStoryIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
-  // ⚡️ Story fetch + viewed check цуг хийдэг
   const fetchStories = useCallback(async () => {
     if (!userId?.id) return;
+    setIsLoading(true);
 
     try {
       const res = await axios.get(API + `/api/Getstory/${userId.id}`);
@@ -57,7 +59,6 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
 
       const viewedIds = new Set<string>(viewedRes.data.viewedStoryIds);
 
-      // viewed true/false тохируулж өгнө
       const finalData = data.map((group) => ({
         ...group,
         stories: group.stories.map((story) => ({
@@ -68,8 +69,12 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
 
       setStories(finalData);
       setViewedStoryIds(viewedIds);
+      setIsLoading(false);
+      
     } catch (err) {
       console.error("❌ Failed to fetch stories:", err);
+    } finally {
+      setIsLoading(false); // ✅ Заавал энд хийнэ
     }
   }, [userId?.id]);
 
@@ -117,6 +122,8 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
     fetchStories();
   }, [fetchStories]);
 
+ 
+
   return (
     <div className="flex gap-1 overflow-x-auto py-4 px-4 scrollbar-hide">
       <AddStoryButton
@@ -125,16 +132,18 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
         onFileChange={handleFileChange}
       />
 
-      {stories
-        .filter((group) => group.user._id !== userId?.id)
-        .map((group) => (
-          <StoryAvatar
-            key={group.user._id}
-            user={group.user}
-            hasViewedAll={group.stories.every((story) => story.viewed)}
-            onClick={() => setSelectedStoryGroup(group)}
-          />
-        ))}
+      {isLoading
+        ? [...Array(5)].map((_, idx) => <StoryAvatarSkeleton key={idx} />)
+        : stories
+            .filter((group) => group.user._id !== userId?.id)
+            .map((group) => (
+              <StoryAvatar
+                key={group.user._id}
+                user={group.user}
+                hasViewedAll={group.stories.every((story) => story.viewed)}
+                onClick={() => setSelectedStoryGroup(group)}
+              />
+            ))}
 
       {selectedStoryGroup && (
         <StoryViewer
