@@ -1,5 +1,6 @@
 import React from "react";
 import { UserDataType } from "@/lib/types";
+import { log } from "console";
 
 type Props = {
   user: UserDataType;

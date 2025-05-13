@@ -8,9 +8,9 @@ import PostCommentInput from "./PostCommentInput";
 
 interface Comment {
   comment: string;
-  user: { 
+  user: {
     username: string;
-    avatarImage?:string; 
+    avatarImage?: string; // → нэмэгдүүлсэн хэсэг
   };
 }
 

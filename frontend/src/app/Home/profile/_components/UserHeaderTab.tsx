@@ -108,28 +108,9 @@ export const UserHeaderTab = () => {
         viewed: viewedStoryIds.includes(story._id),
       }));
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size exceeds 5MB!");
-      return;
-    }
-
-    setUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "Story-Instagram");
-
-      const uploadRes = await axios.post(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        formData
-      );
-      const imageUrl = uploadRes.data.secure_url;
-      await updateProfileImage(imageUrl);
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Error uploading image!");
-      setUploading(false);
+      setMyStoryGroup({ ...myStory, stories: updatedStories });
+    } catch {
+      console.error("Failed to fetch story");
     }
   };
 
@@ -167,8 +148,13 @@ export const UserHeaderTab = () => {
 
   return (
     <div className="flex flex-row gap-14">
-      {/* Profile image */}
-      <div className="relative w-[150px] h-[150px] bg-gray-300 rounded-full overflow-hidden group">
+      {/* Profile Image */}
+      <div
+        className={`relative w-[150px] h-[150px] bg-gray-300 rounded-full overflow-hidden group cursor-pointer ${
+          myStoryGroup ? "border-4 border-pink-500" : "border-4 border-gray-300"
+        }`}
+        onClick={handleProfileImageClick}
+      >
         {profileImage ? (
           <CldImage
             src={profileImage}
