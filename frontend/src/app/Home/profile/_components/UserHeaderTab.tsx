@@ -5,7 +5,6 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { CldImage } from "next-cloudinary";
-import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,6 +15,7 @@ import {
 import { API } from "@/utils/api";
 import { StoryViewer } from "../../components/stories/_components/StoryViewer";
 import { useRouter } from "next/navigation";
+import { ProfileImage } from "./ProfileImage";
 
 type User = {
   _id: string;
@@ -26,7 +26,6 @@ type User = {
   posts?: string[];
   bio?: string;
 };
-
 
 type StoryItem = {
   _id: string;
@@ -89,49 +88,33 @@ export const UserHeaderTab = () => {
   };
 
   // Fetch my stories
-  const fetchMyStory = async (id: string) => {
-    try {
-      const res = await axios.get(`${API}/api/Getstory/${id}`);
-      const storiesData = res.data;
-      const myStory = storiesData.find((group: any) => group.user._id === id);
-      if (!myStory) return;
+ const fetchMyStory = async (id: string) => {
+  try {
+    const res = await axios.get(`${API}/api/Getstory/${id}`);
+    const storiesData = res.data;
+    const myStory = storiesData.find((group: any) => group.user._id === id);
+    if (!myStory) return;
 
-      const storyIds = myStory.stories.map((s: any) => s._id);
-      const viewRes = await axios.post(`${API}/api/storyHasView`, {
-        userId: id,
-        storyIds,
-      });
-      const viewedStoryIds: string[] = viewRes.data.viewedStoryIds;
+    const storyIds = myStory.stories.map((s: any) => s._id);
+    const viewRes = await axios.post(`${API}/api/storyHasView`, {
+      userId: id,
+      storyIds,
+    });
+    const viewedStoryIds: string[] = viewRes.data.viewedStoryIds;
 
-      const updatedStories = myStory.stories.map((story: any) => ({
-        ...story,
-        viewed: viewedStoryIds.includes(story._id),
-      }));
+    const updatedStories = myStory.stories.map((story: any) => ({
+      ...story,
+      viewed: viewedStoryIds.includes(story._id),
+    }));
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size exceeds 5MB!");
-      return;
-    }
-
-    setUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "Story-Instagram");
-
-      const uploadRes = await axios.post(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        formData
-      );
-      const imageUrl = uploadRes.data.secure_url;
-      await updateProfileImage(imageUrl);
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Error uploading image!");
-      setUploading(false);
-    }
-  };
+    setMyStoryGroup({
+      user: myStory.user,
+      stories: updatedStories,
+    });
+  } catch {
+    toast.error("Failed to fetch stories");
+  }
+}; 
 
   // Fetch followers/following for modal
   useEffect(() => {
@@ -165,8 +148,34 @@ export const UserHeaderTab = () => {
     router.push("/Home/archive");
   };
 
+  const uploadImage = async (file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "Story-Instagram");
+    const res = await axios.post(
+      "https://api.cloudinary.com/v1_1/your_cloud_name/image/upload",
+      formData
+    );
+    const imageUrl = res.data.secure_url;
+    setProfileImage(imageUrl);
+    await axios.put(`${API}/api/users/${userId}`, {
+      avatarImage: imageUrl,
+    });
+    toast.success("Profile photo updated!");
+  } catch (err) {
+    toast.error("Image upload failed.");
+  }
+};
+
   return (
     <div className="flex flex-row gap-14">
+      {/* Profile Image */}
+      <ProfileImage
+        src={profileImage}
+        hasStory={!!myStoryGroup}
+        onClick={handleProfileImageClick}
+      />
       {/* Profile image */}
       <div className="relative w-[150px] h-[150px] bg-gray-300 rounded-full overflow-hidden group">
         {profileImage ? (

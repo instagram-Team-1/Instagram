@@ -6,14 +6,31 @@ import { API } from "@/utils/api";
 import { UserDataType, PostType } from "@/lib/types";
 import { useRouter } from "next/navigation";
 
-import ProfileImage from "../_components/ProfileImage";
+import { ProfileImage } from "../../profile/_components/ProfileImage";
 import ProfileHeader from "../_components/ProfileHeader";
 import ProfileHighlights from "../_components/ProfileHighlights";
 import ProfileTabs from "../_components/ProfileTabs";
 import ProfileFooter from "../_components/ProfileFooter";
 import PostsGrid from "../../profile/_components/PostsGrid";
 import { jwtDecode } from "jwt-decode";
-import { FollowerType } from "@/lib/types";
+import { toast } from "react-toastify";
+
+type StoryItem = {
+  _id: string;
+  imageUrl: string;
+  createdAt?: string;
+  expiresAt?: string;
+  viewed?: boolean;
+};
+
+type GroupedStory = {
+  user: {
+    _id: string;
+    username: string;
+    avatarImage: string;
+  };
+  stories: StoryItem[];
+};
 
 export default function ProfilePage() {
 
@@ -26,6 +43,9 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<{ id: string } | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [myStoryGroup, setMyStoryGroup] = useState<GroupedStory | null>(null);
+  const [selectedStoryGroup, setSelectedStoryGroup] = useState<GroupedStory | null>(null);
 
   useEffect(() => {
     const getUser = async () => {
@@ -91,6 +111,44 @@ export default function ProfilePage() {
     }
   };
 
+    const isOwnProfile = user?.id === userId?.id;
+  const canViewPosts =
+    !user?.isPrivate ||
+    isOwnProfile ||
+    (userId?.id && user?.followers?.includes(userId.id));
+
+    const uploadImage = async (file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "Story-Instagram");
+    const res = await axios.post(
+      "https://api.cloudinary.com/v1_1/your_cloud_name/image/upload",
+      formData
+    );
+    const imageUrl = res.data.secure_url;
+    setProfileImage(imageUrl);
+    await axios.put(`${API}/api/users/${userId}`, {
+      avatarImage: imageUrl,
+    });
+    toast.success("Profile photo updated!");
+  } catch (err) {
+    toast.error("Image upload failed.");
+  }
+};
+
+const handleProfileImageClick = () => {
+  if (myStoryGroup) {
+    router.push(`/stories/${myStoryGroup.user._id}`);
+  }
+};
+
+  useEffect(() => {
+  if (user?.avatarImage) {
+    setProfileImage(user.avatarImage);
+  }
+  }, [user]);
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!user) return <div>User not found</div>;
@@ -140,20 +198,17 @@ export default function ProfilePage() {
       
   //   }
   // };
-  console.log(user.followers, "followers");
-
-  const isOwnProfile = user?.id === userId?.id;
-  const canViewPosts =
-    !user?.isPrivate ||
-    isOwnProfile ||
-    (userId?.id && user?.followers?.includes(userId.id));
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
       <div className="w-[935px] h-full px-[20px] pt-[30px] flex flex-col">
         <div className="flex flex-col gap-[30px]">
           <div className="flex flex-row">
-            <ProfileImage user={user} />
+            <ProfileImage
+              src={profileImage}
+              hasStory={!!myStoryGroup}
+              onClick={handleProfileImageClick}
+            />
             <ProfileHeader
               user={user}
               currentUserId={userId?.id || ""}
