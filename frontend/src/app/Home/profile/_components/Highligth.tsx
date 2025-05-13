@@ -14,6 +14,7 @@ const Highligth = () => {
     const newHighlight: HighlightType = {
       id: crypto.randomUUID(),
       title: highlightTitle.trim(),
+      stories: [],
     };
 
     setHighlights((prev) => [...prev, newHighlight]);
@@ -47,11 +48,12 @@ const Highligth = () => {
             <div className="w-[89px] h-[89px] rounded-full border border-gray-300 dark:border-gray-700 flex items-center justify-center">
               <div className="w-[77px] h-[77px] rounded-full bg-white/10 dark:bg-black/10 backdrop-blur-md flex items-center justify-center" />
             </div>
-            <div className="truncate max-w-[89px] text-sm">{highlight.title}</div>
+            <div className="truncate max-w-[89px] text-sm">
+              {highlight.title}
+            </div>
           </div>
         ))}
       </div>
-
 
       {/* Modal */}
       {showHighlightModal && (
