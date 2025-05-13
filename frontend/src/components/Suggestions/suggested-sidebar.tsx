@@ -7,12 +7,17 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 
-export function SuggestionsSidebar() {
+type StoriesBarProps = {
+  username: { username: string } | null;
+};
+
+
+export function SuggestionsSidebar({ username }: StoriesBarProps) {
+
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
   const token = localStorage.getItem("token");
 
-    
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [modalUsers, setModalUsers] = useState<
     { _id: string; username: string }[]
@@ -28,13 +33,13 @@ export function SuggestionsSidebar() {
     following?: string[];
     posts?: string[];
   } | null>(null);
-  
 
   const router = useRouter();
 
   const decoded = parseJwt(token || undefined);
 
   const userId = decoded.id;
+
   const username = decoded.username;
   const image = decoded.avatarImage;
   const fullname = decoded.fullname;
@@ -45,7 +50,7 @@ export function SuggestionsSidebar() {
         const response = await axios.get(API + `/api/suggested/${userId}`);
         setSuggestions(response.data);
         console.log("Suggested users:", response.data);
-        
+
       } catch (error) {
         console.error("Error fetching suggested users:", error);
       }
@@ -96,8 +101,6 @@ export function SuggestionsSidebar() {
     router.push("/login");
   };
 
-
-
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 justify-between">
@@ -110,7 +113,7 @@ export function SuggestionsSidebar() {
             />
           </Avatar.Root>
           <div className="flex flex-col leading-4">
-            <span className="text-sm font-semibold">{username}</span>
+            <span className="text-sm font-semibold">{username?.username}</span>
             <span className="text-xs text-[#B3B3B3]">{fullname}</span>
           </div>
         </div>
