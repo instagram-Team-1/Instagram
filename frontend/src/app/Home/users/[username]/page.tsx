@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import { API } from "@/utils/api";
 import { UserDataType, PostType } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 import ProfileImage from "../_components/ProfileImage";
 import ProfileHeader from "../_components/ProfileHeader";
@@ -91,7 +92,52 @@ export default function ProfilePage() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!user) return <div>User not found</div>;
-
+  const router = useRouter()
+  // const createChatRoom = async () => {
+  //   const storedData = localStorage.getItem("userInfo");
+  //   let myId = null;
+  //   let myUsername = "";
+  
+  //   if (storedData) {
+  //     const parsedData = JSON.parse(storedData);
+  //     myId = parsedData.userId?.id;
+  //     myUsername = parsedData.username?.username;
+  //   }
+  
+  //   if (!myId || !myUsername) {
+  //    console.log('user not found');
+     
+  //     return;
+  //   }
+  
+  //   const selectedUsers = [
+  //     { name: user.username, id: user._id },
+  //     { name: myUsername, id: myId },
+  //   ];
+  //   console.log("Selected Users:", selectedUsers);
+  
+  //   try {
+  //     const checkRoomRes = await axios.post(`${API}/api/chat/checkRoom`, { selectedUsers });
+  //     console.log("Check Room Response:", checkRoomRes.data);
+  
+  //     if (checkRoomRes.data.roomExists) {
+  //       console.log("Room exists");
+  //       router.push(`/Home/actualRoom/${checkRoomRes.data.roomId}`);
+  //     } else {
+  //       const createRoomRes = await axios.post(`${API}/api/auth/Room`, { selectedUsers });
+  //       console.log("Create Room Response:", createRoomRes.data);
+  
+  //       if (createRoomRes.data.message === "Room created successfully") {
+  //         console.log("Room created successfully");
+  //         router.push(`/Home/actualRoom/${createRoomRes.data.roomId}`);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error handling chat room:", error);
+  //     console.log('error');
+      
+  //   }
+  // };
   console.log(user.followers, "followers");
 
   const isOwnProfile = user?.id === userId?.id;

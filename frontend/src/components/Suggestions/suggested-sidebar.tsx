@@ -6,12 +6,14 @@ import { API } from "@/utils/api";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
+
 type StoriesBarProps = {
   username: { username: string } | null;
 };
 
 
 export function SuggestionsSidebar({ username }: StoriesBarProps) {
+
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
   const token = localStorage.getItem("token");
@@ -37,6 +39,8 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
   const decoded = parseJwt(token || undefined);
 
   const userId = decoded.id;
+
+  const username = decoded.username;
   const image = decoded.avatarImage;
   const fullname = decoded.fullname;
 
@@ -46,6 +50,7 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
         const response = await axios.get(API + `/api/suggested/${userId}`);
         setSuggestions(response.data);
         console.log("Suggested users:", response.data);
+
       } catch (error) {
         console.error("Error fetching suggested users:", error);
       }

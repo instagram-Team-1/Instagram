@@ -37,7 +37,6 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
   const [viewedStoryIds, setViewedStoryIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Stories-г API-аас татах
   const fetchStories = async () => {
     if (!userId?.id) return;
     try {
@@ -70,7 +69,6 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
     }
   };
 
-  // Story-г Cloudinary-д хадгалах
   const handleImageUpload = async (file: File): Promise<string | null> => {
     const formData = new FormData();
     formData.append("file", file);
@@ -88,7 +86,6 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
     }
   };
 
-  // Файл оруулах үйлдэл
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -116,23 +113,29 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
 
   return (
     <div className="flex gap-1 overflow-x-auto py-4 px-4 scrollbar-hide">
-      <AddStoryButton
-        username={username?.username || "Username"}
-        isLoading={isLoading}
-        onFileChange={handleFileChange}
-      />
-      {stories.map((group) => (
-        <StoryAvatar
-          key={group.user._id}
-          user={group.user}
-          hasViewedAll={group.stories.every((story) =>
-            viewedStoryIds.includes(story._id)
-          )}
-          onClick={() => {
-            setSelectedStoryGroup(group);
-          }}
+      {stories.length > 0 && (
+        <AddStoryButton
+          username={username?.username || "Username"}
+          isLoading={isLoading}
+          onFileChange={handleFileChange}
         />
-      ))}
+      )}
+
+      {stories
+        .filter((group) => group.user._id !== userId?.id)
+        .map((group) => (
+          <StoryAvatar
+            key={group.user._id}
+            user={group.user}
+            hasViewedAll={group.stories.every((story) =>
+              viewedStoryIds.includes(story._id)
+            )}
+            onClick={() => {
+              setSelectedStoryGroup(group);
+            }}
+          />
+        ))}
+
       {selectedStoryGroup && (
         <StoryViewer
           storyGroup={selectedStoryGroup}

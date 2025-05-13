@@ -29,11 +29,12 @@ const Page = () => {
       setLoading(true)
       try {
         const res = await axios.post(API + '/api/auth/register', values)
+        localStorage.setItem('code', res.data.code)
+        
         const notify = () => toast(res.data.message)
         setResp(res.data.message)
         notify()
       } catch (error) {
-        console.error(error)
         toast.error('Something went wrong!')
       } finally {
         setLoading(false)

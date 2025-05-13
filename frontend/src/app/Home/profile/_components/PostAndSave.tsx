@@ -5,6 +5,7 @@ import { UserDataType } from "@/lib/types";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { API } from "@/utils/api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DecodedToken {
   username: string;
@@ -111,6 +112,12 @@ const PostAndSave = () => {
     fetchPosts();
   }, [UserId]);
 
+  const SkeletonPostCard = () => (
+    <div className="w-full h-[400px]">
+      <Skeleton className="w-full h-full rounded-md" />
+    </div>
+  );
+
   return (
     <div className="flex flex-col mt-[30px]">
       <div className="flex flex-row justify-center gap-[30px] border-t border-gray-200 dark:border-gray-600">
@@ -157,38 +164,41 @@ const PostAndSave = () => {
       <div>
         {selectedTab === "posts" && (
           <>
-            {posts.length > 0 ? (
+            {loading ? (
               <div className="grid grid-cols-3 gap-4 mt-6">
-              {posts.map((post) => (
-                <div
-                  key={post._id}
-                  className="relative w-full h-auto group bg-gray-200"
-                   onClick={() => {
-                    setSelectedPost(post);
-                    setShowModal(true);
-                  }}
-                >
-                  <CldImage
-                    src={post.imageUrl}
-                    alt={post.caption || "Post image"}
-                    width={300}
-                    height={300}
-                    className="object-cover box-border overflow-hidden w-full h-full"
-                  />
-            
-                  {/* Hover effect */}
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-60 transition-opacity">
-                    <div className="flex items-center gap-1 text-white text-lg font-semibold">
-                      ❤️ {post.likes?.length ?? 0}
-                    </div>
-                    <div className="flex items-center gap-1 text-white text-lg font-semibold">
-                      💬 {post.comments?.length ?? 0}
+                {[...Array(6)].map((_, i) => (
+                  <SkeletonPostCard key={i} />
+                ))}
+              </div>
+            ) : posts.length > 0 ? (
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                {posts.map((post) => (
+                  <div
+                    key={post._id}
+                    className="relative w-full h-auto group bg-gray-200"
+                    onClick={() => {
+                      setSelectedPost(post);
+                      setShowModal(true);
+                    }}
+                  >
+                    <CldImage
+                      src={post.imageUrl}
+                      alt={post.caption || "Post image"}
+                      width={300}
+                      height={300}
+                      className="object-cover box-border overflow-hidden w-full h-full"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-60 transition-opacity">
+                      <div className="flex items-center gap-1 text-white text-lg font-semibold">
+                        ❤️ {post.likes?.length ?? 0}
+                      </div>
+                      <div className="flex items-center gap-1 text-white text-lg font-semibold">
+                        💬 {post.comments?.length ?? 0}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            
+                ))}
+              </div>
             ) : (
               <div className="text-center mt-24">
                 <h2 className="text-[24px] font-semibold mb-2">Share Photos</h2>
@@ -203,8 +213,14 @@ const PostAndSave = () => {
       <div>
         {selectedTab === "saved" && (
           <>
-            {savedPosts.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4">
+            {loading ? (
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                {[...Array(6)].map((_, i) => (
+                  <SkeletonPostCard key={i} />
+                ))}
+              </div>
+            ) : savedPosts.length > 0 ? (
+              <div className="grid grid-cols-3 gap-4 mt-6">
                 {savedPosts.map((post) => (
                   <div key={post._id} className="w-full h-auto bg-gray-200">
                     <CldImage
@@ -230,49 +246,55 @@ const PostAndSave = () => {
         )}
       </div>
       {showModal && selectedPost && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 bg-opacity-80">
-        <div className="bg-black w-full max-w-5xl h-[80vh] flex rounded-lg overflow-hidden">
-          
-          <div className="w-1/2 relative">
-            <CldImage
-              src={selectedPost.imageUrl}
-              alt="selected post"
-              fill
-              className="object-cover"
-            />
-          </div>
-
-          <div className="w-1/2 flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-neutral-800">
-              <span className="text-white font-bold">{selectedPost.username}</span>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-white text-xl"
-              >
-                ✕
-              </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 bg-opacity-80">
+          <div className="bg-black w-full max-w-5xl h-[80vh] flex rounded-lg overflow-hidden">
+            <div className="w-1/2 relative">
+              <CldImage
+                src={selectedPost.imageUrl}
+                alt="selected post"
+                fill
+                className="object-cover"
+              />
             </div>
 
-            <div className="text-white p-4 text-sm border-b border-neutral-800">
-              {selectedPost.caption}
-            </div>
+            <div className="w-1/2 flex flex-col">
+              <div className="flex items-center justify-between p-4 border-b border-neutral-800">
+                <span className="text-white font-bold">
+                  {selectedPost.username}
+                </span>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-white text-xl"
+                >
+                  ✕
+                </button>
+              </div>
 
-            <div className="flex-1 overflow-y-auto p-4">
-              {selectedPost.comments?.length === 0 ? (
-                <p className="text-neutral-400 text-sm">No comments yet.</p>
-              ) : (
-                selectedPost.comments?.map((comment, idx) => (
-                  <div key={idx} className="text-white text-sm py-2 border-b border-neutral-800">
-                    <span className="font-semibold">{comment?.user?.username }</span> {comment.comment}
-                  </div>
-                ))
-              )}
+              <div className="text-white p-4 text-sm border-b border-neutral-800">
+                {selectedPost.caption}
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4">
+                {selectedPost.comments?.length === 0 ? (
+                  <p className="text-neutral-400 text-sm">No comments yet.</p>
+                ) : (
+                  selectedPost.comments?.map((comment, idx) => (
+                    <div
+                      key={idx}
+                      className="text-white text-sm py-2 border-b border-neutral-800"
+                    >
+                      <span className="font-semibold">
+                        {comment?.user?.username}
+                      </span>{" "}
+                      {comment.comment}
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    )}
-
+      )}
     </div>
   );
 };
