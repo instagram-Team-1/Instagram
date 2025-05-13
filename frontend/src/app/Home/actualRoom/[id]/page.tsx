@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { API } from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import RoomHeader from "../component/roomHeader";
+import { log } from "util";
 let socket: Socket;
 const Page = () => {
   const [msg, setMsg] = useState("");
@@ -26,9 +27,9 @@ const Page = () => {
     scrollToBottom();
   }, [prevMessage, received]);
   useEffect(() => {
-    const userIdFromStorage = JSON.parse(localStorage.getItem("id") || "{}");
-    if (userIdFromStorage && userIdFromStorage.id) {
-      setCurrentId(userIdFromStorage.id);
+    const userIdFromStorage = JSON.parse(localStorage.getItem("userInfo") || "{}");
+    if (userIdFromStorage && userIdFromStorage.userId) {
+      setCurrentId(userIdFromStorage.userId.id);
     } else {
       console.log("User not logged in or userId not found in localStorage");
     }
