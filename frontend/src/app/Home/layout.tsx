@@ -6,6 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/appsider/AppSidebar";
 import { ThemeProvider } from "./components/Theme-provider";
+import { FeedProvider } from "./Context/FeedPage"; // 🔥 FeedContext нэмсэн
 
 type DecodedToken = {
   userId: string;
@@ -19,7 +20,6 @@ export default function HomeLayout({
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState<DecodedToken | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -31,9 +31,6 @@ export default function HomeLayout({
 
     try {
       const decoded = jwtDecode<DecodedToken>(token);
-
-      setUserData(decoded);
-
       const currentTime = Date.now() / 1000;
       if (decoded.exp < currentTime) {
         localStorage.removeItem("token");
@@ -49,20 +46,21 @@ export default function HomeLayout({
   }, [router]);
 
   if (loading) return <p>Loading...</p>;
+
   return (
-    <>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <SidebarProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <SidebarProvider>
+        <FeedProvider>
           <AppSidebar />
           <SidebarTrigger />
           {children}
-        </SidebarProvider>
-      </ThemeProvider>
-    </>
+        </FeedProvider>
+      </SidebarProvider>
+    </ThemeProvider>
   );
 }

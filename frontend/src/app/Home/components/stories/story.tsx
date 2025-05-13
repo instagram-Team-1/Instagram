@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { API } from "@/utils/api";
 import { StoryAvatar } from "./_components/StoryAvatar";
@@ -23,6 +23,7 @@ type StoryItem = {
   imageUrl: string;
   createdAt?: string;
   expiresAt?: string;
+  viewed?: boolean;
 };
 
 type GroupedStory = {
@@ -34,40 +35,43 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
   const [stories, setStories] = useState<GroupedStory[]>([]);
   const [selectedStoryGroup, setSelectedStoryGroup] =
     useState<GroupedStory | null>(null);
-  const [viewedStoryIds, setViewedStoryIds] = useState<string[]>([]);
+  const [viewedStoryIds, setViewedStoryIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchStories = async () => {
+  // ⚡️ Story fetch + viewed check цуг хийдэг
+  const fetchStories = useCallback(async () => {
     if (!userId?.id) return;
+
     try {
       const res = await axios.get(API + `/api/Getstory/${userId.id}`);
-      const storiesData = res.data;
+      const data: GroupedStory[] = res.data;
 
-      const storyIds = storiesData.flatMap((userStory: any) =>
-        userStory.stories.map((story: any) => story._id)
+      const allStoryIds = data.flatMap((group) =>
+        group.stories.map((story) => story._id)
       );
 
-      const viewRes = await axios.post(API + `/api/storyHasView`, {
+      const viewedRes = await axios.post(API + `/api/storyHasView`, {
         userId: userId.id,
-        storyIds,
+        storyIds: allStoryIds,
       });
 
-      const viewedStoryIds: string[] = viewRes.data.viewedStoryIds;
-      setViewedStoryIds(viewedStoryIds);
+      const viewedIds = new Set<string>(viewedRes.data.viewedStoryIds);
 
-      const storiesWithViewedFlag = storiesData.map((userStory: any) => {
-        const updatedStories = userStory.stories.map((story: any) => ({
+      // viewed true/false тохируулж өгнө
+      const finalData = data.map((group) => ({
+        ...group,
+        stories: group.stories.map((story) => ({
           ...story,
-          viewed: viewedStoryIds.includes(story._id),
-        }));
-        return { ...userStory, stories: updatedStories };
-      });
+          viewed: viewedIds.has(story._id),
+        })),
+      }));
 
-      setStories(storiesWithViewedFlag);
-    } catch (error) {
-      console.error("Failed to fetch stories:", error);
+      setStories(finalData);
+      setViewedStoryIds(viewedIds);
+    } catch (err) {
+      console.error("❌ Failed to fetch stories:", err);
     }
-  };
+  }, [userId?.id]);
 
   const handleImageUpload = async (file: File): Promise<string | null> => {
     const formData = new FormData();
@@ -75,13 +79,14 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
     formData.append("upload_preset", "Story-Instagram");
 
     try {
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
       const res = await axios.post(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
         formData
       );
       return res.data.secure_url;
     } catch (err) {
-      console.error("Upload error:", err);
+      console.error("❌ Upload error:", err);
       return null;
     }
   };
@@ -91,6 +96,7 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
     if (!file) return;
 
     setIsLoading(true);
+
     const imageUrl = await handleImageUpload(file);
     if (!imageUrl) {
       setIsLoading(false);
@@ -100,8 +106,8 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
     try {
       await axios.post(API + `/api/story/${userId?.id}`, { imageUrl });
       await fetchStories();
-    } catch (error) {
-      console.error("Failed to create story:", error);
+    } catch (err) {
+      console.error("❌ Failed to post story:", err);
     } finally {
       setIsLoading(false);
     }
@@ -109,17 +115,15 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
 
   useEffect(() => {
     fetchStories();
-  }, [userId?.id]);
+  }, [fetchStories]);
 
   return (
     <div className="flex gap-1 overflow-x-auto py-4 px-4 scrollbar-hide">
-      {stories.length > 0 && (
-        <AddStoryButton
-          username={username?.username || "Username"}
-          isLoading={isLoading}
-          onFileChange={handleFileChange}
-        />
-      )}
+      <AddStoryButton
+        username={username?.username || "You"}
+        isLoading={isLoading}
+        onFileChange={handleFileChange}
+      />
 
       {stories
         .filter((group) => group.user._id !== userId?.id)
@@ -127,12 +131,8 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
           <StoryAvatar
             key={group.user._id}
             user={group.user}
-            hasViewedAll={group.stories.every((story) =>
-              viewedStoryIds.includes(story._id)
-            )}
-            onClick={() => {
-              setSelectedStoryGroup(group);
-            }}
+            hasViewedAll={group.stories.every((story) => story.viewed)}
+            onClick={() => setSelectedStoryGroup(group)}
           />
         ))}
 
