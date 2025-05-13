@@ -1,4 +1,7 @@
 import React from "react";
+import { FollowNotification } from "./Notifications/FollowingNotifications";
+import { LikeNotification } from "./Notifications/LikeNotification";
+import { CommentNotification } from "./Notifications/CommentNotification";
 
 type ActivePanelType = "none" | "search" | "messages" | "notifications";
 
@@ -25,6 +28,22 @@ function NotificationButtonPanel({
           <ul>
             <li className="mb-2">New like on your post</li>
             <li className="mb-2">New comment on your photo</li>
+            <FollowNotification
+              username="username"
+              avatarImage="avatarImage"
+              isFollowing={true}
+            />
+            <LikeNotification
+              username="username"
+              avatarUrl="/avatars/johndoe.jpg"
+              photoThumbnailUrl="/photos/liked-photo.jpg"
+            />
+            <CommentNotification
+              username="johndoe"
+              avatarUrl="/avatars/johndoe.jpg"
+              comment="Awesome view!"
+              photoThumbnailUrl="/photos/photo123.jpg"
+            />
           </ul>
         </div>
       </div>
