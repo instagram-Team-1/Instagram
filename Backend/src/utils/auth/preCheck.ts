@@ -1,46 +1,50 @@
-import { Request, Response } from 'express';
-import { User } from '../../models/userModel';
-import bcrypt from 'bcryptjs';
-import memoryStore from './memoryStore';
-import sendVerificationEmail from './mailSender';
+import { Request, Response } from "express";
+import { User } from "../../models/userModel";
+import bcrypt from "bcryptjs";
+import sendVerificationEmail from "./mailSender";
+import { PreUser } from "../../models/preUser";
 
 const preCheck = async (req: Request, res: Response) => {
   try {
     const { username, fullname, password, email } = req.body;
 
     if (!username || !fullname || !password || !email) {
-      res.json({ message: "Missing required fields" });
-      return;
+       res.status(400).json({ message: "Missing required fields" });
+       return
     }
 
     const existingUsername = await User.findOne({ username });
     if (existingUsername) {
-      res.json({ message: "Username already exists" });
-      return;
+       res.status(400).json({ message: "Username already exists" });
+       return
     }
 
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
-      res.json({ message: "Email already exists" });
-      return;
+       res.status(400).json({ message: "Email already exists" });
+       return
     }
+
 
     const code = Math.floor(100000 + Math.random() * 900000);
     await sendVerificationEmail(email, code);
 
-    await memoryStore.set(`prechecked:${email}`, JSON.stringify({
-      email,
-      username,
-      password,
-      fullname,
-      code
-    }));
-console.log(memoryStore);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    res.json({ message: "Verification code sent to email" });
+    const pre = new PreUser({
+      username,
+      fullname,
+      email,
+      password: hashedPassword,
+      code: code.toString(),
+    });
+    await pre.save()
+     res.status(200).json({ message: "Verification code sent to email", code: pre._id });
+     return
   } catch (error) {
     console.error(error);
-    res.json({ message: "Internal server error" });
+     res.status(500).json({ message: "Internal server error" });
+     return
   }
 };
 

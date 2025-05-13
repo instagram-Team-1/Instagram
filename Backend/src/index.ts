@@ -11,14 +11,13 @@ import LikeRouter from "./routers/LikeRouter";
 import CommentRouter from "./routers/CommentRouter";
 import ConvertRouter from "./routers/ConvertRouter";
 import SuggestRouter from "./routers/SuggestedRouter";
-import chatRoute from './routers/chatRoute'
+import chatRoute from "./routers/chatRoute";
 import Message from "./models/messageModel";
 import roomModel from "./models/roomModel";
 import http from "http";
 import { Server } from "socket.io";
 import checkMsg from "./utils/auth/checkMsg";
 import savedRouter from "./routers/SaveRouter";
-
 
 dotenv.config();
 const app = express();
@@ -28,7 +27,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://instagramm-eta.vercel.app"],
+    origin: ["http://localhost:3000", "https://newinstagram-theta.vercel.app"],
   })
 );
 
@@ -55,13 +54,13 @@ app.use("/api", CommentRouter);
 app.use("/api", ConvertRouter);
 app.use("/api", storyRouter);
 app.use("/api", savedRouter);
-app.use("/api",SuggestRouter);
-app.use("/api/chat", chatRoute)
+app.use("/api", SuggestRouter);
+app.use("/api/chat", chatRoute);
 
 // Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://instagramm-eta.vercel.app"],
+    origin: ["http://localhost:3000", "https://newinstagram-theta.vercel.app"],
     methods: ["GET", "POST"],
     credentials: true,
   },
