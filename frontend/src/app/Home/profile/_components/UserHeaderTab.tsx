@@ -176,24 +176,6 @@ export const UserHeaderTab = () => {
         hasStory={!!myStoryGroup}
         onClick={handleProfileImageClick}
       />
-      {/* Profile image */}
-      <div className="relative w-[150px] h-[150px] bg-gray-300 rounded-full overflow-hidden group">
-        {profileImage ? (
-          <CldImage
-            src={profileImage}
-            width={150}
-            height={150}
-            alt="profile"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        ) : (
-          <img
-            src="https://i.pinimg.com/originals/0f/78/5d/0f785d55cea2a407ac8c1d0c6ef19292.jpg"
-            className="absolute inset-0 w-full h-full object-cover"
-            alt="default"
-          />
-        )}
-      </div>
 
       {/* User Info */}
       <div className="flex flex-col ml-5 gap-6">
