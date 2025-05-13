@@ -25,6 +25,8 @@ type User = {
   posts?: string[];
   bio?: string;
 };
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 type StoryItem = {
   _id: string;
@@ -58,8 +60,7 @@ export const UserHeaderTab = () => {
   const [modalUsers, setModalUsers] = useState<
     { _id: string; username: string }[]
   >([]);
-
-  // Token decode
+  const router = useRouter();
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -135,12 +136,16 @@ export const UserHeaderTab = () => {
     if (isModalOpen) fetchModalUsers();
   }, [isModalOpen, modalType, userData]);
 
-  // Click on story image
   const handleProfileImageClick = () => {
     if (myStoryGroup) {
       setSelectedStoryGroup(myStoryGroup);
     }
   };
+
+  const handleArchiveButtonClick = () => {
+    router.push("/Home/archive");
+  }
+
 
   return (
     <div className="flex flex-row gap-14">
@@ -178,7 +183,7 @@ export const UserHeaderTab = () => {
           >
             Edit profile
           </Button>
-          <Button variant="secondary">View archive</Button>
+          <Button onClick={handleArchiveButtonClick} variant="secondary">View archive</Button>
         </div>
 
         <div className="text-[16px] text-gray-400 flex gap-8">

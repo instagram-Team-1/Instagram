@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PostCard from "@/components/PostCard/post-card";
-import { SuggestionsSidebar } from "@/components/ui/suggested-sidebar";
+import { SuggestionsSidebar } from "@/components/Suggestions/suggested-sidebar";
 import { API } from "@/utils/api";
 import { getUserIdFromToken } from "@/utils/TokenParse";
 import { StoriesBar } from "@/components/stories/story";
@@ -81,6 +81,7 @@ export default function FeedPage() {
     };
 
     fetchPosts();
+    localStorage.setItem('userInfo', JSON.stringify({ userId, username }));
   }, [userId]);
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
