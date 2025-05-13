@@ -13,6 +13,11 @@ type Notification = {
   _id?: string; 
 };
 
+import { FollowNotification } from "./Notifications/FollowingNotifications";
+import { LikeNotification } from "./Notifications/LikeNotification";
+import { CommentNotification } from "./Notifications/CommentNotification";
+
+
 type ActivePanelType = "none" | "search" | "messages" | "notifications";
 
 interface NotificationButtonPanelProps {

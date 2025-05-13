@@ -5,7 +5,6 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { CldImage } from "next-cloudinary";
-import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,6 +15,7 @@ import {
 import { API } from "@/utils/api";
 import { StoryViewer } from "../../components/stories/_components/StoryViewer";
 import { useRouter } from "next/navigation";
+import { ProfileImage } from "./ProfileImage";
 
 type User = {
   _id: string;
@@ -26,7 +26,6 @@ type User = {
   posts?: string[];
   bio?: string;
 };
-
 
 type StoryItem = {
   _id: string;
@@ -89,30 +88,33 @@ export const UserHeaderTab = () => {
   };
 
   // Fetch my stories
-  const fetchMyStory = async (id: string) => {
-    try {
-      const res = await axios.get(`${API}/api/Getstory/${id}`);
-      const storiesData = res.data;
-      const myStory = storiesData.find((group: any) => group.user._id === id);
-      if (!myStory) return;
+ const fetchMyStory = async (id: string) => {
+  try {
+    const res = await axios.get(`${API}/api/Getstory/${id}`);
+    const storiesData = res.data;
+    const myStory = storiesData.find((group: any) => group.user._id === id);
+    if (!myStory) return;
 
-      const storyIds = myStory.stories.map((s: any) => s._id);
-      const viewRes = await axios.post(`${API}/api/storyHasView`, {
-        userId: id,
-        storyIds,
-      });
-      const viewedStoryIds: string[] = viewRes.data.viewedStoryIds;
+    const storyIds = myStory.stories.map((s: any) => s._id);
+    const viewRes = await axios.post(`${API}/api/storyHasView`, {
+      userId: id,
+      storyIds,
+    });
+    const viewedStoryIds: string[] = viewRes.data.viewedStoryIds;
 
-      const updatedStories = myStory.stories.map((story: any) => ({
-        ...story,
-        viewed: viewedStoryIds.includes(story._id),
-      }));
+    const updatedStories = myStory.stories.map((story: any) => ({
+      ...story,
+      viewed: viewedStoryIds.includes(story._id),
+    }));
 
-      setMyStoryGroup({ ...myStory, stories: updatedStories });
-    } catch {
-      console.error("Failed to fetch story");
-    }
-  };
+    setMyStoryGroup({
+      user: myStory.user,
+      stories: updatedStories,
+    });
+  } catch {
+    toast.error("Failed to fetch stories");
+  }
+}; 
 
   // Fetch followers/following for modal
   useEffect(() => {
@@ -146,31 +148,34 @@ export const UserHeaderTab = () => {
     router.push("/Home/archive");
   };
 
+  const uploadImage = async (file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "Story-Instagram");
+    const res = await axios.post(
+      "https://api.cloudinary.com/v1_1/your_cloud_name/image/upload",
+      formData
+    );
+    const imageUrl = res.data.secure_url;
+    setProfileImage(imageUrl);
+    await axios.put(`${API}/api/users/${userId}`, {
+      avatarImage: imageUrl,
+    });
+    toast.success("Profile photo updated!");
+  } catch (err) {
+    toast.error("Image upload failed.");
+  }
+};
+
   return (
     <div className="flex flex-row gap-14">
       {/* Profile Image */}
-      <div
-        className={`relative w-[150px] h-[150px] bg-gray-300 rounded-full overflow-hidden group cursor-pointer ${
-          myStoryGroup ? "border-4 border-pink-500" : "border-4 border-gray-300"
-        }`}
+      <ProfileImage
+        src={profileImage}
+        hasStory={!!myStoryGroup}
         onClick={handleProfileImageClick}
-      >
-        {profileImage ? (
-          <CldImage
-            src={profileImage}
-            width={150}
-            height={150}
-            alt="profile"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        ) : (
-          <img
-            src="https://i.pinimg.com/originals/0f/78/5d/0f785d55cea2a407ac8c1d0c6ef19292.jpg"
-            className="absolute inset-0 w-full h-full object-cover"
-            alt="default"
-          />
-        )}
-      </div>
+      />
 
       {/* User Info */}
       <div className="flex flex-col ml-5 gap-6">

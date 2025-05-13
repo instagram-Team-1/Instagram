@@ -18,7 +18,6 @@ export default function FeedPage() {
     );
   }
 
-
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
       <div className="w-full max-w-[630px]">
