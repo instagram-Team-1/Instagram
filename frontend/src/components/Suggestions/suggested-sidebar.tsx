@@ -37,9 +37,7 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
   const router = useRouter();
 
   const decoded = parseJwt(token || undefined);
-
   const userId = decoded.id;
-
   const image = decoded.avatarImage;
   const fullname = decoded.fullname;
 

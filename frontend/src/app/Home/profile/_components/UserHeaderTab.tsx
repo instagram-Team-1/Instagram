@@ -28,7 +28,6 @@ type User = {
 };
 
 
-
 type StoryItem = {
   _id: string;
   imageUrl: string;
@@ -145,8 +144,7 @@ export const UserHeaderTab = () => {
 
   const handleArchiveButtonClick = () => {
     router.push("/Home/archive");
-  }
-
+  };
 
   return (
     <div className="flex flex-row gap-14">
@@ -184,7 +182,9 @@ export const UserHeaderTab = () => {
           >
             Edit profile
           </Button>
-          <Button onClick={handleArchiveButtonClick} variant="secondary">View archive</Button>
+          <Button onClick={handleArchiveButtonClick} variant="secondary">
+            View archive
+          </Button>
         </div>
 
         <div className="text-[16px] text-gray-400 flex gap-8">
