@@ -44,6 +44,8 @@ const Page = () => {
       }
     },
   });
+  
+  
   return (
     <div className="bg-black w-full h-[100vh]">
       <LampContainer>

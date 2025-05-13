@@ -9,6 +9,8 @@ const loginAccount = async (
   next: NextFunction
 ): Promise<void> => {
   const { login, password } = req.body;
+  console.log(password);
+  
 
   if (!login || !password) {
     res.status(400).json({ message: "Missing login or password" });

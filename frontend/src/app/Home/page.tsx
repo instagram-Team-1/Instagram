@@ -39,6 +39,7 @@ export default function FeedPage() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const parsedToken = getUserIdFromToken(token);
+    
 
     if (parsedToken?.id) {
       setId({ id: parsedToken.id });
@@ -81,6 +82,7 @@ export default function FeedPage() {
     };
 
     fetchPosts();
+     localStorage.setItem('id', JSON.stringify(userId));
   }, [userId]);
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
