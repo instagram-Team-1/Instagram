@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { API } from "@/utils/api";
 import { StoryViewer } from "@/components/stories/_components/StoryViewer";
+import { useRouter } from "next/navigation";
 
 type User = {
   _id: string;
@@ -25,8 +26,8 @@ type User = {
   posts?: string[];
   bio?: string;
 };
-import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+
+
 
 type StoryItem = {
   _id: string;
