@@ -4,6 +4,8 @@ import { User } from "../../models/userModel";
 
 // GET /api/story/:userId
 export const getStories = async (
+
+  
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -59,6 +61,28 @@ export const getStories = async (
   } catch (err) {
     res.status(500).json({
       error: "Story татаж чадсангүй",
+      message: (err as Error).message,
+    });
+  }
+};
+
+export const getAllMyStories = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      res.status(400).json({ error: "userId шаардлагатай" });
+      return;
+    }
+
+    const stories = await Story.find({ userId }) // зөвхөн тухайн хэрэглэгчийн stories
+      .sort({ createdAt: -1 })
+      .populate("userId", "username avatarImage");
+
+    res.status(200).json(stories);
+  } catch (err) {
+    res.status(500).json({
+      error: "Өөрийн бүх stories-г татаж чадсангүй",
       message: (err as Error).message,
     });
   }
