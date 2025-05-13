@@ -105,10 +105,9 @@ export const UserHeaderTab = () => {
     setUploading(true);
 
     try {
-      const UPLOAD_PRESET = "PostsInstagram";
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", UPLOAD_PRESET);
+      formData.append("upload_preset", "Story-Instagram");
 
       const uploadRes = await axios.post(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
@@ -156,13 +155,6 @@ export const UserHeaderTab = () => {
     <div className="flex flex-row gap-14">
       {/* Profile image */}
       <div className="relative w-[150px] h-[150px] bg-gray-300 rounded-full overflow-hidden group">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="absolute inset-0 opacity-0 cursor-pointer z-10"
-          disabled={uploading}
-        />
         {profileImage ? (
           <CldImage
             className="absolute inset-0 w-full h-full bg-cover bg-center"
@@ -177,15 +169,6 @@ export const UserHeaderTab = () => {
             src="https://i.pinimg.com/originals/0f/78/5d/0f785d55cea2a407ac8c1d0c6ef19292.jpg"
             alt="default profile"
           />
-        )}
-        {uploading ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-            <div className="text-white text-sm">Loading...</div>
-          </div>
-        ) : (
-          <div className="absolute inset-0 flex justify-center items-center bg-[var(--foreground)]/40 opacity-0 group-hover:opacity-100 transition-all cursor-pointer">
-            <Camera width={20} className="stroke-[var(--background)]" />
-          </div>
         )}
       </div>
 

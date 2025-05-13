@@ -8,7 +8,10 @@ import PostCommentInput from "./PostCommentInput";
 
 interface Comment {
   comment: string;
-  user: { username: string };
+  user: { 
+    username: string;
+    avatarImage?:string; 
+  };
 }
 
 interface CommentModalProps {
