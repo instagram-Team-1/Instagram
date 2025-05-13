@@ -35,6 +35,7 @@ const PostAndSave = () => {
   const [username, setUsername] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [UserId, setUserId] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -51,6 +52,7 @@ const PostAndSave = () => {
       const decoded = jwtDecode<UserDataType & DecodedToken>(token);
       setTokenData(decoded);
       setUsername(decoded.username);
+      setUserId(decoded.id)
       
     } catch (err) {
       console.error("Invalid token:", err);
@@ -88,14 +90,14 @@ const PostAndSave = () => {
   }, [selectedTab, tokenData]);
 
   useEffect(() => {
-    if (!username) {
+    if (!UserId) {
       return;
     }
 
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API}/api/posts/user/${username}`);
+        const response = await axios.get(`${API}/api/getPostsUserId/${UserId}`);
         const fetchedPosts = response.data.posts || response.data || [];
         setPosts(fetchedPosts);
       } catch (error) {
@@ -107,7 +109,7 @@ const PostAndSave = () => {
     };
 
     fetchPosts();
-  }, [username]);
+  }, [UserId]);
 
   return (
     <div className="flex flex-col mt-[30px]">

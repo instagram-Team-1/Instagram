@@ -6,6 +6,7 @@ import { SuggestionsSidebar } from "@/components/Suggestions/suggested-sidebar";
 import { API } from "@/utils/api";
 import { getUserIdFromToken } from "@/utils/TokenParse";
 import { StoriesBar } from "@/components/stories/story";
+import axios from "axios";
 
 // Постын төрөл тодорхойлох
 type Post = {
@@ -45,12 +46,26 @@ export default function FeedPage() {
     } else {
       setId(null);
     }
-    if (parsedToken?.username) {
-      setusername({ username: parsedToken.username });
-    } else {
-      setusername(null);
-    }
+
+    
   }, []);
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        if (userId?.id) {
+          const res = await axios.get(
+            API+`/api/users/ConvertUsername/${userId.id}`
+          );
+          setusername({ username: res.data.username });
+        }
+      } catch (err) {
+        console.error("Failed to get username:", err);
+      }
+    };
+
+    fetchUsername();
+  }, [userId]);
   
 
   useEffect(() => {
@@ -111,7 +126,7 @@ export default function FeedPage() {
 
       <div className="hidden lg:block w-[320px] pl-10 pt-8">
         <div className="sticky top-20">
-          <SuggestionsSidebar />
+          <SuggestionsSidebar username={username ? { username: username.username } : null} />
         </div>
       </div>
     </div>
