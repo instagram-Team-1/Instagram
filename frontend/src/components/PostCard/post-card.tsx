@@ -13,6 +13,7 @@ import CommentModal from "./_components/CommentModal";
 import { API } from "@/utils/api";
 import { PostCardProps, Post, Comment } from "@/lib/types";
 import PostCardSkeleton from "./_components/PostCardSkeleton";
+import socket from "@/lib/socket";
 
 const PostCard: FC<PostCardProps> = ({
   imageUrl,
@@ -117,6 +118,14 @@ const PostCard: FC<PostCardProps> = ({
       if (response.data.likes) {
         setLikesCount(response.data.likes.length);
       }
+
+      if (userId._id !== currentUserId) {
+        socket.emit("sendNotification", {
+          senderId: currentUserId,
+          receiverId: userId._id,
+          type: wasLiked ? "unlike" : "like", 
+        });
+      }
     } catch (error) {
       console.error("Like/unlike үйлдэлд алдаа гарлаа:", error);
       toast.error("Like үйлдэлд алдаа гарлаа");
@@ -140,6 +149,14 @@ const PostCard: FC<PostCardProps> = ({
       };
       setComments((prev) => [...prev, newComment]);
       setComment("");
+
+      if (userId._id !== currentUserId) {
+        socket.emit("sendNotification", {
+          senderId: currentUserId,
+          receiverId: userId._id,
+          type: "comment",
+        });
+      }
     } catch (err) {
       console.error("Error posting comment:", err);
       toast.error("Коммент бичихэд алдаа гарлаа");

@@ -1,10 +1,11 @@
-// FeedPage.tsx
-"use client"
+"use client";
+
 
 import { useFeed } from "./Context/FeedPage";
 import PostCard from "@/components/PostCard/post-card";
 import { SuggestionsSidebar } from "@/components/Suggestions/suggested-sidebar";
 import { StoriesBar } from "./components/stories/story";
+
 
 export default function FeedPage() {
   const data = useFeed();
@@ -16,6 +17,7 @@ export default function FeedPage() {
       </div>
     );
   }
+
 
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
@@ -51,5 +53,3 @@ export default function FeedPage() {
     </div>
   );
 }
-
-
