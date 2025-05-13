@@ -2,10 +2,11 @@
 
 import { API } from '@/utils/api';
 import axios from 'axios';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
+
 type MailVerifyProps = {
   email: string;
   closeDialog: () => void;
@@ -15,42 +16,44 @@ const MailVerify = ({ email, closeDialog }: MailVerifyProps) => {
   const router = useRouter();
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
-
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  const [preId, setPreId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const code = localStorage.getItem('code');
+    if (code) {
+      setPreId(code);
+    }
+  }, []);
 
   const handleChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return; // Only allow numbers
-
+    if (!/^\d*$/.test(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-
     if (value && index < 5) {
-      inputsRef.current[index + 1]?.focus(); // Move to next input automatically
+      inputsRef.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      inputsRef.current[index - 1]?.focus(); // Move back if deleting
+      inputsRef.current[index - 1]?.focus();
     }
   };
 
   const handleSubmit = async () => {
     const mailcode = otp.join('');
-
     if (mailcode.length !== 6) {
       toast.error('Please enter the complete 6-digit code.');
       return;
     }
-
     setLoading(true);
     try {
-      const res = await axios.post(API + '/api/auth/create-account', {
+      const res = await axios.post(`${API}/api/auth/create-account`, {
         code: mailcode,
         email,
       });
-
       toast.success(res.data.message || 'Account created successfully!');
       setTimeout(() => {
         router.push('/Home');
@@ -62,8 +65,15 @@ const MailVerify = ({ email, closeDialog }: MailVerifyProps) => {
     }
   };
 
-  const handleBack = () => {
-    closeDialog(); 
+  const handleBack = async () => {
+    if (preId) {
+      try {
+        await axios.delete(`${API}/api/auth/editPre/${preId}`);
+      } catch (error: any) {
+        toast.error('Failed to delete temporary data.');
+      }
+    }
+    closeDialog()
   };
 
   return (
