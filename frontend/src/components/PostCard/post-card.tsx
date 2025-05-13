@@ -180,7 +180,10 @@ const PostCard: FC<PostCardProps> = ({
   return (
     <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-6 relative">
       {showShareModal && (
-        <ShareModal onClose={() => setShowShareModal(false)} />
+        <ShareModal
+          onClose={() => setShowShareModal(false)}
+          postId={postId} // ⬅️ пост ID-г дамжуулж байна
+        />
       )}
       {showComments && (
         <CommentModal
