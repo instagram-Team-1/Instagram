@@ -9,7 +9,7 @@ const loginAccount = async (
   next: NextFunction
 ): Promise<void> => {
   const { login, password } = req.body;
-  console.log(password);
+
   
 
   if (!login || !password) {

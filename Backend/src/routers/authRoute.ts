@@ -8,6 +8,7 @@ import createRoom from '../utils/msg/createRoom';
 import allChat from '../utils/msg/allChats';
 import checkMsg from '../utils/auth/checkMsg';
 import changePre from '../utils/auth/changePre';
+import checker from '../controller/Chat/checker'
 const router = express.Router();
 
 router.post('/register', preCheck); 

@@ -6,7 +6,6 @@ import { SuggestionsSidebar } from "@/components/ui/suggested-sidebar";
 import { API } from "@/utils/api";
 import { getUserIdFromToken } from "@/utils/TokenParse";
 import { StoriesBar } from "@/components/stories/story";
-
 // Постын төрөл тодорхойлох
 type Post = {
   imageUrl: string;
@@ -80,10 +79,11 @@ export default function FeedPage() {
         console.error("Failed to fetch posts:", error);
       }
     };
-
     fetchPosts();
-     localStorage.setItem('id', JSON.stringify(userId));
+    localStorage.setItem('userInfo', JSON.stringify({ userId, username }));
+  
   }, [userId]);
+
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
       <div className="w-full max-w-[630px]">

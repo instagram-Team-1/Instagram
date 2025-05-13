@@ -4,7 +4,6 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import { API } from "@/utils/api";
 import { UserDataType, PostType } from "@/lib/types";
-
 import ProfileImage from "../_components/ProfileImage";
 import ProfileHeader from "../_components/ProfileHeader";
 import ProfileHighlights from "../_components/ProfileHighlights";
@@ -13,6 +12,7 @@ import ProfileFooter from "../_components/ProfileFooter";
 import PostsGrid from "../../profile/_components/PostsGrid";
 import { jwtDecode } from "jwt-decode";
 import { FollowerType } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
   const { username } = useParams();
@@ -99,6 +99,13 @@ export default function ProfilePage() {
     !user?.isPrivate ||
     isOwnProfile ||
     (userId?.id && user?.followers?.includes(userId.id));
+
+
+
+
+  
+    
+    
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
