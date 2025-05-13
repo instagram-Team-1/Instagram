@@ -16,6 +16,8 @@ import { jwtDecode } from "jwt-decode";
 import { FollowerType } from "@/lib/types";
 
 export default function ProfilePage() {
+
+  const router = useRouter();
   const { username } = useParams();
   const [userPosts, setUserPosts] = useState<PostType[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -92,7 +94,7 @@ export default function ProfilePage() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!user) return <div>User not found</div>;
-  const router = useRouter()
+  
   // const createChatRoom = async () => {
   //   const storedData = localStorage.getItem("userInfo");
   //   let myId = null;

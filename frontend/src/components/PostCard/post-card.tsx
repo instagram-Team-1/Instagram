@@ -12,6 +12,7 @@ import ShareModal from "./_components/ShareModal";
 import CommentModal from "./_components/CommentModal";
 import { API } from "@/utils/api";
 import { PostCardProps, Post, Comment } from "@/lib/types";
+import PostCardSkeleton from "./_components/PostCardSkeleton";
 
 const PostCard: FC<PostCardProps> = ({
   imageUrl,
@@ -175,7 +176,7 @@ const PostCard: FC<PostCardProps> = ({
   };
 
   if (loading)
-    return <p className="text-gray-400 text-sm">Ачааллаж байна...</p>;
+    return <PostCardSkeleton/>;
 
   return (
     <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-6 relative">

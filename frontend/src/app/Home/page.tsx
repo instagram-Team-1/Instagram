@@ -9,7 +9,13 @@ import { StoriesBar } from "./components/stories/story";
 export default function FeedPage() {
   const data = useFeed();
 
-  if (!data) return <div>Loading...</div>;
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center min-h-screen w-full">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
@@ -46,6 +52,4 @@ export default function FeedPage() {
   );
 }
 
-// _app.tsx буюу layout.tsx эсвэл app/providers.tsx -д:
-// <FeedProvider> компонентоо wrapper болгож оруулаарай
-// <FeedProvider><HomeLayout>{children}</HomeLayout></FeedProvider>
+
