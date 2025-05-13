@@ -84,24 +84,13 @@ const createChatRoom = async () => {
     { name: user.username, id: user._id },
     { name: myUsername, id: myId },
   ];
-  console.log("Selected Users:", selectedUsers);
-
   try {
     const checkRoomRes = await axios.post(`${API}/api/chat/checkRoom`, { selectedUsers });
     console.log("Check Room Response:", checkRoomRes.data);
-
-    if (checkRoomRes.data.roomExists) {
-      console.log("Room exists");
-      router.push(`/Home/actualRoom/${checkRoomRes.data.roomId}`);
-    } else {
-      const createRoomRes = await axios.post(`${API}/api/auth/Room`, { selectedUsers });
-      console.log("Create Room Response:", createRoomRes.data);
-
-      if (createRoomRes.data.message === "Room created successfully") {
-        console.log("Room created successfully");
-        router.push(`/Home/actualRoom/${createRoomRes.data.roomId}`);
-      }
-    }
+    router.push(`/Home/actualRoom/${checkRoomRes.data.roomId}`);
+   
+      
+    
   } catch (error) {
     console.error("Error handling chat room:", error);
     toast.error("Failed to handle chat room.");
