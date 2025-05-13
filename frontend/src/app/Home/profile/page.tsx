@@ -42,18 +42,7 @@ export default function ProfilePage() {
 
   const isOwnProfile = userData?.id === currentUserId;
   const canViewPosts =
-    !userData?.isPrivate ||
-    isOwnProfile ||
-    userData?.followers?.some((f) => f === currentUserId);
-
-  // if (userData?.isPrivate && userData.id !== currentUserId) {
-  //   return (
-  //     <div className="text-center mt-10">
-  //       <p className="text-lg font-semibold">This account is private.</p>
-  //       <p className="text-sm text-gray-500">Follow to see their photos.</p>
-  //     </div>
-  //   );
-  // }
+  !userData?.isPrivate || isOwnProfile || userData?.followers?.some(f => f === currentUserId);
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
@@ -68,7 +57,7 @@ export default function ProfilePage() {
             <p className="text-sm text-gray-500">Follow to see their photos.</p>
           </div>
         ) : ( */}
-        <PostAndSave />
+        {/* <PostAndSave /> */}
         {/* )} */}
         <Footer />
       </div>
