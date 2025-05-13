@@ -37,7 +37,7 @@ export default function CreatePostDialog({
       setUploading(true);
       const response = await axios.post(CLOUDINARY_URL, formData);
       const url = response.data.secure_url;
-      setUploadedImageUrl(url); // Image successfully uploaded
+      setUploadedImageUrl(url);
     } catch (error) {
       console.error("Upload алдаа:", error);
     } finally {
@@ -45,13 +45,13 @@ export default function CreatePostDialog({
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0] && !uploadedImageUrl) {
-      const file = e.target.files[0];
-      setSelectedImage(file);
-      uploadImageToCloudinary(file);
-    }
-  };
+  // ✅ 100 үгний хязгаар тавих функц
+const handleCaptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const value = e.target.value;
+  if (value.length <= 100) {
+    setCaption(value);
+  }
+};
 
   const handleNext = () => {
     if (step === 1 && !uploadedImageUrl) return;
@@ -96,7 +96,7 @@ export default function CreatePostDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px]  sm:max-h-[1000px] space-y-4">
+      <DialogContent className="sm:max-w-[550px] sm:max-h-[1000px] space-y-4">
         <DialogHeader>
           <DialogTitle>Create Post</DialogTitle>
           <DialogDescription>
@@ -121,11 +121,11 @@ export default function CreatePostDialog({
             )}
             {uploading && <p>Uploading image...</p>}
             {uploadedImageUrl && (
-              <div className="flex justify-center items-center relative w-[500px] ">
+              <div className="flex justify-center items-center relative w-[500px]">
                 <img
                   src={uploadedImageUrl}
                   alt="uploaded"
-                  className="object-cover rounded"
+                  className="w-full h-auto max-h-[350px] object-contain rounded"
                 />
                 <Button
                   variant="outline"
@@ -148,20 +148,21 @@ export default function CreatePostDialog({
               <img
                 src={uploadedImageUrl}
                 alt="uploaded"
-                className="w-full h-auto max-h-[250px] object-cover rounded"
+                className="w-full h-auto max-h-[300px] object-contain rounded"
               />
             )}
-            <textarea
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              className="w-[300px] h-[150px] p-1.5 ml-2"
-            ></textarea>
-            {/* <Input
-                placeholder=""
+            <div className="flex flex-col ml-2 w-full">
+              <textarea
                 value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                className=""
-              /> */}
+                onChange={handleCaptionChange}
+                className="w-full h-[150px] p-1.5"
+                maxLength={100} 
+                placeholder="Write a caption here..."
+              />
+              <p className="text-sm text-gray-400 mt-1 w-">
+                {caption.length} / 100 characters
+              </p>
+            </div>
           </div>
         )}
 

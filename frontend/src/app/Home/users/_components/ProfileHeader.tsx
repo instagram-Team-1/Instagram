@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import socket from "@/lib/socket";
 
 type Props = {
   user: UserDataType;
@@ -51,7 +52,19 @@ export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }:
         followerId: currentUserId,
         followingId: user._id,
       });
-
+      if (!isFollowing) {
+        socket.emit("sendNotification", {
+          senderId: currentUserId,
+          receiverId: user._id,
+          type: "follow",
+        });
+      } else {
+        socket.emit("sendNotification", {
+          senderId: currentUserId,
+          receiverId: user._id,
+          type: "unfollow",
+        });
+      }
       toast.success(response.data.message);
       setIsFollowing(!isFollowing);
 
