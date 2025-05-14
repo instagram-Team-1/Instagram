@@ -63,15 +63,15 @@ export default function PostsGrid({ username }: PostsGridProps) {
             }}
           >
             {post.imageUrl ? (
-              <div className="relative group w-full aspect-square overflow-hidden rounded-lg">
+              <div className="relative group w-full aspect-square overflow-hidden">
                 <CldImage
                   src={post.imageUrl}
                   alt={post.caption || "Post image"}
                   className="w-full h-full object-cover"
-                  width={400}
+                  width={300}
                   height={400}
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-60 transition-opacity flex items-center justify-center gap-6">
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6">
                   <div className="flex items-center gap-1 text-white text-lg font-semibold">
                     ❤️ {post.likes?.length ?? 0}
                   </div>
