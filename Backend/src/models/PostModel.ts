@@ -20,8 +20,8 @@ const PostSchema: Schema = new Schema({
   imageUrl: { type: String, required: true },
   likes: [
     {
-      type: mongoose.Schema.Types.ObjectId, // likes дотор ObjectId ашиглана
-      ref: "User", // Хэрвээ хүсвэл likes-д орсон хэрэглэгчийн мэдээллийг холбоно
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   ],
   shares: { type: Number, default: 0 },

@@ -5,15 +5,14 @@ import Image from "next/image";
 
 interface PostImageProps {
   imageUrl: string;
-  username: string;
 }
 
-const PostImage: FC<PostImageProps> = ({ imageUrl, username }) => {
+const PostImage: FC<PostImageProps> = ({ imageUrl }) => {
   return (
     <div className="relative w-full aspect-[4/5] bg-black overflow-hidden">
       <Image
         src={imageUrl}
-        alt={`Постын зураг: ${username || "Тодорхойгүй хэрэглэгч"}`}
+        alt={`Постын зураг: "Тодорхойгүй хэрэглэгч"`}
         layout="fill"
         objectFit="cover"
         objectPosition="center"
