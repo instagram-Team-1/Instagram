@@ -34,7 +34,7 @@ const HoverProfileCard: FC<HoverProfileCardProps> = ({ user }) => {
 
   return (
     <div className="bg-black text-white rounded-xl p-4 w-80 shadow-lg">
-      <ProfileHeader username={user.username ?? "Unknown"} avatarImage={user.avatarImage ?? "/default-avatar.png"} />
+      <ProfileHeader username={user.username ?? ""} avatarImage={user.avatarImage ?? "/default-avatar.png"} />
       <ProfileStats
         postsCount={user.posts?.length ?? 0}
         followers={followers}

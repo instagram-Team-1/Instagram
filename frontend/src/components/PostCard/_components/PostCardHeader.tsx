@@ -40,7 +40,7 @@ const PostHeader: FC<PostHeaderProps> = ({ user }) => {
           onMouseLeave={() => setIsHoveringName(false)}
         >
           <span className="text-white text-sm font-medium cursor-pointer">
-            {user.username || "@unknown"}
+            {user.username || ""}
           </span>
           {isHoveringName && (
             <div className="absolute top-full mt-2 z-50">
