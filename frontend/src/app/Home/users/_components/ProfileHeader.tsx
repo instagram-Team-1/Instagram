@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { UserDataType } from "@/lib/types";
 import { API } from "@/utils/api";
 import { useRouter } from "next/navigation";
+import { StoryViewer } from "./Storyviewo-delete";
 import {
   Dialog,
   DialogContent,

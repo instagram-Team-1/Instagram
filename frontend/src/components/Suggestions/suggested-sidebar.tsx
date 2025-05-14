@@ -11,9 +11,7 @@ type StoriesBarProps = {
   username: { username: string } | null;
 };
 
-
-export function SuggestionsSidebar({ username }: StoriesBarProps) {
-
+export function SuggestionsSidebar({}: StoriesBarProps) {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
   const token = localStorage.getItem("token");
@@ -49,7 +47,6 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
         const response = await axios.get(API + `/api/suggested/${userId}`);
         setSuggestions(response.data);
         console.log("Suggested users:", response.data);
-
       } catch (error) {
         console.error("Error fetching suggested users:", error);
       }
