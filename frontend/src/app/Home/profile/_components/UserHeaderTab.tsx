@@ -180,7 +180,7 @@ export const UserHeaderTab = () => {
       {/* User Info */}
       <div className="flex flex-col ml-5 gap-6">
         <div className="flex items-center gap-4 text-[20px] font-normal">
-          <span>{userData?.username || "Unknown"}</span>
+          <span>{userData?.username || ""}</span>
           <Button
             variant="secondary"
             onClick={() => (window.location.href = "/Home/accounts/edit/")}

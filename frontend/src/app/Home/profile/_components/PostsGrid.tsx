@@ -1,7 +1,15 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { CldImage } from "next-cloudinary";
 import axios from "axios";
 import { API } from "@/utils/api";
+import CommentModal from "@/components/PostCard/_components/CommentModal";
+import { UserDataType } from "@/lib/types";
+import { toast } from "sonner";
+import { Comment } from "@/lib/types";
+import { jwtDecode } from "jwt-decode";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PostsGridProps {
   username: string;
@@ -25,7 +33,27 @@ export default function PostsGrid({ username }: PostsGridProps) {
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-
+    const [likesCount, setLikesCount] = useState<number>(0);
+    const [tokenData, setTokenData] = useState<UserDataType | null>(null);
+    const [liked, setLiked] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [comment, setComment] = useState("");
+    const [comments, setComments] = useState<Comment[]>([]);
+    const [userId, setUserId] = useState("");
+    const [currentUsername, setCurrentUsername] = useState<string>("");
+    const [currentPostId, setCurrentPostId] = useState<string>("");
+    // const [username, setUsername] = useState<string | null>(null);
+    
+    useEffect(() => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+  
+      const decoded = jwtDecode<{ id: string; username: string }>(token);
+      setUserId(decoded.id);
+      setCurrentUsername(decoded.username);
+      // setUsername(decoded.username);
+    }, []);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -46,93 +74,234 @@ export default function PostsGrid({ username }: PostsGridProps) {
     }
   }, [username]);
 
+  useEffect(() => {
+  if (!selectedPost) return;
+
+  const fetchPostDetails = async () => {
+    try {
+      const [likeRes, commentRes] = await Promise.all([
+        axios.get(`${API}/api/check-like`, {
+          params: { userId, postId: selectedPost._id },
+        }),
+        axios.get(`${API}/api/posts/comment/${selectedPost._id}`),
+      ]);
+
+      setLiked(likeRes.data.liked);
+      setLikesCount(selectedPost.likes?.length || 0);
+      setComments(commentRes.data);
+    } catch (error) {
+      toast.error("Failed to load post details");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPostDetails();
+}, [selectedPost, userId]);
+
+
+    const handleLike = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+    const wasLiked = liked;
+    const prevLikes = likesCount;
+
+    setLiked((prev) => !prev);
+    setLikesCount((prev) => prev + (wasLiked ? -1 : 1));
+
+    try {
+      const endpoint = wasLiked ? "/api/unlike" : "/api/like";
+      const response = await axios.post(`${API}${endpoint}`, {
+        userId,
+        postId: currentPostId,
+      });
+
+      // toast.success(response.data.message);
+      if (response.data.likes) {
+        setLikesCount(response.data.likes.length);
+      }
+    } catch (error) {
+      console.error("Error to like/unlike:", error);
+      toast.error("Error to like");
+      setLiked(wasLiked);
+      setLikesCount(prevLikes);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  //   useEffect(() => {
+  //   const checkIfLiked = async () => {
+  //     try {
+  //       const response = await axios.get(`${API}/api/check-like`, {
+  //         params: { userId, postId: currentPostId },
+  //       });
+  //       setLiked(response.data.liked);
+  //     } catch (error) {
+  //       console.error("Like төлвийг шалгахад алдаа гарлаа:", error);
+  //       toast.error("Постын төлвийг ачааллахад алдаа гарлаа");
+  //     }
+  //   };
+
+  //   if (currentPostId && userId) {
+  //     checkIfLiked();
+  //   }
+
+  //   console.log("likes", liked);
+  // }, [currentPostId, userId]);
+
+  const postComment = async () => {
+    try {
+      const res = await axios.post(
+        `${API}/api/posts/comment/${currentPostId}`,
+        {
+          userId,
+          postId: currentPostId,
+          username: currentUsername,
+          comment,
+        }
+      );
+
+      const newComment = {
+        comment,
+        user: { username: currentUsername },
+      };
+      setComments((prev) => [...prev, newComment]);
+      setComment("");
+    } catch (err) {
+      console.error("Error posting comment:", err);
+      toast.error("Коммент бичихэд алдаа гарлаа");
+    }
+  };
+
+    useEffect(() => {
+    if (!selectedPost) return;
+
+    const fetchLikeStatus = async () => {
+      try {
+        const response = await axios.get(`${API}/api/check-like`, {
+          params: { userId, postId: selectedPost._id },
+        });
+        setLiked(response.data.liked);
+        setLikesCount(selectedPost.likes?.length || 0);
+      } catch (error) {
+        console.error("Failed to load likes:", error);
+      }
+    };
+
+    fetchLikeStatus();
+  }, [selectedPost]);
+
+    useEffect(() => {
+    if (!selectedPost) return;
+    const fetchComments = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(
+          `${API}/api/posts/comment/${selectedPost._id}`
+        );
+        setComments(res.data);
+      } catch (error) {
+        console.error("Failed to load comments:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchComments();
+  }, [selectedPost]);
+
+    const handlePostClick = (post: Post) => {
+    setSelectedPost(post);
+    setCurrentPostId(post._id);
+    setLikesCount(post.likes?.length || 0);
+    setShowModal(true);
+  };
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (comment.trim()) {
+        postComment();
+      }
+    };
+
+      const SkeletonPostCard = () => (
+    <div className="w-full h-[400px]">
+      <Skeleton className="w-full h-full rounded-md" />
+    </div>
+  );
+
   return (
-    <div className="grid grid-cols-3 gap-4">
-      {loading ? (
-        <div>Loading...</div>
-      ) : error ? (
-        <div>{error}</div>
-      ) : posts.length > 0 ? (
-        posts.map((post) => (
-          <div
-            key={post._id}
-            className="w-full h-70 bg-gray-200 overflow-hidden rounded-lg"
-            onClick={() => {
-              setSelectedPost(post);
-              setShowModal(true);
-            }}
-          >
-            {post.imageUrl ? (
-              <div className="relative group w-full aspect-square overflow-hidden">
-                <CldImage
-                  src={post.imageUrl}
-                  alt={post.caption || "Post image"}
-                  className="w-full h-full object-cover"
-                  width={300}
-                  height={400}
-                />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6">
-                  <div className="flex items-center gap-1 text-white text-lg font-semibold">
-                    ❤️ {post.likes?.length ?? 0}
-                  </div>
-                  <div className="flex items-center gap-1 text-white text-lg font-semibold">
-                    💬 {post.comments?.length ?? 0}
+    <>
+      <div className="grid grid-cols-3 gap-4">
+        {loading ? (
+        Array.from({ length: 6 }).map((_, i) => (
+          <SkeletonPostCard key={i} />
+        ))
+        ) : error ? (
+          <div>{error}</div>
+        ) : posts.length > 0 ? (
+          posts.map((post) => (
+            <div
+              key={post._id}
+              className="w-full h-90 bg-gray-200 overflow-hidden cursor-pointer"
+              onClick={() => handlePostClick(post)}
+            >
+              {post.imageUrl ? (
+                <div className="relative group w-full h-full aspect-square overflow-hidden">
+                  <CldImage
+                    src={post.imageUrl}
+                    alt={post.caption || "Post image"}
+                    className="w-full h-full box-border object-cover"
+                    width={300}
+                    height={400}
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6">
+                    <div className="flex items-center gap-1 text-white text-lg font-semibold">
+                      ❤️ {post.likes?.length ?? 0}
+                    </div>
+                    <div className="flex items-center gap-1 text-white text-lg font-semibold">
+                      💬 {post.comments?.length ?? 0}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <h2 className="text-[24px] text-center font-semibold mb-2">No post yet</h2>
-            )}
-          </div>
-        ))
-      ) : (
-        <h2 className="text-[24px] text-center font-semibold mb-2">No post yet</h2>
-      )}
+              ) : (
+                <h2 className="text-[24px] text-center font-semibold mb-2">
+                  No post yet
+                </h2>
+              )}
+            </div>
+          ))
+        ) : (
+          <h2 className="text-[24px] text-center font-semibold mb-2">
+            No post yet
+          </h2>
+        )}
+      </div>
+
+      {/* Modal */}
       {showModal && selectedPost && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 bg-opacity-80">
-    <div className="bg-black w-full max-w-5xl h-[80vh] flex rounded-lg overflow-hidden">
-      
-      <div className="w-1/2 relative">
-        <CldImage
-          src={selectedPost.imageUrl}
-          alt="selected post"
-          fill
-          className="object-cover"
+        <CommentModal
+          imageUrl={selectedPost.imageUrl}
+          user={{
+            username: selectedPost.username,
+            avatarImage: "/placeholder.jpg",
+          }}
+          caption={selectedPost.caption}
+          comments={comments}
+          likesCount={likesCount}
+          liked={liked}
+          onLike={handleLike}
+          onShare={() => setShowShareModal(true)}
+          onCommentChange={setComment}
+          onCommentSubmit={handleSubmit}
+          onClose={() => setShowModal(false)}
+          comment={comment}
         />
-      </div>
-
-      <div className="w-1/2 flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-neutral-800">
-          <span className="text-white font-bold">{selectedPost.username}</span>
-          <button
-            onClick={() => setShowModal(false)}
-            className="text-white text-xl"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div className="text-white p-4 text-sm border-b border-neutral-800">
-          {selectedPost.caption}
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-4">
-          {selectedPost.comments?.length === 0 ? (
-            <p className="text-neutral-400 text-sm">No comments yet.</p>
-          ) : (
-            selectedPost.comments?.map((comment, idx) => (
-              <div key={idx} className="text-white text-sm py-2 border-b border-neutral-800">
-                <span className="font-semibold">{comment?.user?.username }</span> {comment.comment}
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
-    </div>
+      )}
+    </>
   );
 }
 
