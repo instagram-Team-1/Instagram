@@ -198,7 +198,6 @@ const MyStoriesAndHighlight = () => {
         )}
       </div>
 
-      {/* Viewer for Highlight */}
       {selectedHighlightGroup && (
         <StoryViewer
           storyGroup={selectedHighlightGroup}
