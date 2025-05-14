@@ -82,8 +82,7 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
       );
 
       toast.success(response.data.message);
-
-      // Шинэчилсэн хэрэглэгчийн мэдээллийг авах
+      
       const userRes = await axios.get(`${API}/api/users/${userId}`);
       setUserData(userRes.data);
     } catch (error: any) {
