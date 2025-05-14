@@ -99,12 +99,12 @@ const MailVerify = ({ email, closeDialog }: MailVerifyProps) => {
       </div>
 
       <div className="flex justify-between gap-6">
-        <button
+        {/* <button
           onClick={handleBack}
           className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition"
         >
           Back
-        </button>
+        </button> */}
 
         <button
           onClick={handleSubmit}
