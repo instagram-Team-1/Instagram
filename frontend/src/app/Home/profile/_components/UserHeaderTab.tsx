@@ -151,7 +151,9 @@ export const UserHeaderTab = () => {
       {/* Profile Image */}
       <div
         className={`relative w-[150px] h-[150px] bg-gray-300 rounded-full overflow-hidden group cursor-pointer ${
-          myStoryGroup ? "border-4 border-pink-500" : "border-4 border-gray-300"
+          myStoryGroup
+            ? "border-4 border-pink-500 via-red-500 to-yellow-500"
+            : "border-4 border-gray-300"
         }`}
         onClick={handleProfileImageClick}
       >

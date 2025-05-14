@@ -22,9 +22,9 @@ type GroupedStory = {
 
 const MyStoriesAndHighlight = () => {
   const [stories, setStories] = useState<StoryType[]>([]);
+  const [highlights, setHighlights] = useState<HighlightType[]>([]);
   const [loading, setLoading] = useState(true);
   const [showHighlightModal, setShowHighlightModal] = useState(false);
-  const [highlights, setHighlights] = useState<HighlightType[]>([]);
   const [highlightTitle, setHighlightTitle] = useState("");
   const [selectedStories, setSelectedStories] = useState<StoryType[]>([]);
   const [selectedHighlightGroup, setSelectedHighlightGroup] =
@@ -39,59 +39,58 @@ const MyStoriesAndHighlight = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchMyStories = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${API}/api/story/all/${userId}`);
-        setStories(res.data);
+        const [storyRes, highlightRes] = await Promise.all([
+          axios.get(`${API}/api/story/all/${userId}`),
+          axios.get(`${API}/api/highlight/user/${userId}`),
+        ]);
+        setStories(storyRes.data);
+        setHighlights(highlightRes.data);
       } catch (err) {
-        console.error("Failed to fetch stories:", err);
+        console.error("Failed to fetch data:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    if (userId) {
-      fetchMyStories();
-    }
+    if (userId) fetchData();
   }, [userId]);
 
   const handleToggleStory = (story: StoryType) => {
-    setSelectedStories((prev) => {
-      const exists = prev.find((s) => s._id === story._id);
-      return exists
+    setSelectedStories((prev) =>
+      prev.find((s) => s._id === story._id)
         ? prev.filter((s) => s._id !== story._id)
-        : [...prev, story];
-    });
+        : [...prev, story]
+    );
   };
 
-  const handleCreateHighlight = () => {
+  const handleCreateHighlight = async () => {
     if (!highlightTitle.trim() || selectedStories.length === 0) return;
 
-    const newHighlight: HighlightType = {
-      id: crypto.randomUUID(),
-      title: highlightTitle.trim(),
-      stories: selectedStories,
-    };
+    try {
+      const res = await axios.post(`${API}/api/highlight/add`, {
+        userId,
+        title: highlightTitle.trim(),
+        stories: selectedStories.map((s) => s._id),
+      });
 
-    setHighlights((prev) => [...prev, newHighlight]);
-    setHighlightTitle("");
-    setSelectedStories([]);
-    setShowHighlightModal(false);
+      setHighlights((prev) => [...prev, res.data]);
+      setHighlightTitle("");
+      setSelectedStories([]);
+      setShowHighlightModal(false);
+    } catch (err) {
+      console.error("Failed to create highlight:", err);
+    }
   };
-
-  const SkeletonArchive = () => (
-    <div className="p-2 w-[310px] h-[310px]">
-      <Skeleton className="w-full h-full rounded-md" />
-    </div>
-  );
 
   return (
     <div className="w-screen flex flex-col items-center mt-6">
       <div className="w-[1125px]">
-        <div className="w-full flex flex-row items-center gap-4 mt-6 justify-start">
+        <div className="flex gap-4 items-center mt-6">
+          {/* Create New */}
           <div
-            role="tab"
             className="w-[89px] flex flex-col items-center cursor-pointer"
             onClick={() => setShowHighlightModal(true)}
           >
@@ -107,15 +106,11 @@ const MyStoriesAndHighlight = () => {
           <div className="flex gap-4 overflow-x-auto">
             {highlights.map((highlight) => (
               <div
-                key={highlight.id}
+                key={highlight._id}
                 className="w-[89px] flex-shrink-0 flex flex-col items-center cursor-pointer"
                 onClick={() =>
                   setSelectedHighlightGroup({
-                    user: {
-                      _id: userId,
-                      username,
-                      avatarImage,
-                    },
+                    user: { _id: userId, username, avatarImage },
                     stories: highlight.stories,
                   })
                 }
@@ -131,7 +126,7 @@ const MyStoriesAndHighlight = () => {
           </div>
         </div>
 
-        {/* Highlight Modal */}
+        {/* Modal */}
         {showHighlightModal && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-[#353535] p-6 rounded-xl shadow-lg w-[300px]">
@@ -141,53 +136,34 @@ const MyStoriesAndHighlight = () => {
                 value={highlightTitle}
                 onChange={(e) => setHighlightTitle(e.target.value)}
                 placeholder="Highlight name"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 dark:bg-[#191919]"
+                className="w-full mb-4 dark:bg-[#191919]"
               />
               <div className="grid grid-cols-3 gap-2 mb-4">
                 {stories.map((story) => (
                   <div
                     key={story._id}
+                    onClick={() => handleToggleStory(story)}
                     className={`cursor-pointer border-2 rounded-md overflow-hidden ${
                       selectedStories.find((s) => s._id === story._id)
                         ? "border-blue-500"
                         : "border-transparent"
                     }`}
-                    onClick={() => handleToggleStory(story)}
                   >
                     <img
                       src={story.imageUrl}
                       alt={story.title}
-                      className="w-full h-[100px] object-cover transition-transform duration-300 ease-in-out transform hover:scale-110"
+                      className="w-full h-[100px] object-cover hover:scale-110 transition-transform"
                     />
                   </div>
                 ))}
               </div>
 
-              <div className="mt-4">
-                <h3 className="text-sm font-semibold">Selected Stories</h3>
-                <div className="flex gap-2 mt-2">
-                  {selectedStories.map((story) => (
-                    <div key={story._id} className="flex flex-col items-center">
-                      <img
-                        src={story.imageUrl}
-                        alt={story.title}
-                        className="w-[50px] h-[50px] object-cover rounded-full"
-                      />
-                      <span className="text-xs">{story.title}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  className="text-white hover:text-black"
-                  onClick={() => setShowHighlightModal(false)}
-                >
+              <div className="flex justify-end gap-2">
+                <button onClick={() => setShowHighlightModal(false)}>
                   Cancel
                 </button>
                 <button
-                  className="text-white px-4 py-2 rounded-md bg-blue-500"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
                   onClick={handleCreateHighlight}
                 >
                   Save

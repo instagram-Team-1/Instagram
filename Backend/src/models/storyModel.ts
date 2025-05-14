@@ -7,6 +7,7 @@ export interface IStory extends Document {
   createdAt: Date;
   expiresAt: Date;
   viewers: string[];
+  highlightTitle?: string;
 }
 
 const storySchema = new Schema<IStory>(
@@ -16,6 +17,7 @@ const storySchema = new Schema<IStory>(
     caption: { type: String },
     expiresAt: { type: Date, required: true },
     viewers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    highlightTitle: { type: String, default: null },
   },
   { timestamps: true }
 );
