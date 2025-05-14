@@ -14,7 +14,6 @@ const page = () => {
         <h1 className="text-white">Your messages</h1>
         <p className="text-white/50">Send a message to start a chat.</p>
         <NewMessageDialog />
- 
       </div>
     </div>
   );

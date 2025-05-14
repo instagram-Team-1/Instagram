@@ -5,9 +5,10 @@ import { useFeed } from "./Context/FeedPage";
 import PostCard from "@/components/PostCard/post-card";
 import { SuggestionsSidebar } from "@/components/Suggestions/suggested-sidebar";
 import { StoriesBar } from "./components/stories/story";
-
+import { useEffect, useState } from "react";
 
 export default function FeedPage() {
+  
   const data = useFeed();
 
   if (!data) {
