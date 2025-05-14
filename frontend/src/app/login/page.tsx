@@ -45,7 +45,7 @@ const Page = () => {
     },
   });
   return (
-    <div className="bg-black w-full h-[100vh]">
+    <div className="bg-black w-full h-[100vh] flex items-center justify-center">
       <LampContainer>
         <motion.h1
           initial={{ opacity: 0.5, y: 100 }}
@@ -57,9 +57,9 @@ const Page = () => {
           }}
           className="mt-8 bg-gradient-to-br from-slate-300 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl"
         ></motion.h1>
-        <div className="h-full flex items-center justify-center flex-col gap-[10px]">
-          <div className="w-full max-w-[350px] flex flex-col items-center gap-8 px-6 py-14">
-            <div className="w-full p-6 relative">
+        <div className="">
+          <div className="w-full max-w-[350px] flex flex-col items-center gap-3">
+            <div className="w-full mb-6 relative">
               <Image
                 src={Logo}
                 alt="Logo"
