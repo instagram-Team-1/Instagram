@@ -1,4 +1,3 @@
-// context/FeedContext.tsx
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
@@ -7,6 +6,7 @@ import { getUserIdFromToken } from "@/utils/TokenParse";
 import { API } from "@/utils/api";
 
 interface Post {
+  user: { _id: string; username: string; avatarImage: string };
   imageUrl: string;
   _id: string;
   image: string;
@@ -19,19 +19,26 @@ interface Post {
     followers: number;
     following: number;
   };
-  likes: number;
+  likes: {
+    _id: string;
+    username: string;
+    avatarImage: string;
+  }[];
   comments: {
-    userId: string;
+    userId: {
+      _id: string;
+      username: string;
+      avatarImage: string;
+    };
     comment: string;
-    createdAt: string;
     _id: string;
   }[];
-  createdAt: string;
 }
 
 interface FeedData {
   userId: string;
   username: string;
+  avatarImage:string;
   posts: Post[];
 }
 
@@ -48,22 +55,23 @@ export const FeedProvider = ({ children }: { children: React.ReactNode }) => {
 
     const fetchData = async () => {
       try {
-        const [userRes, postRes] = await Promise.all([
+        const [userRes, postResRaw] = await Promise.all([
           axios.get(API + `/api/users/ConvertUsername/${parsedToken.id}`),
           fetch(API + `/api/users/feed/${parsedToken.id}`).then((res) =>
             res.json()
           ),
         ]);
+        const posts = Array.isArray(postResRaw) ? postResRaw : [];
 
-        const posts = postRes.map((post: Post) => ({
+        const formattedPosts = posts.map((post: Post) => ({
           ...post,
-          likes: Array.isArray(post.likes) ? post.likes.length : post.likes,
+          likes: Array.isArray(post.likes) ? post.likes : [],
         }));
-
         setData({
           userId: parsedToken.id || "",
           username: userRes.data.username,
-          posts,
+          posts: formattedPosts,
+          avatarImage: userRes.data.avatarImage
         });
       } catch (error) {
         console.error("Failed to load feed data", error);

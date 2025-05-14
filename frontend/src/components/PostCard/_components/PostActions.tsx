@@ -26,6 +26,9 @@ const PostActions: FC<PostActionsProps> = ({
   onShare,
   onSave,
 }) => {
+
+  console.log(liked , 'mtgo');
+  
   return (
     <div className="flex items-center justify-between px-4 pt-3">
       <div className="flex items-center gap-4">
