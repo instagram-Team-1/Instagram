@@ -182,8 +182,11 @@ const PostCard: FC<PostCardProps> = ({
           comment={comment}
           onCommentChange={setComment}
           onSubmit={handleSubmit}
-          
-        />
+          currentUserUsername={currentUserUsername}
+          currentUserAvatarImage={currentUserAvatarImage}
+          comments={commentList} onCommentSubmit={function (e: React.FormEvent): void {
+            throw new Error("Function not implemented.");
+          } }        />
       </div>
     </div>
   );
