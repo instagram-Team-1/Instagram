@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Logo from "./loginComponent/asd.svg";
-import FbLogin from "./loginComponent/fbLogin";
+import Logo from "./loginComponent/instaLogo.svg";
 import SeparatorOr from "./loginComponent/SeparatorOr";
 import Jump from "./loginComponent/jump";
 import loginSchema from "./loginComponent/loginSchema";
@@ -57,9 +56,9 @@ const Page = () => {
           }}
           className="mt-8 bg-gradient-to-br from-slate-300 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl"
         ></motion.h1>
-        <div className="">
+        <div className="w-[350px] ">
           <div className="w-full max-w-[350px] flex flex-col items-center gap-3">
-            <div className="w-full mb-6 relative">
+            <div className="w-[150px] mb-6 relative">
               <Image
                 src={Logo}
                 alt="Logo"
@@ -128,7 +127,6 @@ const Page = () => {
               </form>
             </div>
             <SeparatorOr />
-            <FbLogin />
           </div>
           <Jump pageName="signUp" />
         </div>
