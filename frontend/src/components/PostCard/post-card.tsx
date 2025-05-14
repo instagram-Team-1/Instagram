@@ -127,8 +127,8 @@ const PostCard: FC<PostCardProps> = ({
         });
       }
     } catch (error) {
-      console.error("Like/unlike үйлдэлд алдаа гарлаа:", error);
-      toast.error("Like үйлдэлд алдаа гарлаа");
+      console.error("Error to like/unlike:", error);
+      toast.error("Error to like");
       setLiked(wasLiked);
       setLikesCount(prevLikes);
     } finally {
