@@ -51,14 +51,7 @@ export default function ProfilePage() {
           <UserHeaderTab />
           <Highlight />
         </div>
-        {/* {!canViewPosts ? (
-          <div className="text-center mt-10">
-            <p className="text-lg font-semibold">This account is private.</p>
-            <p className="text-sm text-gray-500">Follow to see their photos.</p>
-          </div>
-        ) : ( */}
-        {/* <PostAndSave /> */}
-        {/* )} */}
+        <PostAndSave />
         <Footer />
       </div>
     </div>
