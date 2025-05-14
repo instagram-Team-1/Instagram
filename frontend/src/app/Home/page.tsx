@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useFeed } from "./Context/FeedPage";
 import PostCard from "@/components/PostCard/post-card";
 import { SuggestionsSidebar } from "@/components/Suggestions/suggested-sidebar";
@@ -8,7 +7,6 @@ import { StoriesBar } from "./components/stories/story";
 import { useEffect, useState } from "react";
 
 export default function FeedPage() {
-  
   const data = useFeed();
 
   if (!data) {
@@ -19,6 +17,14 @@ export default function FeedPage() {
     );
   }
 
+  const userData = {
+    userId: data.userId,
+    username: data.username,
+    avatarImage: data.avatarImage
+  };
+  console.log(data ,  "wew");
+  
+  
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
       <div className="w-full max-w-[630px]">
@@ -29,18 +35,17 @@ export default function FeedPage() {
         {data.posts.map((post) => (
           <PostCard
             key={post._id}
-            imageUrl={post.imageUrl}
-            caption={
-              typeof post.caption === "string"
-                ? post.caption
-                : "No caption provided"
-            }
-            userId={post.userId}
-            likes={post.likes || 0}
-            comments={post.comments || []}
             postId={post._id}
-            currentUserId={data.userId}
-            currentUserUsername={data.username}
+            imageUrl={post.imageUrl}
+            caption={post.caption}
+            user={post.userId}
+            likes={post.likes}
+            comments={post.comments}
+            currentUserId={userData.userId}
+            currentUserUsername={userData.username}
+            currentUserAvatarImage={userData.avatarImage}
+            isLiked={false}
+            isSaved={false}
           />
         ))}
       </div>

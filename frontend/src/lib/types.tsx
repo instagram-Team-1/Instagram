@@ -30,28 +30,36 @@ export type FollowerType = {
   followers: string[];
 };
 
-export type PostCardProps = {
+export interface PostCardProps {
+  postId: string;
   imageUrl: string;
   caption: string;
-  userId: {
-    posts: never[];
-    followers: number;
-    following: number;
+  user: {
     _id: string;
     username: string;
     avatarImage: string;
   };
-  likes: number;
-  comments: {
-    userId: string;
-    comment: string;
-    createdAt: string;
+  likes: {
     _id: string;
+    username: string;
+    avatarImage: string;
   }[];
-  postId: string;
+  comments: {
+    _id: string;
+    comment: string;
+    userId: {
+      _id: string;
+      username: string;
+      avatarImage: string;
+    };
+  }[];
+  comment?: string;
+  isLiked: boolean;
+  isSaved: boolean;
   currentUserId: string;
   currentUserUsername: string;
-};
+  currentUserAvatarImage: string;
+}
 
 export type Post = {
   imageUrl: string;
@@ -75,12 +83,9 @@ export type Post = {
 };
 
 export interface User {
-  _id: string;
+  avatarImage: string;
   username: string;
-  avatarImage?: string;
-  posts: Post[];
-  followers: number | any[];
-  following: number | any[];
+  _id: string;
 }
 
 export interface Comment {
