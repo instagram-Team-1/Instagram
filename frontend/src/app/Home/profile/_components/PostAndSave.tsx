@@ -10,11 +10,6 @@ import { Comment } from "@/lib/types";
 import { toast } from "react-toastify";
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface DecodedToken {
-  username: string;
-  email: string;
-}
-
 interface Post {
   _id: string;
   username: string;
@@ -132,8 +127,8 @@ const PostAndSave = () => {
         setLikesCount(response.data.likes.length);
       }
     } catch (error) {
-      console.error("Like/unlike үйлдэлд алдаа гарлаа:", error);
-      toast.error("Like үйлдэлд алдаа гарлаа");
+      console.error("Error to like/unlike:", error);
+      toast.error("Error to like");
       setLiked(wasLiked);
       setLikesCount(prevLikes);
     } finally {
@@ -354,7 +349,7 @@ const PostAndSave = () => {
         )}
       </div>
       <div>
-        {/* {selectedTab === "saved" && (
+        {selectedTab === "saved" && (
           <>
             {loading ? (
               <div className="grid grid-cols-3 gap-4 mt-6">
@@ -403,8 +398,8 @@ const PostAndSave = () => {
               </div>
             )}
           </>
-        )} */}
-        {selectedTab === "saved" && (
+        )}
+        {/* {selectedTab === "saved" && (
           <>
             {loading ? (
               <div className="grid grid-cols-3 gap-4 mt-6">
@@ -436,7 +431,7 @@ const PostAndSave = () => {
               </div>
             )}
           </>
-        )}
+        )} */}
       </div>
 
       {showModal && selectedPost && (

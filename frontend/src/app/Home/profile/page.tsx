@@ -9,6 +9,7 @@ import PostAndSave from "./_components/PostAndSave";
 import Footer from "./_components/Footer";
 import { API } from "@/utils/api";
 import { UserDataType } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState<UserDataType | null>(null);
@@ -48,11 +49,43 @@ export default function ProfilePage() {
     <div className="flex items-center justify-center w-full h-screen">
       <div className="w-[935px] h-full px-[20px] pt-[30px] flex flex-col">
         <div className="flex flex-col gap-[30px]">
-          <UserHeaderTab />
-          <Highlight />
+          {loading ? (
+            <>
+              {/* Avatar and username skeleton */}
+              <div className="flex items-center gap-6">
+                <Skeleton className="w-[100px] h-[100px] rounded-full" />
+                <div className="flex flex-col gap-2">
+                  <Skeleton className="w-[150px] h-6 rounded" />
+                  <Skeleton className="w-[100px] h-4 rounded" />
+                </div>
+              </div>
+
+              {/* Highlight skeleton */}
+              <div className="flex gap-4 mt-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton
+                    key={i}
+                    className="w-[80px] h-[80px] rounded-full"
+                  />
+                ))}
+              </div>
+
+              {/* Posts grid skeleton */}
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="w-full h-[300px] rounded-md" />
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <UserHeaderTab />
+              <Highlight />
+              <PostAndSave />
+              <Footer />
+            </>
+          )}
         </div>
-        <PostAndSave />
-        <Footer />
       </div>
     </div>
   );

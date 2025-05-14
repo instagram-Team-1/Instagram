@@ -96,11 +96,12 @@ const createChatRoom = async () => {
 
   return (
     <div className="flex flex-col ml-[20px] gap-[30px]">
-      <div className="text-[20px] font-normal flex flex-row items-center gap-[8px]">
+      <div className="text-[20px] font-normal flex flex-row items-center gap-[15px]">
         <div>{user.username}</div>
         <Button
-          className={`${isFollowing ? 'bg-gray-200' : 'bg-blue-400'} text-white`}
+          className={`${isFollowing ? 'hover:bg-gray-200' : 'bg-blue-400'} text-white`}
           onClick={handleFollow}
+          variant= "secondary"
           disabled={isLoading || currentUserId === user._id}
         >
           {isLoading ? (

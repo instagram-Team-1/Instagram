@@ -11,7 +11,7 @@ const Jump = ({ pageName }: { pageName: string }) => {
   }
 
   return (
-    <div className='w-full max-w-[350px] flex justify-center items-center px-1 py-3 border border-white/50 rounded-xl'>
+    <div className='w-full max-w-[350px] flex justify-center items-center px-1 py-3 border border-white/50 rounded-xl mt-4'>
       <div className='w-fit flex items-center gap-2'>
         <p className='text-white text-center'>
           {pageName === 'login' ? "Have an account?" : "Don't have an account?"}
