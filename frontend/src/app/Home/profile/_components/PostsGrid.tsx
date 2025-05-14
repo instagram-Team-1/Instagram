@@ -9,6 +9,7 @@ import { UserDataType } from "@/lib/types";
 import { toast } from "sonner";
 import { Comment } from "@/lib/types";
 import { jwtDecode } from "jwt-decode";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PostsGridProps {
   username: string;
@@ -226,11 +227,19 @@ export default function PostsGrid({ username }: PostsGridProps) {
       }
     };
 
+      const SkeletonPostCard = () => (
+    <div className="w-full h-[400px]">
+      <Skeleton className="w-full h-full rounded-md" />
+    </div>
+  );
+
   return (
     <>
       <div className="grid grid-cols-3 gap-4">
         {loading ? (
-          <div>Loading...</div>
+        Array.from({ length: 6 }).map((_, i) => (
+          <SkeletonPostCard key={i} />
+        ))
         ) : error ? (
           <div>{error}</div>
         ) : posts.length > 0 ? (
@@ -241,11 +250,11 @@ export default function PostsGrid({ username }: PostsGridProps) {
               onClick={() => handlePostClick(post)}
             >
               {post.imageUrl ? (
-                <div className="relative group w-full aspect-square overflow-hidden">
+                <div className="relative group w-full h-full aspect-square overflow-hidden">
                   <CldImage
                     src={post.imageUrl}
                     alt={post.caption || "Post image"}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full box-border object-cover"
                     width={300}
                     height={400}
                   />

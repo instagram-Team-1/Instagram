@@ -109,7 +109,7 @@ const AccountEditPage = () => {
   };
 
   return (
-    <div className="w-screen p-60 flex items-center justify-center">
+    <div className="w-screen px-80 pt-30">
       <div className="flex flex-col w-full gap-7">
         <h1 className="text-xl font-bold">Edit Profile</h1>
         {/* Profile Image Section */}
