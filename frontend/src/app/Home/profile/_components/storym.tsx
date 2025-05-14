@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { API } from "@/utils/api";
-import { StoryAvatar } from "@/components/stories/_components/StoryAvatar";
-import { StoryViewer } from "@/components/stories/_components/StoryViewer";
+import { StoryAvatar } from "../../components/stories/_components/StoryAvatar";
+import { StoryViewer } from "../../components/stories/_components/StoryViewer";
 
 type StoriesBarProps = {
   userId: { id: string } | null;
