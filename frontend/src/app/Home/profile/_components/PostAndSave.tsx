@@ -28,10 +28,10 @@ interface Post {
 
 const PostAndSave = () => {
   const [selectedTab, setSelectedTab] = useState<"posts" | "saved" | "tagged">(
-      "posts"
-    );
-  const [likesCount, setLikesCount] = useState<number>(0); 
-  const [currentPostId, setCurrentPostId] = useState<string>(""); 
+    "posts"
+  );
+  const [likesCount, setLikesCount] = useState<number>(0);
+  const [currentPostId, setCurrentPostId] = useState<string>("");
   const [currentUsername, setCurrentUsername] = useState<string>("");
   const [posts, setPosts] = useState<Post[]>([]);
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
@@ -46,19 +46,18 @@ const PostAndSave = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<Comment[]>([]);
-  const [userId, setUserId] = useState('');
-  
-  
+  const [userId, setUserId] = useState("");
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
-    
-    const decoded = jwtDecode<{id: string, username: string}>(token);
+
+    const decoded = jwtDecode<{ id: string; username: string }>(token);
     setUserId(decoded.id);
     setCurrentUsername(decoded.username);
-    setUsername(decoded.username)
+    setUsername(decoded.username);
   }, []);
-  
+
   const handlePostClick = (post: Post) => {
     setSelectedPost(post);
     setCurrentPostId(post._id);
@@ -67,16 +66,15 @@ const PostAndSave = () => {
   };
 
   useEffect(() => {
-    if (!tokenData?.id) return;
-    
+    if (!userId ) return;
+
     const fetchSavedPosts = async () => {
       try {
         setLoading(true);
-        
-        const response = await axios.get(
-          `${API}/api/getSavePost/${tokenData.id}`
-        );
-        setSavedPosts(response.data.savedPosts)
+
+        const response = await axios.get(`${API}/api/getSavePost/${userId}`);
+
+        setSavedPosts(response.data.savedPosts);
       } catch (err) {
         console.error("Failed to fetch saved posts", err);
         setError("Couldn't fetch saved posts");
@@ -125,8 +123,8 @@ const PostAndSave = () => {
     try {
       const endpoint = wasLiked ? "/api/unlike" : "/api/like";
       const response = await axios.post(`${API}${endpoint}`, {
-          userId,
-          postId: currentPostId 
+        userId,
+        postId: currentPostId,
       });
 
       toast.success(response.data.message);
@@ -143,24 +141,28 @@ const PostAndSave = () => {
     }
   };
 
-   const postComment = async () => {
-    try {
-      const res = await axios.post(`${API}/api/posts/comment/${currentPostId}`, {
-        userId,
-        postId: currentPostId,
-        username: currentUsername, 
-      });
+  const postComment = async () => {
+      try {
+        const res = await axios.post(
+          `${API}/api/posts/comment/${currentPostId}`,
+          {
+            userId,
+            postId: currentPostId,
+            username: currentUsername,
+            comment,
+          }
+        );
 
-      const newComment = {
-        comment,
-        user: { username: currentUsername },
-      };
-      setComments((prev) => [...prev, newComment]);
-      setComment("");
-    } catch (err) {
-      console.error("Error posting comment:", err);
-      toast.error("Коммент бичихэд алдаа гарлаа");
-    }
+        const newComment = {
+          comment,
+          user: { username: currentUsername },
+        };
+        setComments((prev) => [...prev, newComment]);
+        setComment("");
+      } catch (err) {
+        console.error("Error posting comment:", err);
+        toast.error("Коммент бичихэд алдаа гарлаа");
+      }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -170,7 +172,7 @@ const PostAndSave = () => {
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     const checkIfLiked = async () => {
       try {
         const response = await axios.get(`${API}/api/check-like`, {
@@ -188,14 +190,54 @@ const PostAndSave = () => {
     }
 
     console.log("likes", liked);
-    
   }, [currentPostId, userId]);
 
   useEffect(() => {
+    if (!currentPostId) return;
+      const fetchComments = async () => {
+        setLoading(true);
+        try {
+          const res = await axios.get(
+            `${API}/api/posts/comment/${currentPostId}`
+          );
+          setComments(res.data);
+          console.log(res.data, "mycomment");
+        } catch (error) {
+          console.error("Failed to load comments:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+    fetchComments();
+  }, [currentPostId]);
+
+  useEffect(() => {
+    if (!selectedPost) return;
+
+    const fetchLikeStatus = async () => {
+      try {
+        const response = await axios.get(`${API}/api/check-like`, {
+          params: { userId, postId: selectedPost._id },
+        });
+        setLiked(response.data.liked);
+        setLikesCount(selectedPost.likes?.length || 0);
+      } catch (error) {
+        console.error("Failed to load likes:", error);
+      }
+    };
+
+    fetchLikeStatus();
+  }, [selectedPost]);
+
+  useEffect(() => {
+    if (!selectedPost) return;
     const fetchComments = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${API}/api/posts/comment/${currentPostId}`);
+        const res = await axios.get(
+          `${API}/api/posts/comment/${selectedPost._id}`
+        );
         setComments(res.data);
       } catch (error) {
         console.error("Failed to load comments:", error);
@@ -205,50 +247,13 @@ const PostAndSave = () => {
     };
 
     fetchComments();
-  }, [currentPostId]);
+  }, [selectedPost]);
 
-  useEffect(() => {
-  if (!selectedPost) return;
-
-  const fetchLikeStatus = async () => {
-    try {
-      const response = await axios.get(`${API}/api/check-like`, {
-        params: { userId, postId: selectedPost._id },
-      });
-      setLiked(response.data.liked);
-      setLikesCount(selectedPost.likes?.length || 0);
-    } catch (error) {
-      console.error("Failed to load likes:", error);
-    }
-  };
-
-  fetchLikeStatus();
-}, [selectedPost]);
-
-
-  useEffect(() => {
-  if (!selectedPost) return;
-  const fetchComments = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`${API}/api/posts/comment/${selectedPost._id}`);
-      setComments(res.data);
-    } catch (error) {
-      console.error("Failed to load comments:", error);
-    } finally {
-      setLoading(false);
-    }
-    
-  };
-
-  fetchComments();
-}, [selectedPost]);
-
-const SkeletonPostCard = () => (
-  <div className="w-full h-[400px]">
-    <Skeleton className="w-full h-full rounded-md" />
-  </div>
-);
+  const SkeletonPostCard = () => (
+    <div className="w-full h-[400px]">
+      <Skeleton className="w-full h-full rounded-md" />
+    </div>
+  );
 
   return (
     <div className="flex flex-col mt-[30px]">
@@ -434,23 +439,25 @@ const SkeletonPostCard = () => (
         )}
       </div>
 
-    {showModal && selectedPost && (
-      <CommentModal
-        imageUrl={selectedPost.imageUrl}
-        user={{ username: selectedPost.username, avatarImage: '/placeholder.jpg' }}
-        caption={selectedPost.caption}
-        comments={comments}
-        likesCount={likesCount}
-        liked={liked}
-        onLike={handleLike}
-        onShare={() => setShowShareModal(true)}
-        onCommentChange={setComment}
-        onCommentSubmit={handleSubmit}
-        onClose={() => setShowModal(false)}
-        comment={comment}
-      />
-    )}
-
+      {showModal && selectedPost && (
+        <CommentModal
+          imageUrl={selectedPost.imageUrl}
+          user={{
+            username: selectedPost.username,
+            avatarImage: "/placeholder.jpg",
+          }}
+          caption={selectedPost.caption}
+          comments={comments}
+          likesCount={likesCount}
+          liked={liked}
+          onLike={handleLike}
+          onShare={() => setShowShareModal(true)}
+          onCommentChange={setComment}
+          onCommentSubmit={handleSubmit}
+          onClose={() => setShowModal(false)}
+          comment={comment}
+        />
+      )}
     </div>
   );
 };
