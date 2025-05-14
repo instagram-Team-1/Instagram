@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { API } from "@/utils/api";
 import CommentModal from "@/components/PostCard/_components/CommentModal";
-import { PostCardProps, Comment } from "@/lib/types";
+import { Comment } from "@/lib/types";
 import { toast } from "react-toastify";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -26,11 +26,13 @@ interface Post {
   createdAt: string;
 }
 
-const PostAndSave: FC<PostCardProps>  = ({likes, postId, currentUserUsername}) => {
+const PostAndSave = () => {
   const [selectedTab, setSelectedTab] = useState<"posts" | "saved" | "tagged">(
       "posts"
     );
-
+  const [likesCount, setLikesCount] = useState<number>(0); 
+  const [currentPostId, setCurrentPostId] = useState<string>(""); 
+  const [currentUsername, setCurrentUsername] = useState<string>("");
   const [posts, setPosts] = useState<Post[]>([]);
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,41 +41,34 @@ const PostAndSave: FC<PostCardProps>  = ({likes, postId, currentUserUsername}) =
   const [username, setUsername] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const [showComments, setShowComments] = useState(false);
   const [liked, setLiked] = useState<boolean>(false);
-  const [likesCount, setLikesCount] = useState<number>(likes || 0);
   const [isLoading, setIsLoading] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<Comment[]>([]);
   const [userId, setUserId] = useState('');
-
+  
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
-
-    if (!token) {
-      setError("No token found. Please log in.");
-      return;
-    }
-
-    try {
-      const decoded = jwtDecode<UserDataType & DecodedToken>(token);
-      setTokenData(decoded);      
-      setUsername(decoded.username);      
-      setUserId(decoded.id);
-    } catch (err) {
-      console.error("Invalid token:", err);
-      setError("Invalid token. Please log in again.");
-    }
+    if (!token) return;
+    
+    const decoded = jwtDecode<{id: string, username: string}>(token);
+    setUserId(decoded.id);
+    setCurrentUsername(decoded.username);
+    setUsername(decoded.username)
   }, []);
-
-  console.log(username, userId , "usernameeee");
-  console.log(postId, "post id");
   
+  const handlePostClick = (post: Post) => {
+    setSelectedPost(post);
+    setCurrentPostId(post._id);
+    setLikesCount(post.likes?.length || 0);
+    setShowModal(true);
+  };
+
   useEffect(() => {
     if (!tokenData?.id) return;
-  
-
+    
     const fetchSavedPosts = async () => {
       try {
         setLoading(true);
@@ -130,8 +125,8 @@ const PostAndSave: FC<PostCardProps>  = ({likes, postId, currentUserUsername}) =
     try {
       const endpoint = wasLiked ? "/api/unlike" : "/api/like";
       const response = await axios.post(`${API}${endpoint}`, {
-        userId: userId,
-        postId,
+          userId,
+          postId: currentPostId 
       });
 
       toast.success(response.data.message);
@@ -150,14 +145,15 @@ const PostAndSave: FC<PostCardProps>  = ({likes, postId, currentUserUsername}) =
 
    const postComment = async () => {
     try {
-      const res = await axios.post(`${API}/api/posts/comment/${postId}`, {
+      const res = await axios.post(`${API}/api/posts/comment/${currentPostId}`, {
         userId,
-        comment,
+        postId: currentPostId,
+        username: currentUsername, 
       });
 
       const newComment = {
         comment,
-        user: { username: currentUserUsername },
+        user: { username: currentUsername },
       };
       setComments((prev) => [...prev, newComment]);
       setComment("");
@@ -178,7 +174,7 @@ const PostAndSave: FC<PostCardProps>  = ({likes, postId, currentUserUsername}) =
     const checkIfLiked = async () => {
       try {
         const response = await axios.get(`${API}/api/check-like`, {
-          params: { userId, postId },
+          params: { userId, postId: currentPostId },
         });
         setLiked(response.data.liked);
       } catch (error) {
@@ -187,19 +183,19 @@ const PostAndSave: FC<PostCardProps>  = ({likes, postId, currentUserUsername}) =
       }
     };
 
-    if (postId && userId) {
+    if (currentPostId && userId) {
       checkIfLiked();
     }
 
     console.log("likes", liked);
     
-  }, [postId, userId]);
+  }, [currentPostId, userId]);
 
   useEffect(() => {
     const fetchComments = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${API}/api/posts/comment/${postId}`);
+        const res = await axios.get(`${API}/api/posts/comment/${currentPostId}`);
         setComments(res.data);
       } catch (error) {
         console.error("Failed to load comments:", error);
@@ -209,7 +205,7 @@ const PostAndSave: FC<PostCardProps>  = ({likes, postId, currentUserUsername}) =
     };
 
     fetchComments();
-  }, [postId]);
+  }, [currentPostId]);
 
   useEffect(() => {
   if (!selectedPost) return;
@@ -321,10 +317,7 @@ const SkeletonPostCard = () => (
                   <div
                     key={post._id}
                     className="relative w-full h-auto group bg-gray-200"
-                    onClick={() => {
-                      setSelectedPost(post);
-                      setShowModal(true);
-                    }}
+                    onClick={() => handlePostClick(post)}
                   >
                     <CldImage
                       src={post.imageUrl}
@@ -333,7 +326,7 @@ const SkeletonPostCard = () => (
                       height={300}
                       className="object-cover box-border overflow-hidden w-full h-full"
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-60 transition-opacity">
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="flex items-center gap-1 text-white text-lg font-semibold">
                         ❤️ {post.likes?.length ?? 0}
                       </div>
@@ -356,6 +349,56 @@ const SkeletonPostCard = () => (
         )}
       </div>
       <div>
+        {/* {selectedTab === "saved" && (
+          <>
+            {loading ? (
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                {[...Array(6)].map((_, i) => (
+                  <SkeletonPostCard key={i} />
+                ))}
+              </div>
+            ) : savedPosts.length > 0 ? (
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                {savedPosts.map((post) => (
+                  <div
+                    key={post._id}
+                    className="relative w-full h-auto group bg-gray-200"
+                    onClick={() => {
+                      setSelectedPost(post);
+                      setShowModal(true);
+                    }}
+                  >
+                    <CldImage
+                      src={post.imageUrl}
+                      alt={post.caption || "Post image"}
+                      width={300}
+                      height={300}
+                      className="object-cover box-border overflow-hidden w-full h-full"
+                    />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1 text-white text-lg font-semibold">
+                        ❤️ {post.likes?.length ?? 0}
+                      </div>
+                      <div className="flex items-center gap-1 text-white text-lg font-semibold">
+                        💬 {post.comments?.length ?? 0}
+                      </div>
+                    </div>
+                  </div>
+
+                ))}
+              </div>
+            ) : (
+              <div className="text-center">
+                <h2 className="text-[24px] font-semibold mb-2 mt-24">
+                  No Saved Posts
+                </h2>
+                <p className="text-gray-400">
+                  You haven't saved any posts yet.
+                </p>
+              </div>
+            )}
+          </>
+        )} */}
         {selectedTab === "saved" && (
           <>
             {loading ? (
