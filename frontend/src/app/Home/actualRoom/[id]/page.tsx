@@ -7,7 +7,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { API } from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import RoomHeader from "../component/roomHeader";
-import { log } from "util";
+import { useContext } from "react";
+import { userContext } from "../../layout";
+
 let socket: Socket;
 const Page = () => {
   const [msg, setMsg] = useState("");
@@ -15,25 +17,26 @@ const Page = () => {
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [prevMessage, setPrevMessage] = useState<any[]>([]);
-  const [showDrawer, setShowDrawer] = useState(false);
+
   const params = useParams();
+  const context = useContext(userContext);
   const roomId = params.id;
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-  useEffect(() => {
 
+  useEffect(() => {
     scrollToBottom();
   }, [prevMessage, received]);
+
   useEffect(() => {
-    const userIdFromStorage = JSON.parse(localStorage.getItem("userInfo") || "{}");
-    if (userIdFromStorage && userIdFromStorage.userId) {
-      setCurrentId(userIdFromStorage.userId.id);
-    } else {
-      console.log("User not logged in or userId not found in localStorage");
+    if (context?.id) {
+      setCurrentId(context.id);
     }
-  }, []);
+  }, [context?.id]);
+
   useEffect(() => {
     if (!currentId) return;
     socket = io(API);
@@ -51,6 +54,7 @@ const Page = () => {
       socket.disconnect();
     };
   }, [currentId, roomId]);
+
   const sendChat = () => {
     if (!currentId || msg.trim() === "") {
       return;
@@ -62,18 +66,19 @@ const Page = () => {
     });
     setMsg("");
   };
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       sendChat();
     }
   };
- 
-  return (
-    <div className={`bg-black w-full h-[100vh]  text-white flex flex-col justify-between relative`}>
-      <RoomHeader/>
 
-      <div className={`flex-1 overflow-y-auto p-4 `}>
-        <div className=" flex flex-col justify-between">
+  return (
+    <div className="bg-black w-full h-[100vh] text-white flex flex-col justify-between relative">
+      <RoomHeader />
+
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex flex-col justify-between">
           {[...prevMessage, ...received].map((message, index) => {
             const isCurrentUser = message.sender._id === currentId;
             return (
@@ -106,6 +111,7 @@ const Page = () => {
           <div ref={messagesEndRef} />
         </div>
       </div>
+
       <div className="border-t border-gray-700 p-[20px] flex items-center gap-[20px] relative">
         <Smile
           className="cursor-pointer"
@@ -124,7 +130,7 @@ const Page = () => {
         />
       </div>
     </div>
-
   );
 };
+
 export default Page;

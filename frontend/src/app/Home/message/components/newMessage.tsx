@@ -7,6 +7,8 @@ import { API } from "@/utils/api";
 import { useRouter } from "next/navigation";
 import { UserSearchInput } from "./userSearchInput";
 import { UserList } from '../components/userList';
+import { useContext } from "react";
+import { userContext } from "../../layout";
 
 type User = {
   username: string;
@@ -19,16 +21,14 @@ export const NewMessageDialog = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<{ name: string; id: string }[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const router = useRouter();
+  
+  const context = useContext(userContext);
 
-   useEffect(() => {
-      const userIdFromStorage = JSON.parse(localStorage.getItem("userInfo") || "{}");  
-      if (userIdFromStorage && userIdFromStorage.userId) {
-        setCurrentUserId(userIdFromStorage.userId.id);
-      } else {
-        console.log("User not logged in or userId not found in localStorage");
-      }
-    }, []);
+  useEffect(() => {
+    setCurrentUserId(context?.id ?? null); // Ensure fallback to null
+  }, [context]);
+
+  const router = useRouter();
 
   useEffect(() => {
     if (currentUserId) {
@@ -66,6 +66,7 @@ export const NewMessageDialog = () => {
       return exists ? prev.filter((user) => user.id !== id) : [...prev, { name, id }];
     });
   }, []);
+ 
 
   const createChatRoom = async () => {
     const res = await axios.post(API + '/api/auth/Room', selectedUsers);
@@ -73,6 +74,7 @@ export const NewMessageDialog = () => {
       router.push(`/Home/actualRoom/${res.data.roomId}`);
     }
   };
+
 
   return (
     <Dialog>
