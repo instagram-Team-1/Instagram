@@ -203,7 +203,7 @@ const handleProfileImageClick = () => {
     <div className="flex items-center justify-center w-full h-screen">
       <div className="w-[935px] h-full px-[20px] pt-[30px] flex flex-col">
         <div className="flex flex-col gap-[30px]">
-          <div className="flex flex-row">
+          <div className="flex flex-row gap-13">
             <ProfileImage
               src={profileImage}
               hasStory={!!myStoryGroup}
