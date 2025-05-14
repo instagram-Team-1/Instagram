@@ -25,6 +25,7 @@ type User = {
   following?: string[];
   posts?: string[];
   bio?: string;
+  fullname?: string; // ➡️ fullname нэмсэн
 };
 
 type StoryItem = {
@@ -57,7 +58,7 @@ export const UserHeaderTab = () => {
     null
   );
   const [modalUsers, setModalUsers] = useState<
-    { _id: string; username: string }[]
+    { _id: string; username: string; avatarImage: string; fullname?: string }[]
   >([]);
   const router = useRouter();
   useEffect(() => {
@@ -88,55 +89,64 @@ export const UserHeaderTab = () => {
   };
 
   // Fetch my stories
- const fetchMyStory = async (id: string) => {
-  try {
-    const res = await axios.get(`${API}/api/Getstory/${id}`);
-    const storiesData = res.data;
-    const myStory = storiesData.find((group: any) => group.user._id === id);
-    if (!myStory) return;
+  const fetchMyStory = async (id: string) => {
+    try {
+      const res = await axios.get(`${API}/api/Getstory/${id}`);
+      const storiesData = res.data;
+      const myStory = storiesData.find((group: any) => group.user._id === id);
+      if (!myStory) return;
 
-    const storyIds = myStory.stories.map((s: any) => s._id);
-    const viewRes = await axios.post(`${API}/api/storyHasView`, {
-      userId: id,
-      storyIds,
-    });
-    const viewedStoryIds: string[] = viewRes.data.viewedStoryIds;
+      const storyIds = myStory.stories.map((s: any) => s._id);
+      const viewRes = await axios.post(`${API}/api/storyHasView`, {
+        userId: id,
+        storyIds,
+      });
+      const viewedStoryIds: string[] = viewRes.data.viewedStoryIds;
 
-    const updatedStories = myStory.stories.map((story: any) => ({
-      ...story,
-      viewed: viewedStoryIds.includes(story._id),
-    }));
+      const updatedStories = myStory.stories.map((story: any) => ({
+        ...story,
+        viewed: viewedStoryIds.includes(story._id),
+      }));
 
-    setMyStoryGroup({
-      user: myStory.user,
-      stories: updatedStories,
-    });
-  } catch {
-    toast.error("Failed to fetch stories");
-  }
-}; 
+      setMyStoryGroup({
+        user: myStory.user,
+        stories: updatedStories,
+      });
+    } catch {
+      toast.error("Failed to fetch stories");
+    }
+  };
 
-  // Fetch followers/following for modal
-  useEffect(() => {
-    const fetchModalUsers = async () => {
-      if (!userData || !modalType) return;
-      const ids =
-        modalType === "followers" ? userData.followers : userData.following;
-      if (!ids) return;
-      try {
-        const users = await Promise.all(
-          ids.map(async (id) => {
-            const res = await axios.get(`${API}/api/users/${id}`);
-            return { _id: id, username: res.data.username };
-          })
-        );
-        setModalUsers(users);
-      } catch {
-        toast.error("Error fetching users data!");
-      }
-    };
-    if (isModalOpen) fetchModalUsers();
-  }, [isModalOpen, modalType, userData]);
+useEffect(() => {
+  const fetchModalUsers = async () => {
+    if (!userData || !modalType) return;
+    const ids =
+      modalType === "followers" ? userData.followers : userData.following;
+    if (!ids) return;
+
+    try {
+      const users = await Promise.all(
+        ids.map(async (id) => {
+          const res = await axios.get(`${API}/api/users/${id}`);
+          console.log("Fetched User Data:", res.data); 
+          return {
+            _id: id,
+            username: res.data.username,
+            fullname: res.data.fullname ?? "No Name", 
+            avatarImage: res.data.avatarImage ?? "/default-avatar.png", 
+          };
+        })
+      );
+      setModalUsers(users);
+    } catch (err) {
+      console.error("API fetch error:", err);
+      toast.error("Error fetching users data!");
+    }
+  };
+
+  if (isModalOpen) fetchModalUsers();
+}, [isModalOpen, modalType, userData]);
+
 
   const handleProfileImageClick = () => {
     if (myStoryGroup) {
@@ -149,24 +159,24 @@ export const UserHeaderTab = () => {
   };
 
   const uploadImage = async (file: File) => {
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "Story-Instagram");
-    const res = await axios.post(
-      "https://api.cloudinary.com/v1_1/your_cloud_name/image/upload",
-      formData
-    );
-    const imageUrl = res.data.secure_url;
-    setProfileImage(imageUrl);
-    await axios.put(`${API}/api/users/${userId}`, {
-      avatarImage: imageUrl,
-    });
-    toast.success("Profile photo updated!");
-  } catch (err) {
-    toast.error("Image upload failed.");
-  }
-};
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "Story-Instagram");
+      const res = await axios.post(
+        "https://api.cloudinary.com/v1_1/your_cloud_name/image/upload",
+        formData
+      );
+      const imageUrl = res.data.secure_url;
+      setProfileImage(imageUrl);
+      await axios.put(`${API}/api/users/${userId}`, {
+        avatarImage: imageUrl,
+      });
+      toast.success("Profile photo updated!");
+    } catch (err) {
+      toast.error("Image upload failed.");
+    }
+  };
 
   return (
     <div className="flex flex-row gap-14">
@@ -217,7 +227,6 @@ export const UserHeaderTab = () => {
         <div className="text-[16px] text-gray-500">{userData?.bio}</div>
       </div>
 
-      {/* Followers / Following Dialog */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-[400px]">
           <DialogHeader>
@@ -229,15 +238,39 @@ export const UserHeaderTab = () => {
             {(modalType === "followers"
               ? userData?.followers
               : userData?.following
-            )?.map((uid) => (
-              <div key={uid} className="py-2 border-b">
-                {modalUsers
-                  .filter((u) => u._id === uid)
-                  .map((u) => (
-                    <div key={u._id}>@{u.username}</div>
-                  ))}
-              </div>
-            ))}
+            )?.map((uid) => {
+              const matchedUsers = modalUsers.filter(
+                (u) => u._id.toString() === uid
+              );
+
+              if (matchedUsers.length > 0) {
+                return matchedUsers.map((u) => (
+                  <div
+                    key={u._id}
+                    className="py-2 border-b flex items-center gap-3"
+                  >
+                    <img
+                      src={u.avatarImage}
+                      alt={u.username}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <div className="text-white font-semibold">
+                        {u.username}
+                      </div>
+                      <div className="text-gray-400 text-sm">{u.fullname}</div>
+                    </div>
+                  </div>
+                  
+                ));
+              } else {
+                return (
+                  <div key={uid} className="py-2 border-b text-gray-500">
+                    User not found
+                  </div>
+                );
+              }
+            })}
           </div>
         </DialogContent>
       </Dialog>
