@@ -3,7 +3,7 @@ import axios from "axios";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { API } from "@/utils/api";
-import { User } from "lucide-react";
+import { CircleX, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { parseJwt } from "@/utils/JwtParse";
 import { useRouter } from "next/navigation";
@@ -101,15 +101,22 @@ function SearchButtonPanel({ activePanel }: SearchButtonPanelProps) {
       >
         <div className="h-[160px] w-[400px] p-5 border-b-[1px] mb-6">
           <h2 className="text-lg font-semibold mb-6 ">Search</h2>
-          <Input
-            type="search"
-            placeholder="Хэрэглэгч хайх..."
-            onChange={(e) => setSearchValue(e.target.value)}
-            onFocus={() => setIsFocused(true)}
-            value={searchValue}
-            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-            className="border-none h-[45px] text-base w-full focus-visible:ring-0 shadow-none bg-zinc-100 dark:bg-zinc-800 "
-          />
+          <div className="relative w-full">
+            <Input
+              type="search"
+              placeholder="Search"
+              onChange={(e) => setSearchValue(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              value={searchValue}
+              onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+              className="border-none h-[45px] text-base w-full focus-visible:ring-0 shadow-none bg-zinc-100 dark:bg-zinc-800 pr-10 [&::-webkit-search-cancel-button]:appearance-none"
+            />
+            <CircleX
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-500 cursor-pointer"
+              onClick={() => setSearchValue("")}
+              size={18}
+            />
+          </div>
         </div>
         {!hideSuggestions &&
           suggestions.slice(0, 5).map((user, i) => (
@@ -117,7 +124,7 @@ function SearchButtonPanel({ activePanel }: SearchButtonPanelProps) {
               key={i}
               className="flex  flex-col justify-between items-center w-[400px]  "
             >
-              <div className="flex items-center gap-3 px-4 h-[60px] w-[360px] bg-white dark:bg-zinc-900   dark:border-zinc-700 ">
+              <div className="flex items-center gap-3 px-4 h-[60px] w-[360px] bg-white dark:bg-black   dark:border-zinc-700 ">
                 <Avatar className="w-[44px] h-[44px] rounded-full overflow-hidden bg-gray-800">
                   <AvatarImage
                     src={user.avatarImage || "/default-avatar.png"}
@@ -146,7 +153,7 @@ function SearchButtonPanel({ activePanel }: SearchButtonPanelProps) {
             <div className="w-[360px] bg-white dark:bg-zinc-900   dark:border-zinc-700 ">
               {loading ? (
                 <p className="text-center text-gray-500 dark:text-gray-400 p-4">
-                  Уншиж байна...
+                  Loading ...
                 </p>
               ) : users.length > 0 ? (
                 users.slice(0, 5).map((user) => (
@@ -181,7 +188,7 @@ function SearchButtonPanel({ activePanel }: SearchButtonPanelProps) {
                 ))
               ) : (
                 <p className="text-center text-gray-500 dark:text-gray-400 p-4">
-                  Хэрэглэгч олдсонгүй.
+                  Not found user.
                 </p>
               )}
             </div>
