@@ -14,7 +14,8 @@ type StoryViewerProps = {
   userId: string;
 };
 
-type GroupedStory = {
+export type GroupedStory = {
+  _id?: string; // optional болгож болно
   user: { _id: string; username: string; avatarImage: string };
   stories: { _id: string; imageUrl: string; createdAt?: string }[];
 };

@@ -6,6 +6,7 @@ import { StoryView } from "../../components/stories/_components/story-view";
 import { Pause, Play, MoreVertical } from "lucide-react";
 import { ProgressBar } from "../../components/stories/_components/_components/ProgressBar";
 import { NavigationArrows } from "../../components/stories/_components/_components/NavigationArrows";
+import { GroupedStory } from "@/lib/types";
 
 type StoryViewerProps = {
   storyGroup: GroupedStory;
@@ -14,22 +15,17 @@ type StoryViewerProps = {
   userId: string;
 };
 
-type GroupedStory = {
-  user: { _id: string; username: string; avatarImage: string };
-  stories: { _id: string; imageUrl: string; createdAt?: string }[];
-};
-
 function getTimeAgo(dateString: string) {
-  const createdAt = new Date(dateString); // Ognoog shine object bolgono
-  const now = new Date(); //Onoodriin ognoo
+  const createdAt = new Date(dateString);
+  const now = new Date();
   const diffMs = now.getTime() - createdAt.getTime();
   const diffMinutes = Math.floor(diffMs / 1000 / 60);
   const diffHours = Math.floor(diffMinutes / 60);
 
   if (diffMinutes < 1) return "Just now";
-  if (diffMinutes < 60) return `${diffMinutes}m ago`; //1 tsag dotor bol minutiig haruulna
-  if (diffHours < 24) return `${diffHours}h ago`; //tsagiig haruulna
-  return null;
+  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return `${Math.floor(diffHours / 24)}d ago`;
 }
 
 export function StoryViewer({
@@ -41,6 +37,7 @@ export function StoryViewer({
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchViewers = async (storyId: string) => {
@@ -51,14 +48,34 @@ export function StoryViewer({
     }
   };
 
-  useEffect(() => {
-    if (storyGroup.stories[currentIndex]) {
-      const story = storyGroup.stories[currentIndex];
-      const timeAgo = getTimeAgo(story.createdAt || "");
-      if (timeAgo === null) {
+  const handleDeleteStory = async () => {
+    const story = storyGroup.stories[currentIndex];
+
+    try {
+      await axios.delete(`${API}/api/highlight/${storyGroup._id}`, {
+        data: { storyId: story._id },
+      });
+
+      const updatedStories = storyGroup.stories.filter(
+        (s) => s._id !== story._id
+      );
+
+      if (updatedStories.length > 0) {
+        storyGroup.stories = updatedStories;
+        setCurrentIndex(0);
+      } else {
         setSelectedStoryGroup(null);
-        return;
       }
+
+      setShowOptions(false);
+    } catch (error) {
+      console.error("Failed to remove story from highlight:", error);
+    }
+  };
+
+  useEffect(() => {
+    const story = storyGroup.stories[currentIndex];
+    if (story?.createdAt) {
       fetchViewers(story._id);
     }
   }, [userId, storyGroup, currentIndex]);
@@ -106,7 +123,10 @@ export function StoryViewer({
   }, [progress]);
 
   const currentStory = storyGroup.stories[currentIndex];
-  const timeAgo = getTimeAgo(currentStory.createdAt || "") || "";
+  const timeAgo =
+    currentStory?.createdAt !== undefined
+      ? getTimeAgo(currentStory.createdAt)
+      : "";
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
@@ -123,6 +143,26 @@ export function StoryViewer({
         >
           {isPaused ? <Play /> : <Pause />}
         </button>
+
+        <div className="relative">
+          <div
+            className="text-white text-2xl cursor-pointer"
+            onClick={() => setShowOptions((prev) => !prev)}
+          >
+            <MoreVertical />
+          </div>
+
+          {showOptions && (
+            <div className="absolute right-0 mt-2 bg-pink-100 text-red-600 text-center text-bold rounded shadow-md w-32 p-2">
+              <button
+                onClick={handleDeleteStory}
+                className="w-full text-left px-2 py-1 hover:bg-gray-600 text-sm"
+              >
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
 
         <div
           className="text-white text-xl cursor-pointer"

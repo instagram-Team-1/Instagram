@@ -4,6 +4,7 @@ import {
   getHighlightsByUser,
   getHighlightById,
   deleteHighlight,
+  removeStoryFromHighlight,
 } from "../controller/Highlight/save";
 
 const router = express.Router();
@@ -36,6 +37,15 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
     await deleteHighlight(req, res);
+  } catch (error) {
+    res.status(500).json({ message: "Error processing request", error });
+  }
+});
+
+// Шинэ route: Highlight-аас story устгах
+router.put("/removeStory", async (req: Request, res: Response) => {
+  try {
+    await removeStoryFromHighlight(req, res);
   } catch (error) {
     res.status(500).json({ message: "Error processing request", error });
   }

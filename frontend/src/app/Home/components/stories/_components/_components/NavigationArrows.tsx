@@ -1,15 +1,13 @@
+import React from "react";
+import { GroupedStory } from "@/lib/types";
+
 type NavigationArrowsProps = {
   currentIndex: number;
   stories: { _id: string; imageUrl: string }[];
   storiesList: GroupedStory[];
-  setCurrentIndex: (index: number) => void;
+  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
   setSelectedStoryGroup: (group: GroupedStory | null) => void;
   currentGroup: GroupedStory;
-};
-
-type GroupedStory = {
-  user: { _id: string; username: string; avatarImage: string };
-  stories: { _id: string; imageUrl: string }[];
 };
 
 export function NavigationArrows({
@@ -20,44 +18,52 @@ export function NavigationArrows({
   setSelectedStoryGroup,
   currentGroup,
 }: NavigationArrowsProps) {
-  const handlePrev = () => {
+  const goPrev = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
+    } else {
+      const currentGroupIndex = storiesList.findIndex(
+        (g) => g._id === currentGroup._id
+      );
+      const prevGroup = storiesList[currentGroupIndex - 1];
+
+      if (prevGroup) {
+        setSelectedStoryGroup(prevGroup);
+        setCurrentIndex(prevGroup.stories.length - 1);
+      }
     }
   };
 
-  const handleNext = () => {
-    const isLastStory = currentIndex >= stories.length - 1;
-    if (!isLastStory) {
+  const goNext = () => {
+    if (currentIndex < stories.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
       const currentGroupIndex = storiesList.findIndex(
-        (g) => g.user._id === currentGroup.user._id
+        (g) => g._id === currentGroup._id
       );
       const nextGroup = storiesList[currentGroupIndex + 1];
+
       if (nextGroup) {
         setSelectedStoryGroup(nextGroup);
         setCurrentIndex(0);
-      } else {
-        setSelectedStoryGroup(null);
       }
     }
   };
 
   return (
-    <>
-      <div
-        className="absolute left-4 text-white text-2xl cursor-pointer z-10"
-        onClick={handlePrev}
+    <div className="absolute inset-0 flex justify-between items-center px-2 z-30">
+      <button
+        onClick={goPrev}
+        className="bg-black/50 hover:bg-black/70 text-white px-3 py-1 rounded"
       >
-        ‹
-      </div>
-      <div
-        className="absolute right-4 text-white text-2xl cursor-pointer z-10 "
-        onClick={handleNext}
+        Prev
+      </button>
+      <button
+        onClick={goNext}
+        className="bg-black/50 hover:bg-black/70 text-white px-3 py-1 rounded"
       >
-        ›
-      </div>
-    </>
+        Next
+      </button>
+    </div>
   );
 }

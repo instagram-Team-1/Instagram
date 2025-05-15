@@ -96,11 +96,10 @@ export interface Comment {
 }
 
 export type HighlightType = {
-  [x: string]: string;
+  [x: string]: any; // эсвэл string, unknown гэх мэт
   id: string;
   title: string;
   stories: {
-    [x: string]: string | undefined;
     _id: string;
     imageUrl: string;
   }[];
@@ -108,8 +107,13 @@ export type HighlightType = {
 
 export type StoryType = {
   _id: string;
-  title: string;
-  imageUrl: string; // 👈 image биш
+  imageUrl: string;
+  title?: string;
   createdAt?: string;
-  // бусад property
+};
+
+export type GroupedStory = {
+  _id?: string;
+  user: { _id: string; username: string; avatarImage: string };
+  stories: { _id: string; imageUrl: string; createdAt?: string }[];
 };
