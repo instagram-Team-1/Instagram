@@ -21,6 +21,7 @@ import savedRouter from "./routers/SaveRouter";
 import Notification from "./models/notification";
 import { User } from "./models/userModel";
 import notificationRoutes from "./routers/notification";
+import highlightRouter from "./routers/HighlightRoute";
 
 dotenv.config();
 const app = express();
@@ -60,6 +61,7 @@ app.use("/api", savedRouter);
 app.use("/api", SuggestRouter);
 app.use("/api/chat", chatRoute);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/highlight", highlightRouter);
 
 // Socket.IO
 const io = new Server(server, {

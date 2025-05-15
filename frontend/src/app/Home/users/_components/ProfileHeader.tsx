@@ -1,19 +1,18 @@
 "use client";
-import axios from "axios";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
 import { toast } from "react-toastify";
 import { UserDataType } from "@/lib/types";
 import { API } from "@/utils/api";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { StoryViewer } from "./Storyviewo-delete";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { userContext } from "../../layout";
 
 type Props = {
   user: UserDataType;
@@ -21,21 +20,21 @@ type Props = {
   onUserDataUpdate?: (user: UserDataType) => void;
 };
 
-export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }: Props) {
-  const router = useRouter();
-  const context = useContext(userContext);
-
-  const [isFollowing, setIsFollowing] = useState(
+export default function ProfileHeader({
+  user,
+  currentUserId,
+  onUserDataUpdate,
+}: Props) {
+  const [isFollowing, setIsFollowing] = useState<boolean>(
     user.followers?.some((f) => f === currentUserId) || false
   );
-  const [isLoading, setIsLoading] = useState(false);
-  const [modalUsers, setModalUsers] = useState<{
-    _id: string;
-    username: string;
-    avatarImage?: string;
-    fullname?: string;
-  }[]>([]);
-  const [modalType, setModalType] = useState<"followers" | "following" | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [modalUsers, setModalUsers] = useState<
+    { _id: string; username: string }[]
+  >([]);
+  const [modalType, setModalType] = useState<"followers" | "following" | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState<{
     _id?: string;
@@ -45,29 +44,23 @@ export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }:
     posts?: string[];
   } | null>(null);
 
-  // Fetch profile data
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const res = await axios.get(`${API}/api/users/${user._id}`);
-        setUserData(res.data);
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
-      }
-    };
-    fetchUserData();
-  }, [user._id]);
+  const router = useRouter();
 
-  // Handle follow/unfollow
   const handleFollow = async () => {
-    if (currentUserId === user._id) return;
+    if (currentUserId === user._id) {
+      toast.error("Өөрийгөө дагах боломжгүй");
+      return;
+    }
+
     setIsLoading(true);
+
     try {
       const endpoint = isFollowing ? "/api/unfollow" : "/api/follow";
       const response = await axios.post(`${API}${endpoint}`, {
         followerId: currentUserId,
         followingId: user._id,
       });
+
       toast.success(response.data.message);
       setIsFollowing(!isFollowing);
 
@@ -75,144 +68,138 @@ export default function ProfileHeader({ user, currentUserId, onUserDataUpdate }:
       setUserData(userRes.data);
       onUserDataUpdate?.(userRes.data);
     } catch (error: any) {
-      console.error("Error:", error.response?.data || error.message);
-      toast.error("Unable to update follow status.");
+      console.error("Алдаа:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Алдаа гарлаа");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Create or navigate to chat room
   const createChatRoom = async () => {
-    if (!context) {
+    const storedData = localStorage.getItem("userInfo");
+    let myId = null;
+    let myUsername = "";
+
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      myId = parsedData.userId?.id;
+      myUsername = parsedData.username?.username;
+    }
+
+    if (!myId || !myUsername) {
       toast.error("User information not found. Please login.");
       return;
     }
-    if (user._id === context.id) {
-      toast.error("You cannot message yourself.");
-      return;
-    }
+
     const selectedUsers = [
       { name: user.username, id: user._id },
-      { name: context.username, id: context.id },
+      { name: myUsername, id: myId },
     ];
+    console.log("Selected Users:", selectedUsers);
+
     try {
-      const checkRoomRes = await axios.post(`${API}/api/chat/checkRoom`, { selectedUsers });
-      router.push(`/Home/actualRoom/${checkRoomRes.data.roomId}`);
+      const checkRoomRes = await axios.post(`${API}/api/chat/checkRoom`, {
+        selectedUsers,
+      });
+      console.log("Check Room Response:", checkRoomRes.data);
+
+      if (checkRoomRes.data.roomExists) {
+        console.log("Room exists");
+        router.push(`/Home/actualRoom/${checkRoomRes.data.roomId}`);
+      } else {
+        const createRoomRes = await axios.post(`${API}/api/auth/Room`, {
+          selectedUsers,
+        });
+        console.log("Create Room Response:", createRoomRes.data);
+
+        if (createRoomRes.data.message === "Room created successfully") {
+          console.log("Room created successfully");
+          router.push(`/Home/actualRoom/${createRoomRes.data.roomId}`);
+        }
+      }
     } catch (error) {
       console.error("Error handling chat room:", error);
-      toast.error("Failed to open chat room.");
+      toast.error("Failed to handle chat room.");
     }
   };
 
-    useEffect(() => {
-    const fetchModalUsers = async () => {
-      if (!userData || !modalType) return;
-      const ids =
-        modalType === "followers" ? userData.followers : userData.following;
-      if (!ids) return;
-
+  useEffect(() => {
+    const fetchUserData = async () => {
       try {
-        const users = await Promise.all(
-          ids.map(async (id) => {
-            const res = await axios.get(`${API}/api/users/${id}`);
-            console.log("Fetched User Data:", res.data); 
-            return {
-              _id: id,
-              username: res.data.username,
-              fullname: res.data.fullname ?? "No Name", 
-              avatarImage: res.data.avatarImage ?? "/default-avatar.png", 
-            };
-          })
-        );
-        setModalUsers(users);
-      } catch (err) {
-        console.error("API fetch error:", err);
-        toast.error("Error fetching users data!");
+        const res = await axios.get(`${API}/api/users/${user._id}`);
+        setUserData(res.data);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+        toast.error("Хэрэглэгчийн мэдээллийг татахад алдаа гарлаа!");
       }
     };
 
-    if (isModalOpen) fetchModalUsers();
-  }, [isModalOpen, modalType, userData]);
-
-  // Fetch users for modal
-  // useEffect(() => {
-  //   const fetchModalUsers = async () => {
-  //     if (!modalType || !isModalOpen || !userData) return;
-  //     const ids = modalType === "followers" ? userData.followers : userData.following;
-  //     if (!ids || ids.length === 0) {
-  //       setModalUsers([]);
-  //       return;
-  //     }
-  //     try {
-  //       const res = await axios.get(`${API}/api/users/{id}`);
-  //       setModalUsers(res.data);
-  //     } catch (error) {
-  //       console.error("Failed to fetch modal users:", error);
-  //       setModalUsers([]);
-  //     }
-  //   };
-  //   fetchModalUsers();
-  // }, [modalType, isModalOpen, userData]);
+    fetchUserData();
+  }, [user._id]);
 
   return (
-    <div className="flex flex-col ml-5 gap-8">
-      <div className="text-xl font-normal flex items-center gap-4">
+    <div className="flex flex-col ml-[20px] gap-[30px]">
+      <div className="text-[20px] font-normal flex flex-row items-center gap-[8px]">
         <div>{user.username}</div>
         <Button
-          className={`text-white cursor-pointer ${!isFollowing ? 'bg-blue-400 hover:bg-blue-500' : ''}`}
+          className={`${isFollowing ? "bg-gray-200" : "bg-blue-400"} text-white`}
           onClick={handleFollow}
-          variant="secondary"
           disabled={isLoading || currentUserId === user._id}
         >
-          {isLoading ? 'Loading...' : isFollowing ? 'Unfollow' : 'Follow'}
+          {isLoading ? (
+            <span>Loading...</span>
+          ) : isFollowing ? (
+            "Unfollow"
+          ) : (
+            "Follow"
+          )}
         </Button>
-        <Button variant="secondary" onClick={createChatRoom} className="cursor-pointer">
+        <Button
+          variant="secondary"
+          className="hover:bg-gray-200"
+          onClick={createChatRoom}
+        >
           Message
         </Button>
       </div>
-
-      <div className="text-base text-gray-400 flex gap-8">
+      <div className="text-[16px] text-gray-400 flex gap-8">
         <div>{userData?.posts?.length || 0} posts</div>
         <div
           className="cursor-pointer"
-          onClick={() => { setModalType("followers"); setIsModalOpen(true); }}
+          onClick={() => {
+            setModalType("followers");
+            setIsModalOpen(true);
+          }}
         >
           {userData?.followers?.length || 0} followers
         </div>
         <div
           className="cursor-pointer"
-          onClick={() => { setModalType("following"); setIsModalOpen(true); }}
+          onClick={() => {
+            setModalType("following");
+            setIsModalOpen(true);
+          }}
         >
           {userData?.following?.length || 0} following
         </div>
       </div>
-
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="w-[370px] p-0 px-3 dark:bg-[#282828]">
-          <DialogHeader className="flex items-center py-2 border-b">
-            <DialogTitle className="text-md">{modalType === 'followers' ? 'Followers' : 'Following'}</DialogTitle>
+        <DialogContent className="max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>
+              {modalType === "followers" ? "Followers" : "Following"}
+            </DialogTitle>
           </DialogHeader>
-          <div className="max-h-80 overflow-y-auto">
-            {(!modalUsers.length) && <div className="p-4 text-center text-gray-500">No users found</div>}
-            {modalUsers.map((u) => (
-              <div key={u._id} className="py-2 flex items-center gap-3">
-                <img
-                  src={u.avatarImage}
-                  alt={u.username}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <div>
-                  <div className="dark:text-white font-semibold">{u.username}</div>
-                  <div className="text-gray-400 text-sm">{u.fullname || 'No name'}</div>
-                </div>
+          <div className="max-h-[300px] overflow-y-auto">
+            {modalUsers.map((user) => (
+              <div key={user._id} className="py-2 border-b">
+                @{user.username}
               </div>
             ))}
           </div>
         </DialogContent>
       </Dialog>
-
-      <div className="text-base text-gray-500">
+      <div className="text-[16px] text-gray-500">
         {user.bio || "No bio yet"}
       </div>
     </div>
