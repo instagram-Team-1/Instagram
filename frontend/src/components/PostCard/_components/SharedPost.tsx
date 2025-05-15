@@ -146,6 +146,10 @@ const SharedPost: FC<SharedPostProps> = ({
               comment={comment}
               onCommentChange={onCommentChange}
               onSubmit={onCommentSubmit}
+              currentUserUsername={user.username}
+              comments={comments}
+              onCommentSubmit={onCommentSubmit}
+              currentUserAvatarImage={user.avatarImage || "/img/default-avatar.png"}
             />
           </div>
         </div>
