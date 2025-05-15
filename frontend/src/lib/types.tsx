@@ -96,7 +96,20 @@ export interface Comment {
 }
 
 export type HighlightType = {
+  [x: string]: string;
   id: string;
   title: string;
-  stories: { _id: string; imageUrl: string }[];
+  stories: {
+    [x: string]: string | undefined;
+    _id: string;
+    imageUrl: string;
+  }[];
+};
+
+export type StoryType = {
+  _id: string;
+  title: string;
+  imageUrl: string; // 👈 image биш
+  createdAt?: string;
+  // бусад property
 };
