@@ -48,12 +48,12 @@ const PostActions: FC<PostActionsProps> = ({
         <Heart
           onClick={onLike}
           className={`cursor-pointer ${
-            liked ? "text-red-500 fill-red-500" : "text-white"
+            liked ? "text-red-500 fill-red-500" : ""
           }`}
         />
         <MessageCircle
           onClick={onComment}
-          className="text-white cursor-pointer"
+          className=" cursor-pointer"
         />
         <button onClick={handleCopyLink} className="flex flex-col items-center">
           {copied ? (

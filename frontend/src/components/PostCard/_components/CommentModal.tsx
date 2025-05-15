@@ -108,7 +108,7 @@ const CommentModal: FC<CommentModalProps> = ({
             </button>
           </div>
           {/* Caption хэсэг */}
-          <div className="flex gap-3 items-center px-6 py-3 text-white text-sm border-b border-neutral-800">
+          <div className="flex gap-3 items-center px-6 py-3 text-sm border-b border-neutral-800">
             <Avatar className="w-[32px] h-[32px]">
               <AvatarImage
                 src={user.avatarImage || "/img/default-avatar.png"}
@@ -117,7 +117,7 @@ const CommentModal: FC<CommentModalProps> = ({
                 <User />
               </AvatarFallback>
             </Avatar>
-            <span className="font-semibold">{user.username}</span>{" "}
+            <span className="font-semibold text-white">{user.username}</span>{" "}
             {showFullCaption ? fullCaption : shortCaption}
             {fullCaption.length > 100 && (
               <button
@@ -129,14 +129,14 @@ const CommentModal: FC<CommentModalProps> = ({
             )}
           </div>
           {/* Комментуудын жагсаалт */}
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="flex-1 overflow-y-auto px-6 py-4 ">
             {commentList.length === 0 ? (
               <div className="text-gray-500 text-sm">Коммент байхгүй.</div>
             ) : (
               commentList.map((cmt) => (
                 <div
                   key={cmt._id}
-                  className="flex justify-between items-start border-b border-neutral-800 py-3"
+                  className="flex justify-between items-start  border-b border-neutral-800 py-3"
                 >
                   <div className="flex gap-3 items-center">
                     <Avatar className="w-[32px] h-[32px] mt-1">
@@ -150,8 +150,8 @@ const CommentModal: FC<CommentModalProps> = ({
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p>
-                        <span className="font-semibold mr-1">
+                      <p className="text-white">
+                        <span className="font-semibold mr-1 text-white">
                           {cmt.userId?.username ?? "Тодорхойгүй хэрэглэгч"}
                         </span>
                         {cmt.comment}
@@ -184,7 +184,7 @@ const CommentModal: FC<CommentModalProps> = ({
               currentUserUsername={currentUserUsername}
               currentUserAvatarImage={currentUserAvatarImage}
               comments={commentList}
-              onCommentSubmit={handleSubmit} 
+              onCommentSubmit={handleSubmit}
             />
           </div>
         </div>

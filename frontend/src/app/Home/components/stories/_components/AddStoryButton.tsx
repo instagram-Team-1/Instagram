@@ -20,7 +20,7 @@ export function AddStoryButton({
             <AvatarFallback></AvatarFallback>
           </Avatar>
         </div>
-        <label className="absolute inset-0 flex items-center justify-center text-white text-2xl cursor-pointer">
+        <label className="absolute inset-0 flex items-center justify-center  text-2xl cursor-pointer">
           {isLoading ? (
             <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent" />
           ) : (
@@ -34,7 +34,7 @@ export function AddStoryButton({
           />
         </label>
       </div>
-      <span className="text-xs text-white mt-2 text-center w-16 truncate">
+      <span className="text-xs  mt-2 text-center w-16 truncate">
         {username}
       </span>
     </div>

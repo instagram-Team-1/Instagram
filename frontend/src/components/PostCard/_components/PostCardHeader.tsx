@@ -28,7 +28,7 @@ const PostHeader: FC<PostHeaderProps> = ({ user }) => {
         <div
           className="relative inline-block"
         >
-          <span className="text-white text-sm font-medium cursor-pointer">
+          <span className=" text-sm font-medium cursor-pointer">
             {user.username || ""}
           </span>
         </div>
