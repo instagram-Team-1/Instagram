@@ -144,7 +144,12 @@ const SharedPost: FC<SharedPostProps> = ({
             </div>
             <PostCommentInput
               comment={comment}
-              onCommentChange={onCommentChange}
+              onCommentChange={onCommentChange} 
+              currentUserUsername={user.username}
+              comments={comments}
+              onCommentSubmit={onCommentSubmit}
+              currentUserAvatarImage={user.avatarImage || "/img/default-avatar.png"}
+            />
               onSubmit={onCommentSubmit} currentUserUsername={""} comments={[]} onCommentSubmit={function (e: React.FormEvent): void {
                 throw new Error("Function not implemented.");
               } } currentUserAvatarImage={""}            />
