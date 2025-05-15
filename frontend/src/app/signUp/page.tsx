@@ -74,7 +74,7 @@ const Page = () => {
           <FbLogin />
           <SeparatorOr />
           <form onSubmit={formik.handleSubmit} className="w-full flex flex-col gap-[15px] text-white">
-            <Input name="email" placeholder="Mobile number or email" type="email" onChange={formik.handleChange} value={formik.values.email} />
+            <Input name="email" placeholder="Email" type="email" onChange={formik.handleChange} value={formik.values.email} />
             <Input name="password" placeholder="Password" type="password" onChange={formik.handleChange} value={formik.values.password} />
             <Input name="fullname" placeholder="Full name" onChange={formik.handleChange} value={formik.values.fullname} />
             <Input name="username" placeholder="Username" onChange={formik.handleChange} value={formik.values.username} />
