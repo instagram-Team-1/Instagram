@@ -52,9 +52,7 @@ export function StoryViewer({
     const story = storyGroup.stories[currentIndex];
 
     try {
-      await axios.delete(
-        `${API}/api/highlight/${storyGroup._id}/story/${story._id}`
-      );
+      await axios.delete(`${API}/api/highlight/${story._id}`, {});
 
       const updatedStories = storyGroup.stories.filter(
         (s) => s._id !== story._id
