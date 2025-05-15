@@ -97,7 +97,6 @@ const SharedPost: FC<SharedPostProps> = ({
             )}
           </div>
           <div className="flex-1 overflow-y-auto px-6 py-4">
-
             {comments.length === 0 ? (
               <div className="text-gray-500 text-sm">No comment.</div>
             ) : (
@@ -144,15 +143,15 @@ const SharedPost: FC<SharedPostProps> = ({
             </div>
             <PostCommentInput
               comment={comment}
-              onCommentChange={onCommentChange} 
+              onCommentChange={onCommentChange}
               currentUserUsername={user.username}
               comments={comments}
               onCommentSubmit={onCommentSubmit}
-              currentUserAvatarImage={user.avatarImage || "/img/default-avatar.png"}
+              currentUserAvatarImage={
+                user.avatarImage || "/img/default-avatar.png"
+              }
+              onSubmit={onCommentSubmit}
             />
-              onSubmit={onCommentSubmit} currentUserUsername={""} comments={[]} onCommentSubmit={function (e: React.FormEvent): void {
-                throw new Error("Function not implemented.");
-              } } currentUserAvatarImage={""}            />
           </div>
         </div>
       </div>
