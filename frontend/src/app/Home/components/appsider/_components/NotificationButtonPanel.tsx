@@ -10,13 +10,12 @@ type Notification = {
   senderId: string;
   username: string;
   type: string;
-  _id?: string; 
+  _id?: string;
 };
 
 import { FollowNotification } from "./Notifications/FollowingNotifications";
 import { LikeNotification } from "./Notifications/LikeNotification";
 import { CommentNotification } from "./Notifications/CommentNotification";
-
 
 type ActivePanelType = "none" | "search" | "messages" | "notifications";
 
@@ -41,41 +40,59 @@ function NotificationButtonPanel({
   };
 
   useEffect(() => {
-    if (data?.userId) {
+    if (!data?.userId) return;
+
+    console.log("👤 userId байна:", data.userId);
+
+    const handleConnect = () => {
+      console.log("🔌 socket connected:", socket.id);
       socket.emit("addUser", data.userId);
+      console.log("✅ addUser дуудлаа:", data.userId);
+    };
 
-      fetchNotifications();
-
-      const handler = (notif: Notification) => {
-        console.log("Шинэ мэдэгдэл:", notif);
-
-        const newNotif: Notification = {
-          ...notif,
-          message: `${notif.username} has ${notif.type}d your post`, // 🧠 шууд мессеж үүсгэх
-          _id: `${notif.senderId}-${notif.type}-${Date.now()}`, // хиймэл ID
-        };
-        toast("🔥 New Like", {
-          description: `${notif.username} liked your post`,
-          action: {
-            label: "View",
-            onClick: () => console.log("clicked"),
-          },
-          duration: 4000,
-        });
-
-        setNotifications((prev) => [newNotif, ...prev]);
-      };
-      socket.on("getNotification", handler);
-
-      return () => {
-        socket.off("getNotification", handler);
-      };
+    if (socket.connected) {
+      handleConnect();
+    } else {
+      socket.on("connect", handleConnect);
     }
+
+    fetchNotifications();
+
+    const handler = (notif: Notification) => {
+      console.log("📥 Шинэ мэдэгдэл хүлээн авлаа:", notif);
+
+      const newNotif: Notification = {
+        ...notif,
+        message: `${notif.username} has ${notif.type}d your post`,
+        _id: `${notif.senderId}-${notif.type}-${Date.now()}`,
+      };
+
+      setNotifications((prev) => [newNotif, ...prev]);
+
+      toast("🔥 New Notification", {
+        description: newNotif.message,
+      });
+    };
+
+    socket.on("getNotification", handler);
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("getNotification", handler);
+    };
   }, [data?.userId]);
 
   const renderText = (notif: Notification) => {
     return notif.message || "New notification";
   };
+
+  useEffect(() => {
+    console.log("🔥 NotificationButtonPanel rendered");
+  }, []);
+
+  socket.on("connect", () => console.log("Socket connected:", socket.id));
+  socket.on("disconnect", () => console.log("Socket disconnected"));
+  socket.on("reconnect_attempt", () => console.log("Socket reconnect attempt"));
 
   return (
     <div>
