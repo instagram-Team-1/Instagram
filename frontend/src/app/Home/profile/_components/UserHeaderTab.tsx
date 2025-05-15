@@ -1,11 +1,11 @@
 "use client";
 
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { CldImage } from "next-cloudinary";
-import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,10 +24,10 @@ type User = {
   following?: string[];
   posts?: string[];
   bio?: string;
+  fullname: string;
   postCount?: number;
 };
 
-import { useRouter } from "next/navigation";
 
 type StoryItem = {
   _id: string;
@@ -38,7 +38,7 @@ type StoryItem = {
 };
 
 export type GroupedStory = {
-  _id?: string; // optional болгож болно
+  _id?: string;
   user: { _id: string; username: string; avatarImage: string };
   stories: { _id: string; imageUrl: string; createdAt?: string }[];
 };
@@ -50,13 +50,17 @@ export const UserHeaderTab = () => {
   const [myStoryGroup, setMyStoryGroup] = useState<GroupedStory | null>(null);
   const [selectedStoryGroup, setSelectedStoryGroup] =
     useState<GroupedStory | null>(null);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"followers" | "following" | null>(
     null
   );
   const [modalUsers, setModalUsers] = useState<
-    { _id: string; username: string }[]
+    {
+      _id: string;
+      username: string;
+      avatarImage?: string;
+      fullname?: string;
+    }[]
   >([]);
   const router = useRouter();
   useEffect(() => {
@@ -124,7 +128,7 @@ export const UserHeaderTab = () => {
         const users = await Promise.all(
           ids.map(async (id) => {
             const res = await axios.get(`${API}/api/users/${id}`);
-            return { _id: id, username: res.data.username };
+            return { _id: id, username: res.data.username, fullname: res.data.fullname, avatarImage: res.data.avatarImage };
           })
         );
         setModalUsers(users);
@@ -217,23 +221,33 @@ export const UserHeaderTab = () => {
 
       {/* Followers / Following Dialog */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="w-[370px] p-0 px-3 dark:bg-[#282828]">
+          <DialogHeader className="flex items-center py-2 border-b">
+            <DialogTitle className="text-md">
               {modalType === "followers" ? "Followers" : "Following"}
             </DialogTitle>
           </DialogHeader>
-          <div className="max-h-[300px] overflow-y-auto">
-            {(modalType === "followers"
-              ? userData?.followers
-              : userData?.following
-            )?.map((uid) => (
-              <div key={uid} className="py-2 border-b">
-                {modalUsers
-                  .filter((u) => u._id === uid)
-                  .map((u) => (
-                    <div key={u._id}>@{u.username}</div>
-                  ))}
+          <div className="max-h-80 overflow-y-auto">
+            {!modalUsers.length && (
+              <div className="p-4 text-center text-gray-500">
+                No users found
+              </div>
+            )}
+            {modalUsers.map((u) => (
+              <div key={u._id} className="py-2 flex items-center gap-3">
+                <img
+                  src={u.avatarImage}
+                  alt={u.username}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div>
+                  <div className="dark:text-white font-semibold">
+                    {u.username}
+                  </div>
+                  <div className="text-gray-400 text-sm">
+                    {u.fullname || "No name"}
+                  </div>
+                </div>
               </div>
             ))}
           </div>

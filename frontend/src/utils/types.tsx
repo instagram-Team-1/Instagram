@@ -18,9 +18,6 @@ export type GroupedStory = {
   stories: StoryItem[];
 };
 
-
-// src/lib/types.ts
-
 export interface Post {
   _id: string;
   imageUrl: string;
