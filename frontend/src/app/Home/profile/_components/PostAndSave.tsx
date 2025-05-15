@@ -6,9 +6,9 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { API } from "@/utils/api";
 import CommentModal from "@/components/PostCard/_components/CommentModal";
-import { Comment } from "@/lib/types";
 import { toast } from "react-toastify";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar } from "@radix-ui/react-avatar";
 
 interface Post {
   _id: string;
@@ -20,6 +20,17 @@ interface Post {
   comments: any[];
   createdAt: string;
 }
+
+  interface Comment {
+    _id: string;
+    comment: string;
+    userId: {
+      _id: string;
+      username: string;
+      avatarImage: string;
+    };
+  }
+
 
 const PostAndSave = () => {
   const [selectedTab, setSelectedTab] = useState<"posts" | "saved" | "tagged">(
@@ -148,9 +159,14 @@ const PostAndSave = () => {
           }
         );
 
-        const newComment = {
+        const newComment: Comment = {
+          _id: res.data.comment?._id,
           comment,
-          user: { username: currentUsername },
+          userId: {
+            _id: userId,
+            username: currentUsername,
+            avatarImage: "", 
+          },
         };
         setComments((prev) => [...prev, newComment]);
         setComment("");
@@ -450,8 +466,7 @@ const PostAndSave = () => {
           onCommentChange={setComment}
           onCommentSubmit={handleSubmit}
           onClose={() => setShowModal(false)}
-          comment={comment}
-        />
+          comment={comment} currentUserUsername={""} currentUserAvatarImage={""}        />
       )}
     </div>
   );
