@@ -54,6 +54,8 @@ export default function ProfilePage() {
         if (typeof username === "string") {
           const userData = await fetchUser(username);
           setUser(userData);
+         
+          
         }
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -223,7 +225,7 @@ const handleProfileImageClick = () => {
           <div className="mt-[20px]">
             {user?.username &&
               (user.id === userId?.id || canViewPosts ? (
-                <PostsGrid username={user.username.toString()} />
+                <PostsGrid username={user.username.toString()} user={user._id}/>
               ) : (
                 <div className="text-center mt-10">
                   <p className="text-lg font-semibold">
