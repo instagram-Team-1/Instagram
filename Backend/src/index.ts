@@ -281,6 +281,7 @@ app.use("/api/highlight", highlightRouter);
 //   });
 // });
 
+
 server.listen(port, () => {
   console.log(`Server and Socket.IO listening on http://localhost:${port}`);
 });
