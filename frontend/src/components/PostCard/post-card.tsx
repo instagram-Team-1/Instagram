@@ -163,6 +163,7 @@ const PostCard: FC<PostCardProps> = ({
           onComment={() => setShowComments(true)}
           onShare={() => setShowShareModal(true)}
           onSave={toggleSave}
+          postId={postId}
         />
         <div className="text-sm  px-4 pt-2 font-semibold">
           {likesCount.toLocaleString()} likes

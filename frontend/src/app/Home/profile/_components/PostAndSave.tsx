@@ -5,7 +5,7 @@ import { UserDataType } from "@/lib/types";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { API } from "@/utils/api";
-import CommentModal from "@/components/PostCard/_components/CommentModal";
+import CommentModal from "./CommentModal";
 import { toast } from "react-toastify";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar } from "@radix-ui/react-avatar";
@@ -24,7 +24,7 @@ interface Post {
   interface Comment {
     _id: string;
     comment: string;
-    userId: {
+    user: {
       _id: string;
       username: string;
       avatarImage: string;
@@ -53,6 +53,7 @@ const PostAndSave = () => {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<Comment[]>([]);
   const [userId, setUserId] = useState("");
+  
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -64,11 +65,36 @@ const PostAndSave = () => {
     setUsername(decoded.username);
   }, []);
 
-  const handlePostClick = (post: Post) => {
+  const handlePostClick = async (post: Post) => {
     setSelectedPost(post);
     setCurrentPostId(post._id);
     setLikesCount(post.likes?.length || 0);
-    setShowModal(true);
+
+    // Тухайн постын comment болон like мэдээллийг урьдчилан авчирна
+    try {
+      const [likeRes, commentRes] = await Promise.all([
+        axios.get(`${API}/api/check-like`, {
+          params: { userId, postId: post._id },
+        }),
+        axios.get(`${API}/api/posts/comment/${post._id}`),
+      ]);
+
+      setLiked(likeRes.data.liked);
+      setComments(
+        Array.isArray(commentRes.data)
+          ? commentRes.data.map((c: any) => ({
+              ...c,
+              user: c.user || c.userId,
+            }))
+          : []
+      );
+
+      // Бүх өгөгдөл бэлэн болсны дараа modal нээнэ
+      setShowModal(true);
+    } catch (error) {
+      console.error("Post details fetch error:", error);
+      toast.error("Failed to open post details.");
+    }
   };
 
   useEffect(() => {
@@ -80,7 +106,7 @@ const PostAndSave = () => {
 
         const response = await axios.get(`${API}/api/getSavePost/${userId}`);
 
-        setSavedPosts(response.data.savedPosts);
+        setSavedPosts(response.data.savedPosts);        
       } catch (err) {
         console.error("Failed to fetch saved posts", err);
         setError("Couldn't fetch saved posts");
@@ -162,7 +188,7 @@ const PostAndSave = () => {
         const newComment: Comment = {
           _id: res.data.comment?._id,
           comment,
-          userId: {
+          user: {
             _id: userId,
             username: currentUsername,
             avatarImage: "", 
@@ -211,8 +237,15 @@ const PostAndSave = () => {
           const res = await axios.get(
             `${API}/api/posts/comment/${currentPostId}`
           );
-          setComments(res.data);
-          console.log(res.data, "mycomment");
+          // Ensure each comment has a 'user' property, not 'userId'
+          setComments(
+            Array.isArray(res.data)
+              ? res.data.map((c: any) => ({
+                  ...c,
+                  user: c.user || c.userId, // fallback if API returns userId
+                }))
+              : []
+          );
         } catch (error) {
           console.error("Failed to load comments:", error);
         } finally {
@@ -241,24 +274,33 @@ const PostAndSave = () => {
     fetchLikeStatus();
   }, [selectedPost]);
 
-  useEffect(() => {
-    if (!selectedPost) return;
-    const fetchComments = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(
-          `${API}/api/posts/comment/${selectedPost._id}`
-        );
-        setComments(res.data);
-      } catch (error) {
-        console.error("Failed to load comments:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  if (!selectedPost) return;
 
-    fetchComments();
-  }, [selectedPost]);
+  const fetchComments = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${API}/api/posts/comment/${selectedPost._id}`
+      );
+      setComments(
+        Array.isArray(res.data)
+          ? res.data.map((c: any) => ({
+              ...c,
+              user: c.user || c.userId, // fallback in case API returns userId
+            }))
+          : []
+      );
+    } catch (error) {
+      console.error("Failed to load comments:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Defer execution to next animation frame to ensure selectedPost state has updated
+  requestAnimationFrame(fetchComments);
+}, [selectedPost]);
 
   const SkeletonPostCard = () => (
     <div className="w-full h-[400px]">
@@ -361,7 +403,11 @@ const PostAndSave = () => {
                     className="relative w-full h-auto group bg-gray-200"
                     onClick={() => {
                       setSelectedPost(post);
-                      setShowModal(true);
+                      setCurrentPostId(post._id);
+                      setLikesCount(post.likes?.length || 0);
+                      requestAnimationFrame(() => {
+                        setShowModal(true);
+                      });
                     }}
                   >
                     <CldImage
@@ -429,7 +475,7 @@ const PostAndSave = () => {
         )} */}
       </div>
 
-      {showModal && selectedPost && (
+      {showModal && selectedPost && comments.length >= 0 && (
         <CommentModal
           imageUrl={selectedPost.imageUrl}
           user={{
@@ -446,7 +492,7 @@ const PostAndSave = () => {
           onCommentSubmit={handleSubmit}
           onClose={() => setShowModal(false)}
           comment={comment}
-          currentUserUsername={""}
+          currentUserUsername={currentUsername}
           currentUserAvatarImage={""}
         />
       )}
