@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { API } from "@/utils/api";
+import { MESSENGERAPI } from "@/utils/api";
 import { useRouter } from "next/navigation";
 import { UserSearchInput } from "./userSearchInput";
 import { UserList } from '../components/userList';
@@ -50,7 +50,9 @@ export const NewMessageDialog = () => {
     const fetchUser = async () => {
       if (!debouncedSearch) return setUsers([]);
       try {
-        const res = await axios.get(API + `/api/auth/messages/${debouncedSearch}`);
+        const res = await axios.get(
+          MESSENGERAPI + `/api/auth/messages/${debouncedSearch}`
+        );
         const filtered = res.data.filter((user: User) => user._id !== currentUserId);
         setUsers(filtered);
       } catch {
@@ -69,7 +71,10 @@ export const NewMessageDialog = () => {
  
 
   const createChatRoom = async () => {
-    const res = await axios.post(API + '/api/auth/Room', selectedUsers);
+    const res = await axios.post(
+      MESSENGERAPI + "/api/auth/Room",
+      selectedUsers
+    );
     if (res.data.message === "Room created successfully") {
       router.push(`/Home/actualRoom/${res.data.roomId}`);
     }
