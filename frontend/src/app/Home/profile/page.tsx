@@ -46,7 +46,7 @@ export default function ProfilePage() {
   !userData?.isPrivate || isOwnProfile || userData?.followers?.some(f => f === currentUserId);
 
   return (
-    <div className="flex items-center justify-center w-full h-screen">
+    <div className="flex items-center justify-center w-full h-screen overflow-x-hidden">
       <div className="w-[935px] h-full px-[20px] pt-[30px] flex flex-col">
         <div className="flex flex-col gap-[30px]">
           {loading ? (
