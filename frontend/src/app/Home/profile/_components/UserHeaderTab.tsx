@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
 import { CldImage } from "next-cloudinary";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -153,46 +154,47 @@ export const UserHeaderTab = () => {
 
   return (
     <div className="flex flex-row gap-14">
-      {/* Profile Image */}
-      <div
-        className={`relative w-[150px] h-[150px] bg-gray-300 rounded-full overflow-hidden group cursor-pointer ${
-          myStoryGroup
-            ? "border-4 border-pink-500 via-red-500 to-yellow-500"
-            : "border-4 border-gray-300"
-        }`}
-        onClick={handleProfileImageClick}
-      >
-        {profileImage ? (
-          <CldImage
-            src={profileImage}
-            width={150}
-            height={150}
-            alt="profile"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        ) : (
-          <img
-            src="https://i.pinimg.com/originals/0f/78/5d/0f785d55cea2a407ac8c1d0c6ef19292.jpg"
-            className="absolute inset-0 w-full h-full object-cover"
-            alt="default"
-          />
-        )}
-      </div>
+<div
+  className={`relative w-[150px] h-[150px] bg-gray-300 rounded-full overflow-hidden group cursor-pointer ${
+    myStoryGroup
+      ? "border-4 border-pink-500 via-red-500 to-yellow-500"
+      : "border-4 border-gray-300"
+  }`}
+  onClick={handleProfileImageClick}
+>
+  {profileImage ? (
+    <CldImage
+      src={profileImage}
+      width={150}
+      height={150}
+      alt="profile"
+      className="absolute inset-0 w-full h-full object-cover"
+    />
+  ) : (
+    <Skeleton className="w-full h-full rounded-full" />
+  )}
+</div>
+
 
       {/* User Info */}
       <div className="flex flex-col ml-5 gap-6">
-        <div className="flex items-center gap-4 text-[20px] font-normal">
-          <span>{userData?.username || "Unknown"}</span>
-          <Button
-            variant="secondary"
-            onClick={() => (window.location.href = "/Home/accounts/edit/")}
-          >
-            Edit profile
-          </Button>
-          <Button onClick={handleArchiveButtonClick} variant="secondary">
-            View archive
-          </Button>
-        </div>
+       <div className="flex items-center gap-4 text-[20px] font-normal">
+  {userData?.username ? (
+    <span>{userData.username}</span>
+  ) : (
+    <Skeleton className="h-6 w-[100px]" />
+  )}
+  <Button
+    variant="secondary"
+    onClick={() => (window.location.href = "/Home/accounts/edit/")}
+  >
+    Edit profile
+  </Button>
+  <Button onClick={handleArchiveButtonClick} variant="secondary">
+    View archive
+  </Button>
+</div>
+
 
         <div className="text-[16px] text-gray-400 flex gap-8">
           <div>{userData?.postCount || 0} posts</div>
