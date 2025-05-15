@@ -24,6 +24,7 @@ type User = {
   following?: string[];
   posts?: string[];
   bio?: string;
+  postCount?: number;
 };
 
 import { useRouter } from "next/navigation";
@@ -83,6 +84,8 @@ export const UserHeaderTab = () => {
       const res = await axios.get(`${API}/api/users/${id}`);
       setUserData(res.data);
       setProfileImage(res.data.avatarImage);
+      console.log(res.data ,  "ooon");
+      
     } catch {
       toast.error("Failed to fetch user data");
     }
@@ -129,6 +132,8 @@ export const UserHeaderTab = () => {
           })
         );
         setModalUsers(users);
+       
+        
       } catch {
         toast.error("Error fetching users data!");
       }
@@ -190,7 +195,7 @@ export const UserHeaderTab = () => {
         </div>
 
         <div className="text-[16px] text-gray-400 flex gap-8">
-          <div>{userData?.posts?.length || 0} posts</div>
+          <div>{userData?.postCount || 0} posts</div>
           <div
             className="cursor-pointer"
             onClick={() => {
