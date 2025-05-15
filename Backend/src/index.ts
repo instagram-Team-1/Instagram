@@ -127,6 +127,18 @@ io.on("connection", (socket) => {
       lastMessage: populatedMessage._id,
     });
   });
+  socket.on("typing", async ({ roomId, userId, isTyping }) => {
+    const user = await User.findById(userId).select("username avatarImage");
+  
+    if (user) {
+      socket.to(roomId).emit("displayTyping", {
+        userId,
+        username: user.username,
+        avatarImage: user.avatarImage,
+        isTyping,
+      });
+    }
+  });
 
   socket.on("disconnect", async () => {
     for (const roomId in roomUsers) {
