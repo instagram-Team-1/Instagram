@@ -24,7 +24,7 @@ export function StoryAvatar({ user, hasViewedAll, onClick }: StoryAvatarProps) {
           </AvatarFallback>
         </Avatar>
       </div>
-      <span className="text-xs text-white mt-2 text-center w-16 truncate">
+      <span className="text-xs  mt-2 text-center w-16 truncate">
         {user.username}
       </span>
     </div>
