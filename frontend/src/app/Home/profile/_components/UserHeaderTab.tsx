@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import axios from "axios";
 import { toast } from "react-toastify";
-import { CldImage } from "next-cloudinary";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +24,7 @@ type User = {
   following?: string[];
   posts?: string[];
   bio?: string;
-  fullname?: string; // ➡️ fullname нэмсэн
+  fullname?: string; 
 };
 
 type StoryItem = {
@@ -46,21 +45,23 @@ type GroupedStory = {
 };
 
 export const UserHeaderTab = () => {
+
+  const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [userData, setUserData] = useState<User | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [myStoryGroup, setMyStoryGroup] = useState<GroupedStory | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStoryGroup, setSelectedStoryGroup] =
     useState<GroupedStory | null>(null);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"followers" | "following" | null>(
     null
   );
   const [modalUsers, setModalUsers] = useState<
     { _id: string; username: string; avatarImage: string; fullname?: string }[]
   >([]);
-  const router = useRouter();
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -117,35 +118,35 @@ export const UserHeaderTab = () => {
     }
   };
 
-useEffect(() => {
-  const fetchModalUsers = async () => {
-    if (!userData || !modalType) return;
-    const ids =
-      modalType === "followers" ? userData.followers : userData.following;
-    if (!ids) return;
+  useEffect(() => {
+    const fetchModalUsers = async () => {
+      if (!userData || !modalType) return;
+      const ids =
+        modalType === "followers" ? userData.followers : userData.following;
+      if (!ids) return;
 
-    try {
-      const users = await Promise.all(
-        ids.map(async (id) => {
-          const res = await axios.get(`${API}/api/users/${id}`);
-          console.log("Fetched User Data:", res.data); 
-          return {
-            _id: id,
-            username: res.data.username,
-            fullname: res.data.fullname ?? "No Name", 
-            avatarImage: res.data.avatarImage ?? "/default-avatar.png", 
-          };
-        })
-      );
-      setModalUsers(users);
-    } catch (err) {
-      console.error("API fetch error:", err);
-      toast.error("Error fetching users data!");
-    }
-  };
+      try {
+        const users = await Promise.all(
+          ids.map(async (id) => {
+            const res = await axios.get(`${API}/api/users/${id}`);
+            console.log("Fetched User Data:", res.data); 
+            return {
+              _id: id,
+              username: res.data.username,
+              fullname: res.data.fullname ?? "No Name", 
+              avatarImage: res.data.avatarImage ?? "/default-avatar.png", 
+            };
+          })
+        );
+        setModalUsers(users);
+      } catch (err) {
+        console.error("API fetch error:", err);
+        toast.error("Error fetching users data!");
+      }
+    };
 
-  if (isModalOpen) fetchModalUsers();
-}, [isModalOpen, modalType, userData]);
+    if (isModalOpen) fetchModalUsers();
+  }, [isModalOpen, modalType, userData]);
 
 
   const handleProfileImageClick = () => {
@@ -156,26 +157,6 @@ useEffect(() => {
 
   const handleArchiveButtonClick = () => {
     router.push("/Home/archive");
-  };
-
-  const uploadImage = async (file: File) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "Story-Instagram");
-      const res = await axios.post(
-        "https://api.cloudinary.com/v1_1/your_cloud_name/image/upload",
-        formData
-      );
-      const imageUrl = res.data.secure_url;
-      setProfileImage(imageUrl);
-      await axios.put(`${API}/api/users/${userId}`, {
-        avatarImage: imageUrl,
-      });
-      toast.success("Profile photo updated!");
-    } catch (err) {
-      toast.error("Image upload failed.");
-    }
   };
 
   return (
@@ -194,10 +175,11 @@ useEffect(() => {
           <Button
             variant="secondary"
             onClick={() => (window.location.href = "/Home/accounts/edit/")}
+            className="cursor-pointer"
           >
             Edit profile
           </Button>
-          <Button onClick={handleArchiveButtonClick} variant="secondary">
+          <Button onClick={handleArchiveButtonClick} variant="secondary" className="cursor-pointer">
             View archive
           </Button>
         </div>
@@ -228,52 +210,28 @@ useEffect(() => {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>
-              {modalType === "followers" ? "Followers" : "Following"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="max-h-[300px] overflow-y-auto">
-            {(modalType === "followers"
-              ? userData?.followers
-              : userData?.following
-            )?.map((uid) => {
-              const matchedUsers = modalUsers.filter(
-                (u) => u._id.toString() === uid
-              );
-
-              if (matchedUsers.length > 0) {
-                return matchedUsers.map((u) => (
-                  <div
-                    key={u._id}
-                    className="py-2 border-b flex items-center gap-3"
-                  >
-                    <img
-                      src={u.avatarImage}
-                      alt={u.username}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                    <div>
-                      <div className="text-white font-semibold">
-                        {u.username}
+              <DialogContent className="w-[370px] p-0 px-3 dark:bg-[#282828]">
+                <DialogHeader className="flex items-center py-2 border-b">
+                  <DialogTitle className="text-md">{modalType === 'followers' ? 'Followers' : 'Following'}</DialogTitle>
+                </DialogHeader>
+                <div className="max-h-80 overflow-y-auto">
+                  {(!modalUsers.length) && <div className="p-4 text-center text-gray-500">No users found</div>}
+                  {modalUsers.map((u) => (
+                    <div key={u._id} className="py-2 flex items-center gap-3">
+                      <img
+                        src={u.avatarImage}
+                        alt={u.username}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div>
+                        <div className="dark:text-white font-semibold">{u.username}</div>
+                        <div className="text-gray-400 text-sm">{u.fullname || 'No name'}</div>
                       </div>
-                      <div className="text-gray-400 text-sm">{u.fullname}</div>
                     </div>
-                  </div>
-                  
-                ));
-              } else {
-                return (
-                  <div key={uid} className="py-2 border-b text-gray-500">
-                    User not found
-                  </div>
-                );
-              }
-            })}
-          </div>
-        </DialogContent>
-      </Dialog>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
 
       {/* Story Viewer */}
       {selectedStoryGroup && (

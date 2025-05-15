@@ -10,14 +10,16 @@ export const convertUserIdToUsername = async (req: Request, res: Response) => {
        return;
     }
 
-    const user = await User.findById(userId).select("username");
+    const user = await User.findById(userId).select("username avatarImage");
 
     if (!user) {
        res.status(404).json({ error: "User not found" });
        return;
     }
 
-     res.status(200).json({ username: user.username });
+     res
+       .status(200)
+       .json({ username: user.username, avatarImage: user.avatarImage });
      return;
   } catch (error) {
     console.error("Error converting user ID to username:", error);

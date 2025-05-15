@@ -1,8 +1,6 @@
 "use client";
 
-import { FC, useState, useEffect } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
+import { FC, useState } from "react";
 import PostHeader from "./_components/PostCardHeader";
 import PostImage from "./_components/PostImage";
 import PostActions from "./_components/PostActions";
@@ -10,129 +8,63 @@ import PostCaption from "./_components/PostCaption";
 import PostCommentInput from "./_components/PostCommentInput";
 import ShareModal from "./_components/ShareModal";
 import CommentModal from "./_components/CommentModal";
-import { API } from "@/utils/api";
-import { PostCardProps, Post, Comment } from "@/lib/types";
-import PostCardSkeleton from "./_components/PostCardSkeleton";
+import { PostCardProps } from "@/lib/types";
 import socket from "@/lib/socket";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { API } from "@/utils/api";
 
 const PostCard: FC<PostCardProps> = ({
+  postId,
   imageUrl,
   caption,
-  userId,
+  user,
   likes,
-  postId,
+  comments,
+  isLiked,
+  isSaved,
   currentUserId,
   currentUserUsername,
+  currentUserAvatarImage,
 }) => {
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
-  const [likesCount, setLikesCount] = useState(likes || 0);
+  const [liked, setLiked] = useState(() =>
+    likes.some((likeUser) => likeUser._id === currentUserId)
+  );
+  const [saved, setSaved] = useState(isSaved);
+  const [likesCount, setLikesCount] = useState(likes.length);
   const [comment, setComment] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [commentList, setCommentList] = useState(comments);
 
-  useEffect(() => {
-    const isSaved = savedPosts.some(
-      (post) => post._id.toString() === postId.toString()
-    );
-    setSaved(isSaved);
-  }, [savedPosts, postId]);
-
-  useEffect(() => {
-    const checkIfLiked = async () => {
-      try {
-        const response = await axios.get(`${API}/api/check-like`, {
-          params: { userId: currentUserId, postId },
-        });
-        setLiked(response.data.liked);
-      } catch (error) {
-        console.error("Like төлвийг шалгахад алдаа гарлаа:", error);
-        toast.error("Постын төлвийг ачааллахад алдаа гарлаа");
-      }
-    };
-
-    if (postId && currentUserId) {
-      checkIfLiked();
-    }
-  }, [postId, currentUserId]);
-
-  useEffect(() => {
-    const fetchComments = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`${API}/api/posts/comment/${postId}`);
-        setComments(res.data);
-      } catch (error) {
-        console.error("Failed to load comments:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchComments();
-  }, [postId]);
-
-  useEffect(() => {
-    const fetchSavedPosts = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(
-          `${API}/api/getSavePost/${currentUserId}`
-        );
-        setSavedPosts(response.data.savedPosts);
-      } catch (err) {
-        console.error("Failed to fetch saved posts", err);
-        toast.error("Couldn't fetch saved posts");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (currentUserId) {
-      fetchSavedPosts();
-    }
-  }, [currentUserId]);
+  console.log(likes, " mee");
 
   const handleLike = async () => {
-    if (isLoading) return;
-
-    setIsLoading(true);
-    const wasLiked = liked;
-    const prevLikes = likesCount;
-
-    setLiked((prev) => !prev);
-    setLikesCount((prev) => prev + (wasLiked ? -1 : 1));
-
     try {
+      const wasLiked = liked;
+      setLiked(!wasLiked);
+      setLikesCount((prev) => prev + (wasLiked ? -1 : 1));
+
       const endpoint = wasLiked ? "/api/unlike" : "/api/like";
       const response = await axios.post(`${API}${endpoint}`, {
         userId: currentUserId,
         postId,
       });
 
-      toast.success(response.data.message);
       if (response.data.likes) {
         setLikesCount(response.data.likes.length);
       }
 
-      if (userId._id !== currentUserId) {
+      if (user._id !== currentUserId) {
         socket.emit("sendNotification", {
           senderId: currentUserId,
-          receiverId: userId._id,
-          type: wasLiked ? "unlike" : "like", 
+          receiverId: user._id,
+          type: wasLiked ? "unlike" : "like",
         });
       }
-    } catch (error) {
-      console.error("Error to like/unlike:", error);
-      toast.error("Error to like");
-      setLiked(wasLiked);
-      setLikesCount(prevLikes);
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      console.error("Like error:", err);
+      toast.error("Failed to like/unlike post");
     }
   };
 
@@ -144,21 +76,27 @@ const PostCard: FC<PostCardProps> = ({
       });
 
       const newComment = {
+        _id: res.data._id,
         comment,
-        user: { username: currentUserUsername },
+        userId: {
+          _id: currentUserId,
+          username: currentUserUsername,
+          avatarImage: "", // optional: add avatar if you have
+        },
+        createdAt: new Date().toISOString(),
       };
-      setComments((prev) => [...prev, newComment]);
+
+      setCommentList((prev) => [...prev, newComment]);
       setComment("");
 
-      if (userId._id !== currentUserId) {
+      if (user._id !== currentUserId) {
         socket.emit("sendNotification", {
           senderId: currentUserId,
-          receiverId: userId._id,
+          receiverId: user._id,
           type: "comment",
         });
       }
     } catch (err) {
-      console.error("Error posting comment:", err);
       toast.error("Коммент бичихэд алдаа гарлаа");
     }
   };
@@ -172,43 +110,35 @@ const PostCard: FC<PostCardProps> = ({
 
   const toggleSave = async () => {
     try {
-      setSaved((prev) => !prev);
-      if (saved) {
+      setSaved(!saved);
+      if (!saved) {
+        await axios.post(`${API}/api/savePost/${currentUserId}`, {
+          postId,
+          userId: currentUserId,
+        });
+        toast.success("Post saved");
+      } else {
         await axios.post(`${API}/api/unsavePost/${postId}`, {
           userId: currentUserId,
         });
-        toast.success("Пост хадгалагдсаныг устгалаа");
-      } else {
-        await axios.post(`${API}/api/savePost/${currentUserId}`, {
-          userId: currentUserId,
-          postId,
-        });
-        toast.success("Post saved");
+        toast.success("Save removed");
       }
-    } catch (error) {
-      console.error("Пост хадгалах/устгахад алдаа гарлаа:", error);
-      toast.error("Пост хадгалах/устгахад алдаа гарлаа");
+    } catch (err) {
+      toast.error("Error saving post");
       setSaved((prev) => !prev);
     }
   };
 
-  if (loading)
-    return <PostCardSkeleton/>;
-
   return (
     <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-6 relative">
       {showShareModal && (
-        <ShareModal
-          onClose={() => setShowShareModal(false)}
-          postId={postId} // ⬅️ пост ID-г дамжуулж байна
-        />
+        <ShareModal postId={postId} onClose={() => setShowShareModal(false)} />
       )}
       {showComments && (
         <CommentModal
           imageUrl={imageUrl}
-          user={userId}
+          user={user}
           caption={caption}
-          comments={comments}
           likesCount={likesCount}
           liked={liked}
           onLike={handleLike}
@@ -217,11 +147,15 @@ const PostCard: FC<PostCardProps> = ({
           onCommentSubmit={handleSubmit}
           onClose={() => setShowComments(false)}
           comment={comment}
+          comments={comments}
+          currentUserUsername={currentUserUsername}
+          currentUserAvatarImage={currentUserAvatarImage}
         />
       )}
       <div className="bg-black rounded-md overflow-hidden">
-        <PostHeader user={userId} />
-        <PostImage imageUrl={imageUrl} username={userId.username} />
+        <PostHeader user={user} />
+        <PostImage imageUrl={imageUrl} />
+
         <PostActions
           liked={liked}
           saved={saved}
@@ -233,20 +167,26 @@ const PostCard: FC<PostCardProps> = ({
         <div className="text-sm text-white px-4 pt-2 font-semibold">
           {likesCount.toLocaleString()} likes
         </div>
-        <PostCaption caption={caption} username={userId.username} />
+        {user && user.username && (
+          <PostCaption caption={caption} username={user.username} />
+        )}
         <div
           className="text-sm text-gray-400 px-4 pt-1 cursor-pointer"
           onClick={() => setShowComments(true)}
         >
-          {comments.length > 0
-            ? `View all ${comments.length} comments`
+          {commentList.length > 0
+            ? `View all ${commentList.length} comments`
             : "No comments"}
         </div>
         <PostCommentInput
           comment={comment}
           onCommentChange={setComment}
           onSubmit={handleSubmit}
-        />
+          currentUserUsername={currentUserUsername}
+          currentUserAvatarImage={currentUserAvatarImage}
+          comments={commentList} onCommentSubmit={function (e: React.FormEvent): void {
+            throw new Error("Function not implemented.");
+          } }        />
       </div>
     </div>
   );
