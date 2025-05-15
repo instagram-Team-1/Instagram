@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { io, Socket } from "socket.io-client";
 import { Smile } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { API } from "@/utils/api";
+import { MESSENGERAPI } from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import RoomHeader from "../component/roomHeader";
 import { useContext } from "react";
@@ -39,7 +39,7 @@ const Page = () => {
 
   useEffect(() => {
     if (!currentId) return;
-    socket = io(API);
+    socket = io(MESSENGERAPI);
     socket.emit("join-room", {
       roomId,
       currentId: currentId as string,
