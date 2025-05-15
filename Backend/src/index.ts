@@ -21,6 +21,7 @@ import savedRouter from "./routers/SaveRouter";
 import Notification from "./models/notification";
 import { User } from "./models/userModel";
 import notificationRoutes from "./routers/notification";
+import highlightRouter from "./routers/HighlightRoute";
 
 dotenv.config();
 const app = express();
@@ -60,6 +61,7 @@ app.use("/api", savedRouter);
 app.use("/api", SuggestRouter);
 app.use("/api/chat", chatRoute);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/highlight", highlightRouter);
 
 // Socket.IO
 const io = new Server(server, {
@@ -124,6 +126,18 @@ io.on("connection", (socket) => {
     await roomModel.findByIdAndUpdate(roomId, {
       lastMessage: populatedMessage._id,
     });
+  });
+  socket.on("typing", async ({ roomId, userId, isTyping }) => {
+    const user = await User.findById(userId).select("username avatarImage");
+  
+    if (user) {
+      socket.to(roomId).emit("displayTyping", {
+        userId,
+        username: user.username,
+        avatarImage: user.avatarImage,
+        isTyping,
+      });
+    }
   });
 
   socket.on("disconnect", async () => {

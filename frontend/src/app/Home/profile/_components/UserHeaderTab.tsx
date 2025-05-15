@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import { toast } from "react-toastify";
-import { Button } from "@/components/ui/button";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { CldImage } from "next-cloudinary";
+import { Camera } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,9 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { API } from "@/utils/api";
-import { StoryViewer } from "../../components/stories/_components/StoryViewer";
-import { useRouter } from "next/navigation";
-import { ProfileImage } from "./ProfileImage";
+import { StoryViewer } from "./Storyviewo";
 
 type User = {
   _id: string;
@@ -24,8 +24,9 @@ type User = {
   following?: string[];
   posts?: string[];
   bio?: string;
-  fullname?: string; 
 };
+
+import { useRouter } from "next/navigation";
 
 type StoryItem = {
   _id: string;
@@ -45,23 +46,21 @@ type GroupedStory = {
 };
 
 export const UserHeaderTab = () => {
-
-  const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [userData, setUserData] = useState<User | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [myStoryGroup, setMyStoryGroup] = useState<GroupedStory | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStoryGroup, setSelectedStoryGroup] =
     useState<GroupedStory | null>(null);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"followers" | "following" | null>(
     null
   );
   const [modalUsers, setModalUsers] = useState<
-    { _id: string; username: string; avatarImage: string; fullname?: string }[]
+    { _id: string; username: string }[]
   >([]);
-  
+  const router = useRouter();
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -109,45 +108,33 @@ export const UserHeaderTab = () => {
         viewed: viewedStoryIds.includes(story._id),
       }));
 
-      setMyStoryGroup({
-        user: myStory.user,
-        stories: updatedStories,
-      });
+      setMyStoryGroup({ ...myStory, stories: updatedStories });
     } catch {
-      toast.error("Failed to fetch stories");
+      console.error("Failed to fetch story");
     }
   };
 
+  // Fetch followers/following for modal
   useEffect(() => {
     const fetchModalUsers = async () => {
       if (!userData || !modalType) return;
       const ids =
         modalType === "followers" ? userData.followers : userData.following;
       if (!ids) return;
-
       try {
         const users = await Promise.all(
           ids.map(async (id) => {
             const res = await axios.get(`${API}/api/users/${id}`);
-            console.log("Fetched User Data:", res.data); 
-            return {
-              _id: id,
-              username: res.data.username,
-              fullname: res.data.fullname ?? "No Name", 
-              avatarImage: res.data.avatarImage ?? "/default-avatar.png", 
-            };
+            return { _id: id, username: res.data.username };
           })
         );
         setModalUsers(users);
-      } catch (err) {
-        console.error("API fetch error:", err);
+      } catch {
         toast.error("Error fetching users data!");
       }
     };
-
     if (isModalOpen) fetchModalUsers();
   }, [isModalOpen, modalType, userData]);
-
 
   const handleProfileImageClick = () => {
     if (myStoryGroup) {
@@ -162,24 +149,42 @@ export const UserHeaderTab = () => {
   return (
     <div className="flex flex-row gap-14">
       {/* Profile Image */}
-      <ProfileImage
-        src={profileImage}
-        hasStory={!!myStoryGroup}
+      <div
+        className={`relative w-[150px] h-[150px] bg-gray-300 rounded-full overflow-hidden group cursor-pointer ${
+          myStoryGroup
+            ? "border-4 border-pink-500 via-red-500 to-yellow-500"
+            : "border-4 border-gray-300"
+        }`}
         onClick={handleProfileImageClick}
-      />
+      >
+        {profileImage ? (
+          <CldImage
+            src={profileImage}
+            width={150}
+            height={150}
+            alt="profile"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <img
+            src="https://i.pinimg.com/originals/0f/78/5d/0f785d55cea2a407ac8c1d0c6ef19292.jpg"
+            className="absolute inset-0 w-full h-full object-cover"
+            alt="default"
+          />
+        )}
+      </div>
 
       {/* User Info */}
       <div className="flex flex-col ml-5 gap-6">
         <div className="flex items-center gap-4 text-[20px] font-normal">
-          <span>{userData?.username || ""}</span>
+          <span>{userData?.username || "Unknown"}</span>
           <Button
             variant="secondary"
             onClick={() => (window.location.href = "/Home/accounts/edit/")}
-            className="cursor-pointer"
           >
             Edit profile
           </Button>
-          <Button onClick={handleArchiveButtonClick} variant="secondary" className="cursor-pointer">
+          <Button onClick={handleArchiveButtonClick} variant="secondary">
             View archive
           </Button>
         </div>
@@ -209,29 +214,30 @@ export const UserHeaderTab = () => {
         <div className="text-[16px] text-gray-500">{userData?.bio}</div>
       </div>
 
+      {/* Followers / Following Dialog */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-              <DialogContent className="w-[370px] p-0 px-3 dark:bg-[#282828]">
-                <DialogHeader className="flex items-center py-2 border-b">
-                  <DialogTitle className="text-md">{modalType === 'followers' ? 'Followers' : 'Following'}</DialogTitle>
-                </DialogHeader>
-                <div className="max-h-80 overflow-y-auto">
-                  {(!modalUsers.length) && <div className="p-4 text-center text-gray-500">No users found</div>}
-                  {modalUsers.map((u) => (
-                    <div key={u._id} className="py-2 flex items-center gap-3">
-                      <img
-                        src={u.avatarImage}
-                        alt={u.username}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
-                      <div>
-                        <div className="dark:text-white font-semibold">{u.username}</div>
-                        <div className="text-gray-400 text-sm">{u.fullname || 'No name'}</div>
-                      </div>
-                    </div>
+        <DialogContent className="max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>
+              {modalType === "followers" ? "Followers" : "Following"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[300px] overflow-y-auto">
+            {(modalType === "followers"
+              ? userData?.followers
+              : userData?.following
+            )?.map((uid) => (
+              <div key={uid} className="py-2 border-b">
+                {modalUsers
+                  .filter((u) => u._id === uid)
+                  .map((u) => (
+                    <div key={u._id}>@{u.username}</div>
                   ))}
-                </div>
-              </DialogContent>
-            </Dialog>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Story Viewer */}
       {selectedStoryGroup && (

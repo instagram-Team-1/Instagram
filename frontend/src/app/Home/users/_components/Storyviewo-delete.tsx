@@ -1,10 +1,11 @@
+"use client";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { API } from "@/utils/api";
-import { StoryView } from "../../../components/stories/_components/story-view";
+import { StoryView } from "../../components/stories/_components/story-view";
 import { Pause, Play, MoreVertical } from "lucide-react";
-import { ProgressBar } from "./_components/ProgressBar";
-import { NavigationArrows } from "./_components/NavigationArrows";
+import { ProgressBar } from "../../components/stories/_components/_components/ProgressBar";
+import { NavigationArrows } from "../../components/stories/_components/_components/NavigationArrows";
 
 type StoryViewerProps = {
   storyGroup: GroupedStory;
@@ -40,7 +41,6 @@ export function StoryViewer({
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchViewers = async (storyId: string) => {
@@ -48,27 +48,6 @@ export function StoryViewer({
       await axios.post(`${API}/api/ViewStory`, { userId, storyId });
     } catch (error) {
       console.error("Failed to fetch viewers:", error);
-    }
-  };
-
-  const handleDeleteStory = async () => {
-    const story = storyGroup.stories[currentIndex];
-    try {
-      await axios.delete(`${API}/api/story/${story._id}`);
-      const updatedStories = storyGroup.stories.filter(
-        (s) => s._id !== story._id
-      );
-
-      if (updatedStories.length > 0) {
-        storyGroup.stories = updatedStories;
-        setCurrentIndex(0);
-      } else {
-        setSelectedStoryGroup(null);
-      }
-
-      setShowOptions(false);
-    } catch (error) {
-      console.error("Failed to delete story:", error);
     }
   };
 
@@ -144,26 +123,6 @@ export function StoryViewer({
         >
           {isPaused ? <Play /> : <Pause />}
         </button>
-
-        <div className="relative">
-          <div
-            className="text-white text-2xl cursor-pointer"
-            onClick={() => setShowOptions((prev) => !prev)}
-          >
-            <MoreVertical />
-          </div>
-
-          {showOptions && (
-            <div className="absolute right-0 mt-2 bg-pink-100 text-red-600 text-center text-bold rounded shadow-md w-32 p-2">
-              <button
-                onClick={handleDeleteStory}
-                className="w-full text-left px-2 py-1 hover:bg-gray-600 text-sm"
-              >
-                Delete Story
-              </button>
-            </div>
-          )}
-        </div>
 
         <div
           className="text-white text-xl cursor-pointer"
