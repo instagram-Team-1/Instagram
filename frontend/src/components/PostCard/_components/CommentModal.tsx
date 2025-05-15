@@ -7,10 +7,12 @@ import { User, Heart, MessageCircle, Send } from "lucide-react";
 import PostCommentInput from "./PostCommentInput";
 
 interface Comment {
+  _id: string;
   comment: string;
-  user: {
+  userId: {
+    _id: string;
     username: string;
-    avatarImage?: string;
+    avatarImage: string;
   };
 }
 
@@ -26,17 +28,9 @@ interface CommentModalProps {
   onCommentChange: (value: string) => void;
   onCommentSubmit: (e: React.FormEvent) => void;
   onClose: () => void;
-  comments: {
-    comment: string;
-    _id: string;
-    userId: {
-      _id: string;
-      username: string;
-      avatarImage: string;
-    };
-  }[];
+  comments: Comment[];
   currentUserUsername: string;
-  currentUserAvatarImage:string;
+  currentUserAvatarImage: string;
 }
 
 const CommentModal: FC<CommentModalProps> = ({
@@ -56,7 +50,7 @@ const CommentModal: FC<CommentModalProps> = ({
   currentUserAvatarImage,
 }) => {
   const [showFullCaption, setShowFullCaption] = useState(false);
-  const [commentList, setCommentList] = useState(comments);
+  const [commentList, setCommentList] = useState<Comment[]>(comments);
   const fullCaption = caption || "";
   const shortCaption = fullCaption.slice(0, 100);
 
@@ -65,9 +59,9 @@ const CommentModal: FC<CommentModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (comment.trim()) {
-      const newComment = {
-        comment: comment.trim(),
+      const newComment: Comment = {
         _id: `${Date.now()}`,
+        comment: comment.trim(),
         userId: {
           _id: "userId",
           username: currentUserUsername,
@@ -75,23 +69,26 @@ const CommentModal: FC<CommentModalProps> = ({
         },
       };
       setCommentList((prev) => [...prev, newComment]);
-      onCommentSubmit(e);
-      onCommentChange(""); // clear input after submit
+      onCommentSubmit(e); // Сервер лүү илгээх
+      onCommentChange(""); // Input цэвэрлэх
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
       <div className="bg-black rounded-lg overflow-hidden flex w-[90%] max-w-6xl h-[80%]">
+        {/* Зүүн хэсэг: Постын зураг */}
         <div className="w-1/2 relative bg-black">
           <Image
             src={imageUrl}
-            alt={`Постын зураг`}
+            alt="Постын зураг"
             fill
             className="object-cover"
           />
         </div>
+        {/* Баруун хэсэг: Мэдээлэл, комментууд */}
         <div className="w-1/2 flex flex-col">
+          {/* Header: Хэрэглэгчийн нэр, хаах товч */}
           <div className="flex items-center justify-between py-4 px-6 border-b border-neutral-800">
             <div className="flex items-center gap-3">
               <Avatar className="w-[32px] h-[32px]">
@@ -110,6 +107,7 @@ const CommentModal: FC<CommentModalProps> = ({
               ✕
             </button>
           </div>
+          {/* Caption хэсэг */}
           <div className="flex gap-3 items-center px-6 py-3 text-white text-sm border-b border-neutral-800">
             <Avatar className="w-[32px] h-[32px]">
               <AvatarImage
@@ -130,13 +128,14 @@ const CommentModal: FC<CommentModalProps> = ({
               </button>
             )}
           </div>
+          {/* Комментуудын жагсаалт */}
           <div className="flex-1 overflow-y-auto px-6 py-4">
             {commentList.length === 0 ? (
-              <div className="text-gray-500 text-sm">No comment.</div>
+              <div className="text-gray-500 text-sm">Коммент байхгүй.</div>
             ) : (
-              commentList.map((cmt, index) => (
+              commentList.map((cmt) => (
                 <div
-                  key={index}
+                  key={cmt._id}
                   className="flex justify-between items-start border-b border-neutral-800 py-3"
                 >
                   <div className="flex gap-3 items-center">
@@ -163,6 +162,7 @@ const CommentModal: FC<CommentModalProps> = ({
               ))
             )}
           </div>
+          {/* Footer: Like, коммент оруулах */}
           <div className="border-t border-neutral-800 p-4">
             <div className="flex items-center gap-4 pb-3">
               <Heart
@@ -175,7 +175,7 @@ const CommentModal: FC<CommentModalProps> = ({
               <Send onClick={onShare} className="text-white cursor-pointer" />
             </div>
             <div className="text-white text-sm font-semibold pb-3">
-              {likesCount.toLocaleString()} likes
+              {likesCount.toLocaleString()} таалагдсан
             </div>
             <PostCommentInput
               comment={comment}
@@ -183,9 +183,9 @@ const CommentModal: FC<CommentModalProps> = ({
               onSubmit={handleSubmit}
               currentUserUsername={currentUserUsername}
               currentUserAvatarImage={currentUserAvatarImage}
-              comments={commentList} onCommentSubmit={function (e: React.FormEvent): void {
-                throw new Error("Function not implemented.");
-              } }            />
+              comments={commentList}
+              onCommentSubmit={handleSubmit} 
+            />
           </div>
         </div>
       </div>
