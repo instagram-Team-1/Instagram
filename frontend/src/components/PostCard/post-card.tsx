@@ -152,7 +152,7 @@ const PostCard: FC<PostCardProps> = ({
           currentUserAvatarImage={currentUserAvatarImage}
         />
       )}
-      <div className="bg-black rounded-md overflow-hidden">
+      <div className=" rounded-md overflow-hidden">
         <PostHeader user={user} />
         <PostImage imageUrl={imageUrl} />
 
@@ -164,7 +164,7 @@ const PostCard: FC<PostCardProps> = ({
           onShare={() => setShowShareModal(true)}
           onSave={toggleSave}
         />
-        <div className="text-sm text-white px-4 pt-2 font-semibold">
+        <div className="text-sm  px-4 pt-2 font-semibold">
           {likesCount.toLocaleString()} likes
         </div>
         {user && user.username && (

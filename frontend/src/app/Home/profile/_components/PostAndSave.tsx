@@ -275,8 +275,8 @@ const PostAndSave = () => {
           onClick={() => setSelectedTab("posts")}
           className={`text-[16px] font-medium ${
             selectedTab === "posts"
-              ? "text-white border-t border-t-[var(--foreground)]"
-              : "text-gray-500 hover:text-white hover:border-t border-t-transparent"
+              ? " border-t border-t-[var(--foreground)]"
+              : "text-gray-500 hover:text-black hover:dark:text-white hover:border-t border-t-transparent"
           } `}
         >
           <p className="mt-[20px]">Posts</p>
@@ -288,34 +288,14 @@ const PostAndSave = () => {
           onClick={() => setSelectedTab("saved")}
           className={`text-[16px] font-medium ${
             selectedTab === "saved"
-              ? "text-white border-t border-t-[var(--foreground)]"
-              : "text-gray-500 hover:text-white hover:border-t border-t-transparent"
+              ? "border-t border-t-[var(--foreground)]"
+              : "text-gray-500 hover:text-black hover:dark:text-white hover:border-t border-t-transparent"
           }`}
         >
           <p className="mt-[20px]">Saved</p>
         </button>
 
-        <button
-          role="tab"
-          aria-selected={selectedTab === "tagged"}
-          onClick={() => setSelectedTab("tagged")}
-          className={`text-[16px] font-medium ${
-            selectedTab === "tagged"
-              ? "text-white border-t border-t-[var(--foreground)]"
-              : "text-gray-500 hover:text-white hover:border-t border-t-transparent"
-          }`}
-        >
-          <p className="mt-[20px]">Tagged</p>
-        </button>
-
-        {selectedTab === "tagged" && (
-          <div className="text-center mt-24">
-            <h2 className="text-[24px] font-semibold mb-2">No Tagged Posts</h2>
-            <p className="text-gray-400">
-              You haven't been tagged in any posts yet.
-            </p>
-          </div>
-        )}
+      
       </div>
 
       <div>
@@ -400,7 +380,6 @@ const PostAndSave = () => {
                       </div>
                     </div>
                   </div>
-
                 ))}
               </div>
             ) : (
@@ -466,7 +445,10 @@ const PostAndSave = () => {
           onCommentChange={setComment}
           onCommentSubmit={handleSubmit}
           onClose={() => setShowModal(false)}
-          comment={comment} currentUserUsername={""} currentUserAvatarImage={""}        />
+          comment={comment}
+          currentUserUsername={""}
+          currentUserAvatarImage={""}
+        />
       )}
     </div>
   );
