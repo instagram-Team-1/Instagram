@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { CldImage } from "next-cloudinary";
 import axios from "axios";
 import { API } from "@/utils/api";
-import CommentModal from "@/components/PostCard/_components/CommentModal";
+import CommentModal from "./CommentModal";
 import { UserDataType } from "@/lib/types";
 import { toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
@@ -28,7 +28,7 @@ interface Post {
 interface Comment {
   _id: string;
   comment: string;
-  userId: {
+  user: {
     _id: string;
     username: string;
     avatarImage: string;
@@ -86,6 +86,7 @@ export default function PostsGrid({ username }: PostsGridProps) {
   if (!selectedPost) return;
 
   const fetchPostDetails = async () => {
+    
     try {
       const [likeRes, commentRes] = await Promise.all([
         axios.get(`${API}/api/check-like`, {
@@ -173,9 +174,9 @@ export default function PostsGrid({ username }: PostsGridProps) {
       );
 
       const newComment: Comment = {
-        _id:userId,
+        _id: userId,
         comment,
-        userId: {
+        user: {
           _id: userId,
           username: currentUsername,
           avatarImage: "", 
@@ -226,10 +227,26 @@ export default function PostsGrid({ username }: PostsGridProps) {
     fetchComments();
   }, [selectedPost]);
 
-    const handlePostClick = (post: Post) => {
-    setSelectedPost(post);
+  const handlePostClick = async (post: Post) => {
     setCurrentPostId(post._id);
     setLikesCount(post.likes?.length || 0);
+
+    try {
+      const [likeRes, commentRes] = await Promise.all([
+        axios.get(`${API}/api/check-like`, {
+          params: { userId, postId: post._id },
+        }),
+        axios.get(`${API}/api/posts/comment/${post._id}`),
+      ]);
+
+      setLiked(likeRes.data.liked);
+      setComments(commentRes.data);
+    } catch (error) {
+      toast.error("Failed to load post details");
+      console.error(error);
+    }
+
+    setSelectedPost(post);
     setShowModal(true);
   };
 
