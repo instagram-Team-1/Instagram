@@ -26,8 +26,6 @@ const checker = async (req: Request, res: Response) => {
        res.status(200).json({ roomExists: true, roomId: existingRoom._id });
        return
     }
-
-    // If no existing room, create a new one
     const userNames = validUsers.map((user) => user.name);
     const newRoom = await roomModel.create({
       participants: userIds,
@@ -37,7 +35,6 @@ const checker = async (req: Request, res: Response) => {
      res.status(201).json({
       message: "Room created successfully",
       roomId: newRoom._id,
-  
     });
     return
   } catch (error) {
