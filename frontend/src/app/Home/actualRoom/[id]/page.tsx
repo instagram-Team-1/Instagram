@@ -103,6 +103,7 @@ const Page = () => {
       sendChat();
     }
   };
+console.log(typingUsers);
 
   return (
     <div className="bg-black w-full h-[100vh] text-white flex flex-col justify-between relative px-[50px]">
