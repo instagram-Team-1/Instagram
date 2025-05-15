@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useFormik } from 'formik'
 import SeparatorOr from '../login/loginComponent/SeparatorOr'
 import { Input } from '@/components/ui/input'
@@ -76,7 +76,7 @@ const Page = () => {
               />
             </div>
           <p className="text-center text-white/90">
-            Sign up to see photos and videos <br /> from your friends
+            Sign up to see photos <br /> from your friends
           </p>
 
           <SeparatorOr />

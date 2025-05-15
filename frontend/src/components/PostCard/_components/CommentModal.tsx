@@ -131,7 +131,7 @@ const CommentModal: FC<CommentModalProps> = ({
           {/* Комментуудын жагсаалт */}
           <div className="flex-1 overflow-y-auto px-6 py-4 ">
             {commentList.length === 0 ? (
-              <div className="text-gray-500 text-sm">Коммент байхгүй.</div>
+              <div className="text-gray-500 text-sm">No comments</div>
             ) : (
               commentList.map((cmt) => (
                 <div
@@ -175,7 +175,7 @@ const CommentModal: FC<CommentModalProps> = ({
               <Send onClick={onShare} className="text-white cursor-pointer" />
             </div>
             <div className="text-white text-sm font-semibold pb-3">
-              {likesCount.toLocaleString()} таалагдсан
+              {likesCount.toLocaleString()} likes
             </div>
             <PostCommentInput
               comment={comment}
