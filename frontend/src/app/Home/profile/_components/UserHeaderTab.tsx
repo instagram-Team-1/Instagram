@@ -111,7 +111,6 @@ export const UserHeaderTab = () => {
     }
   };
 
-  // Fetch followers/following for modal
   useEffect(() => {
     const fetchModalUsers = async () => {
       if (!userData || !modalType) return;

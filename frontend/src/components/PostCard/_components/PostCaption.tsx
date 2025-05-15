@@ -15,7 +15,7 @@ const PostCaption: FC<PostCaptionProps> = ({ caption, username }) => {
   const toggleCaption = () => setShowFullCaption((prev) => !prev);
 
   return (
-    <div className="text-sm text-white px-4 pt-1">
+    <div className="text-sm  px-4 pt-1">
       <span className="font-semibold">{username}</span>{" "}
       {showFullCaption ? fullCaption : shortCaption}
       {fullCaption.length > 100 && (

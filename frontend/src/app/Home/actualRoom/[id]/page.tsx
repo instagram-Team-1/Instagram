@@ -1,13 +1,12 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import { useParams } from "next/navigation";
 import { io, Socket } from "socket.io-client";
 import { Smile } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { API } from "@/utils/api";
+import { MESSENGERAPI } from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import RoomHeader from "../component/roomHeader";
-import { useContext } from "react";
 import { userContext } from "../../layout";
 
 let socket: Socket;
@@ -17,11 +16,12 @@ const Page = () => {
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [prevMessage, setPrevMessage] = useState<any[]>([]);
-
+  const [typingUsers, setTypingUsers] = useState<{ userId: string; username: string; avatarImage: string }[]>([]);
   const params = useParams();
   const context = useContext(userContext);
   const roomId = params.id;
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  let typingTimeout: NodeJS.Timeout;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -39,7 +39,7 @@ const Page = () => {
 
   useEffect(() => {
     if (!currentId) return;
-    socket = io(API);
+    socket = io(MESSENGERAPI);
     socket.emit("join-room", {
       roomId,
       currentId: currentId as string,
@@ -50,6 +50,20 @@ const Page = () => {
     socket.on("fromServer", (data) => {
       setReceived((prevMsgs) => [...prevMsgs, data]);
     });
+    socket.on("displayTyping", ({ userId, username, avatarImage, isTyping }) => {
+      setTypingUsers((prev) => {
+        if (isTyping) {
+          const isAlreadyTyping = prev.some((user) => user.userId === userId);
+          if (!isAlreadyTyping) {
+            return [...prev, { userId, username, avatarImage }];
+          }
+          return prev;
+        } else {
+          return prev.filter((user) => user.userId !== userId);
+        }
+      });
+    });
+
     return () => {
       socket.disconnect();
     };
@@ -65,6 +79,23 @@ const Page = () => {
       content: msg,
     });
     setMsg("");
+    socket.emit("typing", { roomId, userId: currentId, isTyping: false });
+  };
+
+  const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMsg(e.target.value);
+
+    if (!currentId) return;
+
+    if (e.target.value.trim() === "") {
+      socket.emit("typing", { roomId, userId: currentId, isTyping: false });
+    } else {
+      socket.emit("typing", { roomId, userId: currentId, isTyping: true });
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        socket.emit("typing", { roomId, userId: currentId, isTyping: false });
+      }, 2000);
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -72,9 +103,10 @@ const Page = () => {
       sendChat();
     }
   };
+console.log(typingUsers);
 
   return (
-    <div className="bg-black w-full h-[100vh] text-white flex flex-col justify-between relative">
+    <div className="bg-black w-full h-[100vh] text-white flex flex-col justify-between relative px-[50px]">
       <RoomHeader />
 
       <div className="flex-1 overflow-y-auto p-4">
@@ -108,6 +140,19 @@ const Page = () => {
               </div>
             );
           })}
+          {typingUsers.length > 0 && (
+  <div className="flex items-center gap-2 mb-2">
+    {typingUsers.map((user) => (
+      <div key={user.userId} className="flex items-center gap-2">
+        <Avatar>
+          <AvatarImage src={user.avatarImage} />
+          <AvatarFallback>user</AvatarFallback>
+        </Avatar>
+        <span className="text-gray-400 italic">{user.username} is typing...</span>
+      </div>
+    ))}
+  </div>
+)}
           <div ref={messagesEndRef} />
         </div>
       </div>
@@ -124,7 +169,7 @@ const Page = () => {
           type="text"
           placeholder="Type a message..."
           value={msg}
-          onChange={(e) => setMsg(e.target.value)}
+          onChange={handleTyping}
           onKeyDown={handleKeyDown}
           className="w-full outline-none text-white bg-transparent"
         />
