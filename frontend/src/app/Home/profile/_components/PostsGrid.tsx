@@ -9,9 +9,11 @@ import { UserDataType } from "@/lib/types";
 import { toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
 import { Skeleton } from "@/components/ui/skeleton";
+import socket from "@/lib/socket";
 
 interface PostsGridProps {
   username: string;
+  user: string;
 }
 
 interface Post {
@@ -35,33 +37,33 @@ interface Comment {
   };
 }
 
-export default function PostsGrid({ username }: PostsGridProps) {
+export default function PostsGrid({ username, user }: PostsGridProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-    const [likesCount, setLikesCount] = useState<number>(0);
-    const [tokenData, setTokenData] = useState<UserDataType | null>(null);
-    const [liked, setLiked] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [showShareModal, setShowShareModal] = useState(false);
-    const [comment, setComment] = useState("");
-    const [comments, setComments] = useState<Comment[]>([]);
-    const [userId, setUserId] = useState("");
-    const [currentUsername, setCurrentUsername] = useState<string>("");
-    const [currentPostId, setCurrentPostId] = useState<string>("");
-    // const [username, setUsername] = useState<string | null>(null);
-    
-    useEffect(() => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-  
-      const decoded = jwtDecode<{ id: string; username: string }>(token);
-      setUserId(decoded.id);
-      setCurrentUsername(decoded.username);
-      // setUsername(decoded.username);
-    }, []);
+  const [likesCount, setLikesCount] = useState<number>(0);
+  const [tokenData, setTokenData] = useState<UserDataType | null>(null);
+  const [liked, setLiked] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [userId, setUserId] = useState("");
+  const [currentUsername, setCurrentUsername] = useState<string>("");
+  const [currentPostId, setCurrentPostId] = useState<string>("");
+  // const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const decoded = jwtDecode<{ id: string; username: string }>(token);
+    setUserId(decoded.id);
+    setCurrentUsername(decoded.username);
+    // setUsername(decoded.username);
+  }, []);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -83,34 +85,32 @@ export default function PostsGrid({ username }: PostsGridProps) {
   }, [username]);
 
   useEffect(() => {
-  if (!selectedPost) return;
+    if (!selectedPost) return;
 
-  const fetchPostDetails = async () => {
-    
-    try {
-      const [likeRes, commentRes] = await Promise.all([
-        axios.get(`${API}/api/check-like`, {
-          params: { userId, postId: selectedPost._id },
-        }),
-        axios.get(`${API}/api/posts/comment/${selectedPost._id}`),
-      ]);
+    const fetchPostDetails = async () => {
+      try {
+        const [likeRes, commentRes] = await Promise.all([
+          axios.get(`${API}/api/check-like`, {
+            params: { userId, postId: selectedPost._id },
+          }),
+          axios.get(`${API}/api/posts/comment/${selectedPost._id}`),
+        ]);
 
-      setLiked(likeRes.data.liked);
-      setLikesCount(selectedPost.likes?.length || 0);
-      setComments(commentRes.data);
-    } catch (error) {
-      toast.error("Failed to load post details");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        setLiked(likeRes.data.liked);
+        setLikesCount(selectedPost.likes?.length || 0);
+        setComments(commentRes.data);
+      } catch (error) {
+        toast.error("Failed to load post details");
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchPostDetails();
-}, [selectedPost, userId]);
+    fetchPostDetails();
+  }, [selectedPost, userId]);
 
-
-    const handleLike = async () => {
+  const handleLike = async () => {
     if (isLoading) return;
 
     setIsLoading(true);
@@ -131,6 +131,14 @@ export default function PostsGrid({ username }: PostsGridProps) {
       if (response.data.likes) {
         setLikesCount(response.data.likes.length);
       }
+
+      if (user !== userId) {
+        socket.emit("sendNotification", {
+          senderId: userId,
+          receiverId: user,
+          type: wasLiked ? "unlike" : "like",
+        });
+      }
     } catch (error) {
       console.error("Error to like/unlike:", error);
       toast.error("Error to like");
@@ -140,7 +148,7 @@ export default function PostsGrid({ username }: PostsGridProps) {
       setIsLoading(false);
     }
   };
-  
+
   //   useEffect(() => {
   //   const checkIfLiked = async () => {
   //     try {
@@ -179,18 +187,26 @@ export default function PostsGrid({ username }: PostsGridProps) {
         user: {
           _id: userId,
           username: currentUsername,
-          avatarImage: "", 
+          avatarImage: "",
         },
       };
       setComments((prev) => [...prev, newComment]);
       setComment("");
+
+      if (user !== userId) {
+        socket.emit("sendNotification", {
+          senderId: userId,
+          receiverId: user,
+          type: "comment",
+        });
+      }
     } catch (err) {
       console.error("Error posting comment:", err);
       toast.error("Коммент бичихэд алдаа гарлаа");
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     if (!selectedPost) return;
 
     const fetchLikeStatus = async () => {
@@ -208,7 +224,7 @@ export default function PostsGrid({ username }: PostsGridProps) {
     fetchLikeStatus();
   }, [selectedPost]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (!selectedPost) return;
     const fetchComments = async () => {
       setLoading(true);
@@ -250,14 +266,14 @@ export default function PostsGrid({ username }: PostsGridProps) {
     setShowModal(true);
   };
 
-    const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      if (comment.trim()) {
-        postComment();
-      }
-    };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (comment.trim()) {
+      postComment();
+    }
+  };
 
-      const SkeletonPostCard = () => (
+  const SkeletonPostCard = () => (
     <div className="w-full h-[400px]">
       <Skeleton className="w-full h-full rounded-md" />
     </div>
@@ -267,9 +283,7 @@ export default function PostsGrid({ username }: PostsGridProps) {
     <>
       <div className="grid grid-cols-3 gap-4">
         {loading ? (
-        Array.from({ length: 6 }).map((_, i) => (
-          <SkeletonPostCard key={i} />
-        ))
+          Array.from({ length: 6 }).map((_, i) => <SkeletonPostCard key={i} />)
         ) : error ? (
           <div>{error}</div>
         ) : posts.length > 0 ? (
@@ -328,9 +342,11 @@ export default function PostsGrid({ username }: PostsGridProps) {
           onCommentChange={setComment}
           onCommentSubmit={handleSubmit}
           onClose={() => setShowModal(false)}
-          comment={comment} currentUserUsername={""} currentUserAvatarImage={""}        />
+          comment={comment}
+          currentUserUsername={""}
+          currentUserAvatarImage={""}
+        />
       )}
     </>
   );
 }
-
