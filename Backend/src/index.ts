@@ -125,6 +125,9 @@ io.on("connection", (socket) => {
       lastMessage: populatedMessage._id,
     });
   });
+  socket.on("typing", ({ roomId, userId, isTyping }) => {
+    socket.to(roomId).emit("displayTyping", { userId, isTyping });
+  });
 
   socket.on("disconnect", async () => {
     for (const roomId in roomUsers) {

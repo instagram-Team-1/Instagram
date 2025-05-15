@@ -9,7 +9,6 @@ const roomHeader = ()=>{
       const [showDrawer, setShowDrawer] = useState(false);
 return(
     <div className="w-full justify-between flex flex-row p-4">
-        <p>group name</p>
         <Settings 
         onClick={() => setShowDrawer(true)}
         />
