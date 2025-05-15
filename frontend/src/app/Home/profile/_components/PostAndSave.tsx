@@ -61,7 +61,7 @@ const PostAndSave = () => {
   };
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId ) return;
 
     const fetchSavedPosts = async () => {
       try {
@@ -137,27 +137,27 @@ const PostAndSave = () => {
   };
 
   const postComment = async () => {
-    try {
-      const res = await axios.post(
-        `${API}/api/posts/comment/${currentPostId}`,
-        {
-          userId,
-          postId: currentPostId,
-          username: currentUsername,
-          comment,
-        }
-      );
+      try {
+        const res = await axios.post(
+          `${API}/api/posts/comment/${currentPostId}`,
+          {
+            userId,
+            postId: currentPostId,
+            username: currentUsername,
+            comment,
+          }
+        );
 
-      const newComment = {
-        comment,
-        user: { username: currentUsername },
-      };
-      setComments((prev) => [...prev, newComment]);
-      setComment("");
-    } catch (err) {
-      console.error("Error posting comment:", err);
-      toast.error("Коммент бичихэд алдаа гарлаа");
-    }
+        const newComment = {
+          comment,
+          user: { username: currentUsername },
+        };
+        setComments((prev) => [...prev, newComment]);
+        setComment("");
+      } catch (err) {
+        console.error("Error posting comment:", err);
+        toast.error("Коммент бичихэд алдаа гарлаа");
+      }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -189,20 +189,20 @@ const PostAndSave = () => {
 
   useEffect(() => {
     if (!currentPostId) return;
-    const fetchComments = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(
-          `${API}/api/posts/comment/${currentPostId}`
-        );
-        setComments(res.data);
-        console.log(res.data, "mycomment");
-      } catch (error) {
-        console.error("Failed to load comments:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const fetchComments = async () => {
+        setLoading(true);
+        try {
+          const res = await axios.get(
+            `${API}/api/posts/comment/${currentPostId}`
+          );
+          setComments(res.data);
+          console.log(res.data, "mycomment");
+        } catch (error) {
+          console.error("Failed to load comments:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
 
     fetchComments();
   }, [currentPostId]);
@@ -384,6 +384,7 @@ const PostAndSave = () => {
                       </div>
                     </div>
                   </div>
+
                 ))}
               </div>
             ) : (
