@@ -344,7 +344,7 @@ useEffect(() => {
         {selectedTab === "posts" && (
           <>
             {loading ? (
-              <div className="grid grid-cols-3 gap-4 mt-6">
+              <div className=" grid grid-cols-3 gap-4 mt-6">
                 {[...Array(6)].map((_, i) => (
                   <SkeletonPostCard key={i} />
                 ))}
@@ -354,7 +354,7 @@ useEffect(() => {
                 {posts.map((post) => (
                   <div
                     key={post._id}
-                    className="relative w-full h-auto group bg-gray-200"
+                    className="relative w-full h-[360px] group  bg-gray-200"
                     onClick={() => handlePostClick(post)}
                   >
                     <CldImage
