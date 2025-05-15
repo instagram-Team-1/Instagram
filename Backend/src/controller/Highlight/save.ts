@@ -11,26 +11,24 @@ export const createHighlight = async (req: Request, res: Response) => {
       title,
     });
 
-    await newHighlight.save(); // MongoDB руу хадгална
-    res.status(201).json(newHighlight); // Хадгалсан highlight-ийг буцаана
+    await newHighlight.save();
+    res.status(201).json(newHighlight);
   } catch (error) {
     res.status(500).json({ message: "Error creating highlight", error });
   }
 };
 
-// Highlight-ийн жагсаалтыг авах
 export const getHighlightsByUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
   try {
     const highlights = await Highlight.find({ userId }).populate("stories");
-    res.status(200).json(highlights); // Буцаах
+    res.status(200).json(highlights);
   } catch (error) {
     res.status(500).json({ message: "Error fetching highlights", error });
   }
 };
 
-// Highlight нэгийг авах
 export const getHighlightById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -45,7 +43,6 @@ export const getHighlightById = async (req: Request, res: Response) => {
   }
 };
 
-// Highlight устгах
 export const deleteHighlight = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -57,5 +54,30 @@ export const deleteHighlight = async (req: Request, res: Response) => {
     res.status(200).json({ message: "Highlight deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting highlight", error });
+  }
+};
+
+// Шинэ функц: Highlight-аас story устгах
+export const removeStoryFromHighlight = async (req: Request, res: Response) => {
+  const { highlightId, storyId } = req.body;
+
+  try {
+    const highlight = await Highlight.findById(highlightId);
+    if (!highlight) {
+      return res.status(404).json({ message: "Highlight not found" });
+    }
+
+    // Story-г массив дотроос хасна
+    highlight.stories = highlight.stories.filter(
+      (s: any) => s.toString() !== storyId
+    );
+
+    await highlight.save();
+
+    res.status(200).json({ message: "Story removed from highlight" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to remove story from highlight", error });
   }
 };

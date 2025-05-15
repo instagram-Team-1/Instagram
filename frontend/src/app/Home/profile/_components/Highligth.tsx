@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { HighlightType, StoryType } from "@/lib/types";
-import { StoryViewer } from "../../components/stories/_components/StoryViewer";
+import { StoryViewer } from "../../users/_components/Storyviewo-delete";
 
 type GroupedStory = {
   user: {
