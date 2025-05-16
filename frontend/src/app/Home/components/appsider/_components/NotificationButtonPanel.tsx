@@ -104,26 +104,23 @@ function NotificationButtonPanel({
         } transition-all duration-400 ease-in-out fixed top-0 left-0 h-screen ml-[75px] bg-white dark:bg-black border-r border-gray-200 dark:border-zinc-800 p-4`}
         style={{ minWidth: "400px" }}
       >
-        <div className="h-[160px] w-[400px] p-5 border-b-[1px]">
+        <div className="h-[160px] w-[400px] p-5 border-b-[1px] flex items-center">
           <h2 className="text-lg font-semibold mb-4">Notifications</h2>
-          {notifications.length > 0 && (
-            <div className="bg-white dark:bg-zinc-900 shadow-md rounded-lg p-4 mb-4">
-              <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                Notifications
-              </h4>
-              <ul className="space-y-1 max-h-32 overflow-y-auto text-sm">
-                {notifications.map((notif) => (
-                  <li
-                    key={notif._id}
-                    className="text-gray-700 dark:text-gray-300"
-                  >
-                    {renderText(notif)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
+        {notifications.length > 0 && (
+          <div className="shadow-md rounded-lg p-4 mb-4 mt-[30px]">
+            <ul className="space-y-1 overflow-y-auto text-sm">
+              {notifications.map((notif) => (
+                <li
+                  key={notif._id}
+                  className="text-black dark:text-white h-[50px] flex items-center"
+                >
+                  {renderText(notif)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );
