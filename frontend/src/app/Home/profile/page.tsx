@@ -39,7 +39,7 @@ export default function ProfilePage() {
     fetchProfile();
   }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p></p>
 
   const isOwnProfile = userData?.id === currentUserId;
   const canViewPosts =
