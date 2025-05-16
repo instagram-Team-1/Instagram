@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { API } from "@/utils/api";
 import { userContext } from "../../layout";
 import ChatSkeleton from "./chatSkeleton";
+
 type Participant = {
   avatarImage: string;
   name: string;
@@ -51,38 +52,44 @@ const Msgs = () => {
   };
 
   return (
-    <div className="flex flex-col gap-[20px] text-white">
+    <div className="flex flex-col gap-4 text-white w-full max-w-lg mx-auto p-4 md:p-6">
       {loading ? (
-       <ChatSkeleton/>
+        <ChatSkeleton />
       ) : error ? (
-        <p className="text-red-500">{error}</p>
+        <p className="text-red-500 text-center">{error}</p>
       ) : allChats.length > 0 ? (
-        <div className="flex flex-col gap-[15px]">
+        <div className="flex flex-col gap-4">
           {allChats.map((chat) => (
             <div
               key={chat._id}
-              className="flex gap-[10px] items-center hover:bg-gray-600 p-2 cursor-pointer"
+              className="flex gap-3 items-center hover:bg-gray-700 rounded-lg p-2 cursor-pointer transition-colors"
               onClick={() => jumpTo(chat._id)}
             >
-              <div className="flex gap-1">
+              <div className="flex -space-x-2">
                 {chat.participants.slice(0, 3).map((user, idx) => (
                   <Avatar
                     key={idx}
-                    className="w-[40px] h-[40px] border-1 border-white"
+                    className="w-[40px] h-[40px] border-2 border-white"
                   >
                     <AvatarImage src={user.avatarImage} />
+                    <AvatarFallback className="bg-gray-500 text-white">
+                     x
+                    </AvatarFallback>
                   </Avatar>
                 ))}
               </div>
-              <div className="text-[12px]">
-                <p className="font-semibold">{chat.name}</p>
-                <p className="text-gray-300">Last message: {chat.lastMessage}</p>
+
+              <div className="flex-1 min-w-0 text-[14px] md:text-[16px]">
+                <p className="font-semibold truncate">{chat.name}</p>
+                <p className="text-gray-400 truncate text-sm md:text-base">
+                  Last message: {chat.lastMessage}
+                </p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p>No chats available.</p>
+        <p className="text-center text-white/70">No chats available.</p>
       )}
     </div>
   );

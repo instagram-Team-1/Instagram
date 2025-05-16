@@ -26,6 +26,7 @@ const PostCard: FC<PostCardProps> = ({
   currentUserId,
   currentUserUsername,
   currentUserAvatarImage,
+  createdAt,
 }) => {
   const [liked, setLiked] = useState(() =>
     likes.some((likeUser) => likeUser._id === currentUserId)
@@ -36,8 +37,6 @@ const PostCard: FC<PostCardProps> = ({
   const [showComments, setShowComments] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [commentList, setCommentList] = useState(comments);
-
-  console.log(likes, " mee");
 
   const handleLike = async () => {
     try {
@@ -97,7 +96,7 @@ const PostCard: FC<PostCardProps> = ({
         });
       }
     } catch (err) {
-      toast.error("Коммент бичихэд алдаа гарлаа");
+      toast.error("Error to write a comment");
     }
   };
 
@@ -130,7 +129,7 @@ const PostCard: FC<PostCardProps> = ({
   };
 
   return (
-    <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-6 relative">
+    <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-2 relative">
       {showShareModal && (
         <ShareModal postId={postId} onClose={() => setShowShareModal(false)} />
       )}
@@ -153,7 +152,7 @@ const PostCard: FC<PostCardProps> = ({
         />
       )}
       <div className=" rounded-md overflow-hidden">
-        <PostHeader user={user} />
+        <PostHeader user={user} createdAt={createdAt} />
         <PostImage imageUrl={imageUrl} />
 
         <PostActions
@@ -163,8 +162,9 @@ const PostCard: FC<PostCardProps> = ({
           onComment={() => setShowComments(true)}
           onShare={() => setShowShareModal(true)}
           onSave={toggleSave}
-          postId={postId}
+          username={user?.username ?? "Тодорхойгүй хэрэглэгч"}
         />
+
         <div className="text-sm  px-4 pt-2 font-semibold">
           {likesCount.toLocaleString()} likes
         </div>
@@ -185,9 +185,11 @@ const PostCard: FC<PostCardProps> = ({
           onSubmit={handleSubmit}
           currentUserUsername={currentUserUsername}
           currentUserAvatarImage={currentUserAvatarImage}
-          comments={commentList} onCommentSubmit={function (e: React.FormEvent): void {
+          comments={commentList}
+          onCommentSubmit={function (e: React.FormEvent): void {
             throw new Error("Function not implemented.");
-          } }        />
+          }}
+        />
       </div>
     </div>
   );

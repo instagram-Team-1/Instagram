@@ -198,7 +198,7 @@ const PostAndSave = () => {
         setComment("");
       } catch (err) {
         console.error("Error posting comment:", err);
-        toast.error("Коммент бичихэд алдаа гарлаа");
+        toast.error("Error posting comment");
       }
   };
 
@@ -350,7 +350,7 @@ useEffect(() => {
                 ))}
               </div>
             ) : posts.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4 mt-6">
+              <div className="grid grid-cols-3 gap-1 mt-6">
                 {posts.map((post) => (
                   <div
                     key={post._id}
@@ -390,13 +390,13 @@ useEffect(() => {
         {selectedTab === "saved" && (
           <>
             {loading ? (
-              <div className="grid grid-cols-3 gap-4 mt-6">
+              <div className="grid grid-cols-3 gap-1 mt-6">
                 {[...Array(6)].map((_, i) => (
                   <SkeletonPostCard key={i} />
                 ))}
               </div>
             ) : savedPosts.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4 mt-6">
+              <div className="grid grid-cols-3 gap-1 mt-6">
                 {savedPosts.map((post) => (
                   <div
                     key={post._id}

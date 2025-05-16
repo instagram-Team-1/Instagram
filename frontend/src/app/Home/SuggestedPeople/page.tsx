@@ -42,7 +42,7 @@ const page = () => {
               <div className="flex items-center gap-3 ">
                 <Avatar.Root className="h-10 w-10 rounded-full overflow-hidden bg-gray-800">
                   <Avatar.Image
-                    src={user.avatarImage || "/avatars/default.jpg"} // зураг байхгүй тохиолдолд default зураг
+                    src={user.avatarImage || "/avatars/default.jpg"} 
                     alt={user.username}
                     className="object-cover w-full h-full"
                   />

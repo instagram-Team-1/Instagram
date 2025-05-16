@@ -54,7 +54,7 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
 
   const handleFollow = async (targetUserId: string) => {
     if (userId === targetUserId) {
-      toast.error("Өөрийгөө дагах боломжгүй");
+      // toast.error("Өөрийгөө дагах боломжгүй");
       return;
     }
 
@@ -82,8 +82,8 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
       const userRes = await axios.get(`${API}/api/users/${userId}`);
       setUserData(userRes.data);
     } catch (error: any) {
-      console.error("Алдаа:", error.response?.data || error.message);
-      toast.error(error.response?.data?.message || "Алдаа гарлаа");
+      console.error("Error:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Error");
     } finally {
       setLoadingUserId(null);
     }
@@ -97,7 +97,7 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
     <div className="space-y-4">
       <div className="flex items-center gap-3 justify-between">
         <div className="flex items-center gap-3">
-          <Avatar.Root className="h-10 w-10 rounded-full overflow-hidden bg-gray-800">
+          <Avatar.Root className="h-11 w-11 rounded-full overflow-hidden bg-gray-800">
             <Avatar.Image
               src={image}
               alt={image}
@@ -110,16 +110,16 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
           </div>
         </div>
         <button
-          className="text-[#0095F6] text-xs font-bold hover:text-white cursor-pointer"
+          className="text-[#0095F6] text-xs font-semibold dark:hover:text-white cursor-pointer"
           onClick={handleLogout}
         >
-          Switch
+          Log out
         </button>
       </div>
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold">Suggestions for you</h2>
+        <h2 className="text-sm font-semibold dark:text-white/70 text-black/50">Suggested for you</h2>
         <button
-          className="text-xs text-[#0095F6] font-bold hover:text-white cursor-pointer"
+          className="text-xs dark:text-white font-semibold dark:hover:text-white/80 hover:text-black/70 cursor-pointer"
           onClick={() => router.push("Home/SuggestedPeople")}
         >
           See All
@@ -131,7 +131,7 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
         return (
           <div key={i} className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <Avatar.Root className="h-10 w-10 rounded-full overflow-hidden bg-gray-800">
+              <Avatar.Root className="h-11 w-11 rounded-full overflow-hidden bg-gray-800">
                 <Avatar.Image
                   src={user.image || "/avatars/default.jpg"}
                   alt={user.username}
@@ -152,8 +152,8 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
               </div>
             </div>
             <button
-              className={`text-xs font-bold ${
-                isAlreadyFollowing ? "text-white" : "text-[#0095F6]"
+              className={`text-xs font-semibold ${
+                isAlreadyFollowing ? "dark:text-white dark:hover:text-white/70 hover:text-black/70" : "text-[#0095F6] dark:hover:text-white hover:text-black"
               } cursor-pointer disabled:opacity-50 flex items-center`}
               onClick={() => handleFollow(user._id)}
               disabled={loadingUserId === user._id || userId === user._id}
@@ -161,7 +161,7 @@ export function SuggestionsSidebar({ username }: StoriesBarProps) {
               {loadingUserId === user._id ? (
                 <div className="spinner-border animate-spin h-4 w-4 border-2 border-t-2 border-t-transparent border-white rounded-full"></div>
               ) : isAlreadyFollowing ? (
-                "Unfollow"
+                "Following"
               ) : (
                 "Follow"
               )}
