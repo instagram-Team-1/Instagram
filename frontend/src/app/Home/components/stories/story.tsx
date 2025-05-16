@@ -5,7 +5,7 @@ import axios from "axios";
 import { API } from "@/utils/api";
 import { StoryAvatar } from "./_components/StoryAvatar";
 import { AddStoryButton } from "./_components/AddStoryButton";
-import { StoryViewer } from "./_components/StoryViewer";
+import { StoryViewer } from "../../users/_components/Storyviewo-delete";
 import { StoryAvatarSkeleton } from "./_components/StoryLoading";
 
 type StoriesBarProps = {
@@ -70,7 +70,6 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
       setStories(finalData);
       setViewedStoryIds(viewedIds);
       setIsLoading(false);
-      
     } catch (err) {
       console.error("❌ Failed to fetch stories:", err);
     } finally {
@@ -121,8 +120,6 @@ export function StoriesBar({ userId, username }: StoriesBarProps) {
   useEffect(() => {
     fetchStories();
   }, [fetchStories]);
-
- 
 
   return (
     <div className="flex gap-1 overflow-x-auto py-4 px-4 scrollbar-hide">

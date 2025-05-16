@@ -52,8 +52,7 @@ export function StoryViewer({
     const story = storyGroup.stories[currentIndex];
 
     try {
-      await axios.delete(`${API}/api/highlight/${story._id}`, {});
-
+      await axios.delete(`${API}/api/highlight/${storyGroup._id}`, {});
       const updatedStories = storyGroup.stories.filter(
         (s) => s._id !== story._id
       );
@@ -141,26 +140,6 @@ export function StoryViewer({
         >
           {isPaused ? <Play /> : <Pause />}
         </button>
-
-        <div className="relative">
-          <div
-            className="text-white text-2xl cursor-pointer"
-            onClick={() => setShowOptions((prev) => !prev)}
-          >
-            <MoreVertical />
-          </div>
-
-          {showOptions && (
-            <div className="absolute right-0 mt-2 bg-pink-100 text-red-600 text-center text-bold rounded shadow-md w-32 p-2">
-              <button
-                onClick={handleDeleteStory}
-                className="w-full text-left px-2 py-1 hover:bg-gray-600 text-sm"
-              >
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
 
         <div
           className="text-white text-xl cursor-pointer"
