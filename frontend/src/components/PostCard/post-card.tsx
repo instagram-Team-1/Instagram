@@ -26,6 +26,7 @@ const PostCard: FC<PostCardProps> = ({
   currentUserId,
   currentUserUsername,
   currentUserAvatarImage,
+  createdAt,
 }) => {
   const [liked, setLiked] = useState(() =>
     likes.some((likeUser) => likeUser._id === currentUserId)
@@ -36,8 +37,6 @@ const PostCard: FC<PostCardProps> = ({
   const [showComments, setShowComments] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [commentList, setCommentList] = useState(comments);
-
-  console.log(likes, " mee");
 
   const handleLike = async () => {
     try {
@@ -97,7 +96,7 @@ const PostCard: FC<PostCardProps> = ({
         });
       }
     } catch (err) {
-      toast.error("Коммент бичихэд алдаа гарлаа");
+      toast.error("Error to write a comment");
     }
   };
 
@@ -130,7 +129,7 @@ const PostCard: FC<PostCardProps> = ({
   };
 
   return (
-    <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-6 relative">
+    <div className="rounded-md bg-white dark:bg-black max-w-md mx-auto my-2 relative">
       {showShareModal && (
         <ShareModal postId={postId} onClose={() => setShowShareModal(false)} />
       )}
@@ -153,7 +152,7 @@ const PostCard: FC<PostCardProps> = ({
         />
       )}
       <div className=" rounded-md overflow-hidden">
-        <PostHeader user={user} />
+        <PostHeader user={user} createdAt={createdAt} />
         <PostImage imageUrl={imageUrl} />
 
         <PostActions
