@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import axios from "axios";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Logo from "./loginComponent/instaLogo.svg";
@@ -9,7 +10,6 @@ import Jump from "./loginComponent/jump";
 import loginSchema from "./loginComponent/loginSchema";
 import { useFormik } from "formik";
 import Image from "next/image";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { API } from "../../utils/api";
 import { motion } from "motion/react";
@@ -119,7 +119,7 @@ const Page = () => {
                 <Button
                   type="submit"
                   variant="ghost"
-                  className="bg-blue-500 w-full py-2"
+                  className="bg-blue-500 w-full py-2 text-white"
                   disabled={formik.isSubmitting}
                 >
                   Login
