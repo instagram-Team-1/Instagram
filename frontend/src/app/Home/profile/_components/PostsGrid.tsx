@@ -202,7 +202,7 @@ export default function PostsGrid({ username, user }: PostsGridProps) {
       }
     } catch (err) {
       console.error("Error posting comment:", err);
-      toast.error("Коммент бичихэд алдаа гарлаа");
+      toast.error("Error posting comment");
     }
   };
 
@@ -281,7 +281,7 @@ export default function PostsGrid({ username, user }: PostsGridProps) {
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-1">
         {loading ? (
           Array.from({ length: 6 }).map((_, i) => <SkeletonPostCard key={i} />)
         ) : error ? (

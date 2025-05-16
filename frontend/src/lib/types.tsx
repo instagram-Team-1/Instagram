@@ -59,6 +59,7 @@ export interface PostCardProps {
   currentUserId: string;
   currentUserUsername: string;
   currentUserAvatarImage: string;
+  createdAt: string;
 }
 
 export type Post = {
