@@ -33,6 +33,7 @@ interface Post {
     comment: string;
     _id: string;
   }[];
+  createdAt: string;
 }
 
 interface FeedData {
