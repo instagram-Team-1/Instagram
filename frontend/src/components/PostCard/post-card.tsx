@@ -152,7 +152,7 @@ const PostCard: FC<PostCardProps> = ({
         />
       )}
       <div className=" rounded-md overflow-hidden">
-        <PostHeader user={user} createdAt={createdAt} />
+        <PostHeader user={user}  />
         <PostImage imageUrl={imageUrl} />
 
         <PostActions
