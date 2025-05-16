@@ -17,7 +17,7 @@ interface PostActionsProps {
   onComment: () => void;
   onShare: () => void;
   onSave: () => void;
-  postId: string;
+  username: string;
 }
 
 const PostActions: FC<PostActionsProps> = ({
@@ -25,18 +25,17 @@ const PostActions: FC<PostActionsProps> = ({
   saved,
   onLike,
   onComment,
-  onShare,
   onSave,
-  postId,
+  username,
 }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = async () => {
-    const url = `${window.location.origin}/Home/post/${postId}`;
+    const url = `${window.location.origin}/Home/users/${username}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1000); 
+      setTimeout(() => setCopied(false), 1000);
     } catch (err) {
       console.error("Хуулж чадсангүй:", err);
     }
