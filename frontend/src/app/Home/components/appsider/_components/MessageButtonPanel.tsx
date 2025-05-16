@@ -15,12 +15,12 @@ function MesageButtonPanel({ activePanel }: MasegeButtonPanelProps) {
   return (
     <div>
       <div
-        className={`fixed top-0 left-0 h-screen ml-[75px] bg-white dark:bg-black border-r border-gray-200 dark:border-zinc-800 p-4 transition-all duration-400 ease-in-out ${
+        className={`fixed top-0 left-0 h-screen ml-[75px] bg-white dark:bg-black border-r border-gray-200 dark:border-zinc-800 p-4 transition-all duration-400 ease-in-out py-[60px] ${
           activePanel === "messages" ? "w-[400px] max-h-[600px]" : "w-[0px] max-h-0"
         } overflow-hidden`}
         style={{ minWidth: activePanel === "messages" ? "400px" : "0px" }}
       >
-        <div className="h-[160px] w-full p-5 border-b-[1px] flex justify-between items-center">
+        <div className="h-[160px] w-full p-5 flex justify-between items-center">
          
           
           <Msgs />
