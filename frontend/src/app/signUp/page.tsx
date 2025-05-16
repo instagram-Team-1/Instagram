@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useFormik } from 'formik'
+import FbLogin from '../login/loginComponent/fbLogin'
 import SeparatorOr from '../login/loginComponent/SeparatorOr'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -11,8 +12,7 @@ import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import MailVerify from './signComponent/mailVerify'
 import { API } from '@/utils/api'
-import Image from 'next/image'
-import Logo from "../login/loginComponent/instaLogo.svg"
+import { LampContainer } from '@/components/ui/lamp'
 import * as Dialog from '@radix-ui/react-dialog';
 
 const Page = () => {
@@ -59,32 +59,26 @@ const Page = () => {
 
   return (
     <div className="w-full h-[100vh] flex relative">
+<LampContainer>
       {loading && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
-
-      <div className="bg-black h-full w-full flex items-center justify-center flex-col gap-[10px]">
+      
+      <div className="bg-transparent h-full w-full flex items-center justify-center flex-col gap-[10px]">
         <div className="border border-white/50 w-full max-w-[350px] flex flex-col items-center gap-[10px] px-[30px] py-14 rounded-xl">
-          <div className="w-[150px] mb-6 relative">
-              <Image
-                src={Logo}
-                alt="Logo"
-                objectFit="contain"
-                layout="responsive"
-              />
-            </div>
-          <p className="text-center text-white/90">
-            Sign up to see photos <br /> from your friends
+          <p className="text-center text-white">
+            Sign up to see photos and videos <br /> from your friends
           </p>
 
+          <FbLogin />
           <SeparatorOr />
           <form onSubmit={formik.handleSubmit} className="w-full flex flex-col gap-[15px] text-white">
-            <Input name="email" placeholder="Email" type="email" onChange={formik.handleChange} value={formik.values.email} className='border-white/20 bg-white/5'/>
-            <Input name="password" placeholder="Password" type="password" onChange={formik.handleChange} value={formik.values.password} className='border-white/20 bg-white/5'/>
-            <Input name="fullname" placeholder="Full name" onChange={formik.handleChange} value={formik.values.fullname} className='border-white/20 bg-white/5' />
-            <Input name="username" placeholder="Username" onChange={formik.handleChange} value={formik.values.username} className='border-white/20 bg-white/5'/>
+            <Input name="email" placeholder="Email" type="email" onChange={formik.handleChange} value={formik.values.email} />
+            <Input name="password" placeholder="Password" type="password" onChange={formik.handleChange} value={formik.values.password} />
+            <Input name="fullname" placeholder="Full name" onChange={formik.handleChange} value={formik.values.fullname} />
+            <Input name="username" placeholder="Username" onChange={formik.handleChange} value={formik.values.username} />
             <Button type="submit" className="bg-blue-500 w-full" disabled={formik.isSubmitting || loading}>Sign up</Button>
           </form>
         </div>
@@ -100,6 +94,7 @@ const Page = () => {
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+      </LampContainer>
     </div>
   )
 }
