@@ -67,7 +67,6 @@ export const removeStoryFromHighlight = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Highlight not found" });
     }
 
-    // Story-г массив дотроос хасна
     highlight.stories = highlight.stories.filter(
       (s: any) => s.toString() !== storyId
     );

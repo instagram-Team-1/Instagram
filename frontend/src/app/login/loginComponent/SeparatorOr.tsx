@@ -3,9 +3,9 @@ import { Separator } from '@/components/ui/separator'
 const SeparatorOr = () => {
   return (
     <div className='flex items-center justify-center gap-3 w-full overflow-hidden'>
-    <Separator />
-    <p className='text-sm text-white'>Or</p>
-    <Separator />
+    <Separator className='bg-white/40'/>
+    <p className='text-sm text-white/80'>OR</p>
+    <Separator className='bg-white/40'/>
   </div>
   )
 }

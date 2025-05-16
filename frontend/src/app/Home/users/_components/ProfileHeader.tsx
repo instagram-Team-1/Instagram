@@ -170,7 +170,7 @@ export default function ProfileHeader({
       <div className="text-xl font-normal flex items-center gap-4">
         <div>{user.username}</div>
         <Button
-          className={`text-white cursor-pointer ${
+          className={`dark:text-white dark:hover:bg-white/10 hover:bg-black/10 cursor-pointer ${
             !isFollowing ? "bg-blue-400 hover:bg-blue-500" : ""
           }`}
           onClick={handleFollow}
@@ -182,7 +182,7 @@ export default function ProfileHeader({
         <Button
           variant="secondary"
           onClick={createChatRoom}
-          className="cursor-pointer"
+          className="cursor-pointer dark:hover:bg-white/10 hover:bg-black/10"
         >
           Message
         </Button>

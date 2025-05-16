@@ -23,8 +23,6 @@ export default function FeedPage() {
     username: data.username,
     avatarImage: data.avatarImage
   };
-  console.log(data ,  "wew");
-  
   
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
@@ -48,12 +46,13 @@ export default function FeedPage() {
             currentUserAvatarImage={userData.avatarImage}
             isLiked={false}
             isSaved={false}
+            createdAt={post.createdAt}
           />
         ))}
       </div>
 
       <div className="hidden lg:block w-[320px] pl-10 pt-8">
-        <div className="sticky top-20">
+        <div className="sticky top-15">
           <SuggestionsSidebar username={{ username: data.username }} />
         </div>
       </div>

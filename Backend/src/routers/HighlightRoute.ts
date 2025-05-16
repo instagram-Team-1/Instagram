@@ -25,7 +25,6 @@ router.get("/user/:userId", async (req: Request, res: Response) => {
   }
 });
 
-// Нэг highlight авах
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     await getHighlightById(req, res);
@@ -42,8 +41,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Шинэ route: Highlight-аас story устгах
-router.put("/removeStory", async (req: Request, res: Response) => {
+router.delete("/story/:storyId", async (req: Request, res: Response) => {
   try {
     await removeStoryFromHighlight(req, res);
   } catch (error) {
