@@ -97,6 +97,7 @@ const PostCard: FC<PostCardProps> = ({
       }
     } catch (err) {
       toast.error("Error to write a comment");
+      toast.error("Error to write a comment");
     }
   };
 
@@ -152,7 +153,7 @@ const PostCard: FC<PostCardProps> = ({
         />
       )}
       <div className=" rounded-md overflow-hidden">
-        <PostHeader user={user}  />
+        <PostHeader user={user} createdAt={createdAt} />
         <PostImage imageUrl={imageUrl} />
 
         <PostActions

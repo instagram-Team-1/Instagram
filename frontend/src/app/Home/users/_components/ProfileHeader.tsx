@@ -224,7 +224,7 @@ export default function ProfileHeader({
               </div>
             )}
             {modalUsers.map((u) => (
-              <div key={u._id} className="py-2 flex items-center gap-3">
+              <div key={u._id} className="py-2 flex items-center gap-3" onClick={() => router.push("/Home/users/" + user.username)}>
                 <img
                   src={u.avatarImage}
                   alt={u.username}
