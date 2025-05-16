@@ -3,16 +3,25 @@ import { useState } from 'react';
 import { Settings } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from '@/components/ui/button';
+import { House } from 'lucide-react';
 import ChatDrawer from "../component/chatDrawer";
+import { useRouter } from 'next/navigation';
 
-const roomHeader = ()=>{
-      const [showDrawer, setShowDrawer] = useState(false);
-return(
+const roomHeader = () => {
+  const router = useRouter()
+  const [showDrawer, setShowDrawer] = useState(false);
+  const Home = () => {
+    router.push('/Home')
+  }
+  return (
     <div className="w-full justify-between flex flex-row p-4">
-        <Settings 
+      <House
+        onClick={Home}
+      />
+      <Settings
         onClick={() => setShowDrawer(true)}
-        />
-        <AnimatePresence>
+      />
+      <AnimatePresence>
         {showDrawer && (
           <motion.div
             className="fixed top-0 right-0 h-full w-[300px] bg-gray-800 p-4 shadow-xl"
@@ -32,6 +41,7 @@ return(
         )}
       </AnimatePresence>
     </div>
-)
+  )
 }
+
 export default roomHeader

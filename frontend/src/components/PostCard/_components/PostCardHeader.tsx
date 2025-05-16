@@ -6,7 +6,7 @@ import { User } from "lucide-react";
 import { User as UserType } from "@/lib/types";
 
 interface PostHeaderProps {
-  user?: UserType | null; // Make user optional and nullable
+  user?: UserType | null; 
 }
 
 const PostHeader: FC<PostHeaderProps> = ({ user }) => {

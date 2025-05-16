@@ -8,6 +8,7 @@ import { MESSENGERAPI } from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import RoomHeader from "../component/roomHeader";
 import { userContext } from "../../layout";
+import TypingAnimation from "../component/typingAnimation";
 
 let socket: Socket;
 const Page = () => {
@@ -143,12 +144,16 @@ console.log(typingUsers);
           {typingUsers.length > 0 && (
   <div className="flex items-center gap-2 mb-2">
     {typingUsers.map((user) => (
-      <div key={user.userId} className="flex items-center gap-2">
+      <div key={user.userId} className="flex items-center gap-2 w-fit">
         <Avatar>
           <AvatarImage src={user.avatarImage} />
           <AvatarFallback>user</AvatarFallback>
         </Avatar>
-        <span className="text-gray-400 italic">{user.username} is typing...</span>
+        <div className="w-full flex flex-col gap-1">
+            {user.username}
+        <TypingAnimation/>
+          </div>
+      
       </div>
     ))}
   </div>

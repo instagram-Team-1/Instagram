@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
+import { MESSENGERAPI } from "@/utils/api";
 
-const socket = io("http://localhost:8000", {
+const socket = io(MESSENGERAPI, {
   withCredentials: true,
   transports: ["websocket"],
 });

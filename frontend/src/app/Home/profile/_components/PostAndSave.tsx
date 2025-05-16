@@ -344,7 +344,7 @@ useEffect(() => {
         {selectedTab === "posts" && (
           <>
             {loading ? (
-              <div className=" grid grid-cols-3 gap-1 mt-6">
+              <div className=" grid grid-cols-3 gap-4 mt-6">
                 {[...Array(6)].map((_, i) => (
                   <SkeletonPostCard key={i} />
                 ))}

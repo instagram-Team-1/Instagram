@@ -14,6 +14,7 @@ import AddToGroup from './addToGroup';
 import axios from 'axios';
 import { API } from '@/utils/api';
 import { useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const Drawer = () => {
   const params = useParams()
@@ -34,6 +35,11 @@ const Drawer = () => {
     
     fetch();  
   }, [roomId]); 
+  const router = useRouter()
+const jumpUser = (name: string) => {
+  router.push(`/Home/users/${name}`);
+}
+console.log(participants);
 
   return (
     <div className='max-w-[350px]'>
@@ -67,16 +73,17 @@ const Drawer = () => {
           </DialogContent>
         </Dialog>
       </div>
-      
-      {/* Members list */}
       <div className="p-4">
         <h2 className="font-bold">Members:</h2>
         <div>
           {participants.length > 0 ? (
             participants.map((member: any) => (
-              <div key={member._id} className="flex items-center py-2">
+              <div key={member._id} className="flex items-center py-2"
+              onClick={()=>jumpUser(member.username)}
+              
+              >
                 <img
-                  src={member.avatarImage || '/default-avatar.png'} // Fallback to a default avatar
+                  src={member.avatarImage || '/default-avatar.png'} 
                   alt={member.username}
                   className="w-10 h-10 rounded-full mr-3"
                 />
