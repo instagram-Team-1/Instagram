@@ -6,18 +6,47 @@ import { Plus } from "lucide-react";
 import { API } from "@/utils/api";
 import { parseJwt } from "@/utils/JwtParse";
 import { useRouter } from "next/navigation";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { HighlightType, StoryType } from "@/lib/types";
-import { StoryViewer } from "../../users/_components/Storyviewo-delete";
 
-type GroupedStory = {
-  user: {
-    _id: string;
-    username: string;
-    avatarImage: string;
+const StoryViewer = ({
+  storyGroup,
+  setSelectedStoryGroup,
+  onStoryDeleted,
+}: {
+  storyGroup: {
+    user: { _id: string; username: string; avatarImage: string };
+    stories: StoryType[];
   };
-  stories: StoryType[];
+  setSelectedStoryGroup: React.Dispatch<React.SetStateAction<any>>;
+  onStoryDeleted: (storyId: string) => void;
+}) => {
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-[#353535] p-6 rounded-xl shadow-lg w-[400px] max-h-[80vh] overflow-y-auto">
+        <h3 className="mb-4 text-lg font-semibold">
+          Highlight: {storyGroup.user.username}
+        </h3>
+        <div className="space-y-4">
+          {storyGroup.stories.map((story) => (
+            <div key={story._id} className="relative">
+              <img
+                src={story.imageUrl}
+                alt={story.title}
+                className="w-full rounded-md"
+              />
+            </div>
+          ))}
+        </div>
+        <button
+          className="mt-4 px-4 py-2 bg-gray-300 rounded-md"
+          onClick={() => setSelectedStoryGroup(null)}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
 };
 
 const MyStoriesAndHighlight = () => {
@@ -27,8 +56,10 @@ const MyStoriesAndHighlight = () => {
   const [showHighlightModal, setShowHighlightModal] = useState(false);
   const [highlightTitle, setHighlightTitle] = useState("");
   const [selectedStories, setSelectedStories] = useState<StoryType[]>([]);
-  const [selectedHighlightGroup, setSelectedHighlightGroup] =
-    useState<GroupedStory | null>(null);
+  const [selectedHighlightGroup, setSelectedHighlightGroup] = useState<{
+    user: { _id: string; username: string; avatarImage: string };
+    stories: StoryType[];
+  } | null>(null);
 
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -85,11 +116,51 @@ const MyStoriesAndHighlight = () => {
     }
   };
 
+  const deleteHighlight = async (highlightId: string) => {
+    try {
+      await axios.delete(`${API}/api/highlight/${highlightId}`);
+      setHighlights((prev) => prev.filter((h) => h._id !== highlightId));
+      if (selectedHighlightGroup?.user._id === userId) {
+        setSelectedHighlightGroup(null);
+      }
+      console.log("Deleted highlight:", highlightId);
+    } catch (error) {
+      console.error("Error deleting highlight:", error);
+    }
+  };
+
+  // Remove story from highlight
+  const removeStoryFromHighlight = async (storyId: string) => {
+    try {
+      await axios.delete(`${API}/api/highlight/story/${storyId}`);
+
+      setHighlights((prevHighlights) =>
+        prevHighlights
+          .map((highlight) => ({
+            ...highlight,
+            stories: highlight.stories.filter((s) => s._id !== storyId),
+          }))
+          .filter((highlight) => highlight.stories.length > 0)
+      );
+
+      setSelectedHighlightGroup((prev) => {
+        if (!prev) return null;
+        const updatedStories = prev.stories.filter((s) => s._id !== storyId);
+        if (updatedStories.length === 0) return null;
+        return { ...prev, stories: updatedStories };
+      });
+
+      console.log("Removed story from highlight:", storyId);
+    } catch (error) {
+      console.error("Error removing story:", error);
+    }
+  };
+
   return (
     <div className="w-screen flex flex-col items-center mt-6">
       <div className="w-[1125px]">
         <div className="flex gap-4 items-center mt-6">
-          {/* Create New */}
+          {/* Create New Highlight */}
           <div
             className="w-[89px] flex flex-col items-center cursor-pointer"
             onClick={() => setShowHighlightModal(true)}
@@ -107,7 +178,7 @@ const MyStoriesAndHighlight = () => {
             {highlights.map((highlight) => (
               <div
                 key={highlight._id}
-                className="w-[89px] flex-shrink-0 flex flex-col items-center cursor-pointer"
+                className="w-[89px] flex-shrink-0 flex flex-col items-center cursor-pointer relative"
                 onClick={() =>
                   setSelectedHighlightGroup({
                     user: { _id: userId, username, avatarImage },
@@ -121,12 +192,25 @@ const MyStoriesAndHighlight = () => {
                 <div className="truncate max-w-[89px] text-sm">
                   {highlight.title}
                 </div>
+
+                {/* Delete товч */}
+                <button
+                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs z-10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteHighlight(highlight._id);
+                  }}
+                  title="Delete Highlight"
+                  aria-label="Delete Highlight"
+                >
+                  ×
+                </button>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Modal */}
+        {/* New Highlight Modal */}
         {showHighlightModal && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-[#353535] p-6 rounded-xl shadow-lg w-[300px]">
@@ -174,12 +258,12 @@ const MyStoriesAndHighlight = () => {
         )}
       </div>
 
+      {/* Story Viewer */}
       {selectedHighlightGroup && (
         <StoryViewer
           storyGroup={selectedHighlightGroup}
-          stories={[selectedHighlightGroup]}
           setSelectedStoryGroup={setSelectedHighlightGroup}
-          userId={userId}
+          onStoryDeleted={removeStoryFromHighlight}
         />
       )}
     </div>
