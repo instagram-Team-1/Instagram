@@ -312,16 +312,18 @@ export default function PostsGrid({ username, user }: PostsGridProps) {
                   </div>
                 </div>
               ) : (
-                <h2 className="text-[24px] text-center font-semibold mb-2">
+                <div className=" flex w-full h-full justify-center text-[24px] text-center font-semibold mb-2">
                   No post yet
-                </h2>
+                </div>
+
               )}
             </div>
           ))
         ) : (
-          <h2 className="text-[24px] text-center font-semibold mb-2">
+          <div className=" flex w-full h-full justify-center text-[24px] text-center font-semibold mb-2">
             No post yet
-          </h2>
+          </div>
+
         )}
       </div>
 

@@ -4,6 +4,7 @@ import { FC } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { User } from "lucide-react";
 import { User as UserType } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 interface PostHeaderProps {
   user: UserType;
@@ -11,6 +12,7 @@ interface PostHeaderProps {
 }
 
 const PostHeader: FC<PostHeaderProps> = ({ user, createdAt }) => {
+  const router = useRouter()
   function getTimeAgo(dateString: string) {
     const created = new Date(dateString);
     const now = new Date();
@@ -31,7 +33,7 @@ const PostHeader: FC<PostHeaderProps> = ({ user, createdAt }) => {
 
   return (
     <div className="flex items-center justify-between py-3 px-2">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push("/Home/users/" + user.username)}>
         <Avatar className="w-[32px] h-[32px]">
           <AvatarImage src={user.avatarImage || "/img/default-avatar.png"} />
           <AvatarFallback>

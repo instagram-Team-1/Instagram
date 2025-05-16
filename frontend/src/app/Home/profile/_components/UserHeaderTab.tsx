@@ -179,21 +179,21 @@ export const UserHeaderTab = () => {
       {/* User Info */}
       <div className="flex flex-col ml-5 gap-6">
        <div className="flex items-center gap-4 text-[20px] font-normal">
-  {userData?.username ? (
-    <span>{userData.username}</span>
-  ) : (
-    <Skeleton className="h-6 w-[100px]" />
-  )}
-  <Button
-    variant="secondary"
-    onClick={() => (window.location.href = "/Home/accounts/edit/")}
-  >
-    Edit profile
-  </Button>
-  <Button onClick={handleArchiveButtonClick} variant="secondary">
-    View archive
-  </Button>
-</div>
+        {userData?.username ? (
+          <span>{userData.username}</span>
+        ) : (
+          <Skeleton className="h-6 w-[100px]" />
+        )}
+        <Button
+          variant="secondary"
+          onClick={() => (window.location.href = "/Home/accounts/edit/")}
+        >
+          Edit profile
+        </Button>
+        <Button onClick={handleArchiveButtonClick} variant="secondary">
+          View archive
+        </Button>
+      </div>
 
 
         <div className="text-[16px] text-gray-400 flex gap-8">
@@ -244,8 +244,9 @@ export const UserHeaderTab = () => {
                   src={u.avatarImage}
                   alt={u.username}
                   className="w-10 h-10 rounded-full object-cover"
+                  onClick={() => router.push("/Home/users/" + u.username)}
                 />
-                <div>
+                <div onClick={() => router.push("/Home/users/" + u.username)}>
                   <div className="dark:text-white font-semibold">
                     {u.username}
                   </div>
