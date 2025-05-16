@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { API } from "@/utils/api";
@@ -7,30 +8,31 @@ import { Pause, Play, MoreVertical } from "lucide-react";
 import { ProgressBar } from "../../components/stories/_components/_components/ProgressBar";
 import { NavigationArrows } from "../../components/stories/_components/_components/NavigationArrows";
 
+export type GroupedStory = {
+  _id?: string;
+  user: { _id: string; username: string; avatarImage: string };
+  stories: { _id: string; imageUrl: string; createdAt?: string }[];
+  isHighlight?: boolean;
+};
+
 type StoryViewerProps = {
   storyGroup: GroupedStory;
   stories: GroupedStory[];
   setSelectedStoryGroup: (group: GroupedStory | null) => void;
   userId: string;
-};
-
-export type GroupedStory = {
-  _id?: string; // optional болгож болно
-  user: { _id: string; username: string; avatarImage: string };
-  stories: { _id: string; imageUrl: string; createdAt?: string }[];
+  onStoryDeleted?: (storyId: string) => void;
 };
 
 function getTimeAgo(dateString: string) {
-  const createdAt = new Date(dateString); // Ognoog shine object bolgono
-  const now = new Date(); //Onoodriin ognoo
+  const createdAt = new Date(dateString);
+  const now = new Date();
   const diffMs = now.getTime() - createdAt.getTime();
   const diffMinutes = Math.floor(diffMs / 1000 / 60);
   const diffHours = Math.floor(diffMinutes / 60);
-
   if (diffMinutes < 1) return "Just now";
-  if (diffMinutes < 60) return `${diffMinutes}m ago`; //1 tsag dotor bol minutiig haruulna
-  if (diffHours < 24) return `${diffHours}h ago`; //tsagiig haruulna
-  return null;
+  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return `${Math.floor(diffHours / 24)}d ago`;
 }
 
 export function StoryViewer({
@@ -38,6 +40,7 @@ export function StoryViewer({
   stories,
   setSelectedStoryGroup,
   userId,
+  onStoryDeleted,
 }: StoryViewerProps) {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
@@ -54,18 +57,31 @@ export function StoryViewer({
   };
 
   const handleDeleteStory = async () => {
-    const story = storyGroup.stories[currentIndex];
+    const storyToDelete = storyGroup.stories[currentIndex];
     try {
-      await axios.delete(`${API}/api/story/${story._id}`);
+      await axios.delete(`${API}/api/story/${storyToDelete._id}`);
+      if (storyGroup._id && storyGroup.isHighlight) {
+        await axios.delete(`${API}/api/highlight/${storyGroup._id}`, {
+          data: { storyId: storyToDelete._id },
+        });
+      }
+
+      if (onStoryDeleted) {
+        onStoryDeleted(storyToDelete._id);
+      }
+
       const updatedStories = storyGroup.stories.filter(
-        (s) => s._id !== story._id
+        (s) => s._id !== storyToDelete._id
       );
 
-      if (updatedStories.length > 0) {
-        storyGroup.stories = updatedStories;
-        setCurrentIndex(0);
-      } else {
+      if (updatedStories.length === 0) {
         setSelectedStoryGroup(null);
+      } else {
+        setSelectedStoryGroup({
+          ...storyGroup,
+          stories: updatedStories,
+        });
+        setCurrentIndex(0);
       }
 
       setShowOptions(false);
@@ -75,20 +91,14 @@ export function StoryViewer({
   };
 
   useEffect(() => {
-    if (storyGroup.stories[currentIndex]) {
-      const story = storyGroup.stories[currentIndex];
-      const timeAgo = getTimeAgo(story.createdAt || "");
-      if (timeAgo === null) {
-        setSelectedStoryGroup(null);
-        return;
-      }
+    const story = storyGroup.stories[currentIndex];
+    if (story?.createdAt) {
       fetchViewers(story._id);
     }
   }, [userId, storyGroup, currentIndex]);
 
   useEffect(() => {
     if (!storyGroup || isPaused) return;
-
     setProgress(0);
     if (intervalRef.current) clearInterval(intervalRef.current);
 
@@ -118,7 +128,6 @@ export function StoryViewer({
         (g) => g.user._id === storyGroup.user._id
       );
       const nextGroup = stories[currentGroupIndex + 1];
-
       if (nextGroup) {
         setSelectedStoryGroup(nextGroup);
         setCurrentIndex(0);
@@ -129,7 +138,10 @@ export function StoryViewer({
   }, [progress]);
 
   const currentStory = storyGroup.stories[currentIndex];
-  const timeAgo = getTimeAgo(currentStory.createdAt || "") || "";
+  const timeAgo =
+    currentStory?.createdAt !== undefined
+      ? getTimeAgo(currentStory.createdAt)
+      : "";
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
@@ -156,12 +168,12 @@ export function StoryViewer({
           </div>
 
           {showOptions && (
-            <div className="absolute right-0 mt-2 bg-pink-100 text-red-600 text-center text-bold rounded shadow-md w-32 p-2">
+            <div className="absolute right-0 mt-2 bg-pink-100 text-red-600 text-center font-bold rounded shadow-md w-32 p-2">
               <button
                 onClick={handleDeleteStory}
                 className="w-full text-left px-2 py-1 hover:bg-gray-600 text-sm"
               >
-                Delete Story
+                Delete
               </button>
             </div>
           )}

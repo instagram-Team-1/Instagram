@@ -5,6 +5,7 @@ import PostCard from "@/components/PostCard/post-card";
 import { SuggestionsSidebar } from "@/components/Suggestions/suggested-sidebar";
 import { StoriesBar } from "./components/stories/story";
 import { useEffect, useState } from "react";
+import ResponsiveHeader from "./actualRoom/component/responsiveHeader";
 
 export default function FeedPage() {
   const data = useFeed();
@@ -26,6 +27,7 @@ export default function FeedPage() {
   return (
     <div className="flex justify-center bg-white dark:bg-black w-screen min-h-screen px-4 lg:px-8">
       <div className="w-full max-w-[630px]">
+<ResponsiveHeader/>
         <StoriesBar
           userId={{ id: data.userId }}
           username={{ username: data.username }}

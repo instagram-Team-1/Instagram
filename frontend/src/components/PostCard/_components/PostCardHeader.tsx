@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { User } from "lucide-react";
 import { User as UserType } from "@/lib/types";
