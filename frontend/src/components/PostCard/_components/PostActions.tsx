@@ -17,7 +17,7 @@ interface PostActionsProps {
   onComment: () => void;
   onShare: () => void;
   onSave: () => void;
-  postId: string;
+  username: string;
 }
 
 const PostActions: FC<PostActionsProps> = ({
@@ -25,18 +25,17 @@ const PostActions: FC<PostActionsProps> = ({
   saved,
   onLike,
   onComment,
-  onShare,
   onSave,
-  postId,
+  username,
 }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = async () => {
-    const url = `${window.location.origin}/Home/post/${postId}`;
+    const url = `${window.location.origin}/Home/users/${username}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1000); 
+      setTimeout(() => setCopied(false), 1000);
     } catch (err) {
       console.error("Хуулж чадсангүй:", err);
     }
@@ -51,10 +50,8 @@ const PostActions: FC<PostActionsProps> = ({
             liked ? "text-red-500 fill-red-500" : ""
           }`}
         />
-        <MessageCircle
-          onClick={onComment}
-          className=" cursor-pointer"
-        />
+        <MessageCircle onClick={onComment} className="cursor-pointer" />
+
         <button onClick={handleCopyLink} className="flex flex-col items-center">
           {copied ? (
             <CopyCheckIcon className="text-green-500 mb-1" size={20} />

@@ -163,8 +163,9 @@ const PostCard: FC<PostCardProps> = ({
           onComment={() => setShowComments(true)}
           onShare={() => setShowShareModal(true)}
           onSave={toggleSave}
-          postId={postId}
+          username={user?.username ?? "Тодорхойгүй хэрэглэгч"}
         />
+
         <div className="text-sm  px-4 pt-2 font-semibold">
           {likesCount.toLocaleString()} likes
         </div>
@@ -185,9 +186,11 @@ const PostCard: FC<PostCardProps> = ({
           onSubmit={handleSubmit}
           currentUserUsername={currentUserUsername}
           currentUserAvatarImage={currentUserAvatarImage}
-          comments={commentList} onCommentSubmit={function (e: React.FormEvent): void {
+          comments={commentList}
+          onCommentSubmit={function (e: React.FormEvent): void {
             throw new Error("Function not implemented.");
-          } }        />
+          }}
+        />
       </div>
     </div>
   );
