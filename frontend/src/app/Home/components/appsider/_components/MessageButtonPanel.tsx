@@ -1,39 +1,36 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import Msgs from "@/app/Home/actualRoom/component/msgs";
 import Request from "@/app/Home/actualRoom/component/req";
+
 type ActivePanelType = "none" | "search" | "messages" | "notifications";
 
 interface MasegeButtonPanelProps {
   activePanel: ActivePanelType;
 }
 
-function MesageButtonPanel({
-  activePanel,
-}: MasegeButtonPanelProps) {
-  const [status, setStatus] = useState('')
-
-
-
+function MesageButtonPanel({ activePanel }: MasegeButtonPanelProps) {
+  const [status, setStatus] = useState("messages");
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <div>
       <div
-        className={`${activePanel === "messages"
-            ? "translate-x-0 opacity-100"
-            : "-translate-x-full opacity-0"
-          } transition-all duration-400 ease-in-out fixed top-0 left-0 h-screen ml-[75px] bg-white dark:bg-black border-r border-gray-200 dark:border-zinc-800 p-4`}
-        style={{ minWidth: "400px" }}
+        className={`fixed top-0 left-0 h-screen ml-[75px] bg-white dark:bg-black border-r border-gray-200 dark:border-zinc-800 p-4 transition-all duration-400 ease-in-out ${
+          activePanel === "messages" ? "w-[400px] max-h-[600px]" : "w-[0px] max-h-0"
+        } overflow-hidden`}
+        style={{ minWidth: activePanel === "messages" ? "400px" : "0px" }}
       >
-        <div className=' h-[100vh] w-full text-white '>
-          <div className='w-full flex justify-between px-[20px]'>
-            <p onClick={() => setStatus('msg')} className={`cursor-pointer ${status === 'msg' ? '' : 'text-white/50'}`}>Messages</p>
-            <p onClick={() => setStatus('req')} className={`cursor-pointer ${status === 'req' ? '' : 'text-white/50'}`}>requests</p>
-          </div>
-          {status === 'msg' ?
-            (<div><Msgs /></div>)
-            : (<div><Request /></div>)
-          }
+        <div className="h-[160px] w-full p-5 border-b-[1px] flex justify-between items-center">
+         
+          
+          <Msgs />
+        </div>
+        <div
+          className={`transition-all duration-300 ${
+            expanded ? "max-h-[400px]" : "max-h-0"
+          } overflow-hidden`}
+        >
+      
         </div>
       </div>
     </div>
