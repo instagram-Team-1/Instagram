@@ -43,7 +43,9 @@ export default function ProfilePage() {
 
   const isOwnProfile = userData?.id === currentUserId;
   const canViewPosts =
-  !userData?.isPrivate || isOwnProfile || userData?.followers?.some(f => f === currentUserId);
+    !userData?.isPrivate ||
+    isOwnProfile ||
+    userData?.followers?.some((f) => f === currentUserId);
 
   return (
     <div className="flex items-center justify-center w-full h-screen overflow-x-hidden">
@@ -80,7 +82,10 @@ export default function ProfilePage() {
           ) : (
             <>
               <UserHeaderTab />
-              <Highlight />
+
+              <div className="flex justify-start">
+                <Highlight />
+              </div>
               <PostAndSave />
               <Footer />
             </>
