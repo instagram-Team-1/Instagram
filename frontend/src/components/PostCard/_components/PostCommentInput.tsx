@@ -56,15 +56,7 @@ const PostCommentInput: FC<PostCommentInputProps> = ({
           onChange={handleCommentChange}
           className="bg-transparent dark:text-white text-sm flex-1 outline-none placeholder-gray-500"
         />
-        <button
-          type="submit"
-          disabled={!comment}
-          className={`ml-2 ${
-            !comment ? "text-gray-500 cursor-not-allowed" : "dark:text-white"
-          }`}
-        >
-          Send
-        </button>
+
       </form>
     </div>
   );

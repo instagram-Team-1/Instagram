@@ -89,35 +89,17 @@ const CommentModal: FC<CommentModalProps> = ({
         {/* Баруун хэсэг: Мэдээлэл, комментууд */}
         <div className="w-1/2 flex flex-col">
           {/* Header: Хэрэглэгчийн нэр, хаах товч */}
-          <div className="flex items-center justify-between py-4 px-6 border-b border-neutral-800">
+          <div className="flex items-center justify-between py-4 px-6">
             <div className="flex items-center gap-3">
-              <Avatar className="w-[32px] h-[32px]">
-                <AvatarImage
-                  src={user.avatarImage || "/img/default-avatar.png"}
-                />
-                <AvatarFallback>
-                  <User />
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-white font-semibold text-sm">
-                {user.username}
-              </span>
+     
             </div>
             <button onClick={onClose} className="text-white text-2xl">
               ✕
             </button>
           </div>
           {/* Caption хэсэг */}
-          <div className="flex gap-3 items-center px-6 py-3 text-sm border-b border-neutral-800">
-            <Avatar className="w-[32px] h-[32px]">
-              <AvatarImage
-                src={user.avatarImage || "/img/default-avatar.png"}
-              />
-              <AvatarFallback>
-                <User />
-              </AvatarFallback>
-            </Avatar>
-            <span className="font-semibold text-white">{user.username}</span>{" "}
+          <div className="flex gap-3 items-center px-6 py-3 text-sm ">
+           
             {showFullCaption ? fullCaption : shortCaption}
             {fullCaption.length > 100 && (
               <button
