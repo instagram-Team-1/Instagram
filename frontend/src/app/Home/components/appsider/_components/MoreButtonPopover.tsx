@@ -24,6 +24,9 @@ function MoreButtonPopover() {
       console.error("Logout failed:", error);
     }
   };
+  function handleSettings() {
+    router.push(`${window.location.origin}/Home/accounts/edit`);
+  }
 
   return (
     <div>
@@ -43,7 +46,10 @@ function MoreButtonPopover() {
               </PopoverTrigger>
 
               <PopoverContent className="w-52 p-2 space-y-2 dark:bg-black">
-                <button className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 w-full text-left">
+                <button
+                  onClick={handleSettings}
+                  className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 w-full text-left"
+                >
                   <Settings size={20} />
                   <span>Settings</span>
                 </button>
