@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { API } from "@/utils/api";
 import { StoryViewer } from "./Storyviewo";
+import { Skeleton } from "@/components/ui/skeleton";
+
 
 type User = {
   _id: string;

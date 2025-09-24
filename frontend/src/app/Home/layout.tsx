@@ -42,7 +42,6 @@ export default function HomeLayout({
       router.push("/login");
       return;
     }
-
     try {
       const decoded = jwtDecode<DecodedToken>(token);
       const currentTime = Date.now() / 1000;
