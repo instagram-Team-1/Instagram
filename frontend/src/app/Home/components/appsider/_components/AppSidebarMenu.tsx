@@ -95,6 +95,7 @@ export default function AppSidebarMenu({
                           togglePanel("search");
                         } else if (item.title === "Messages") {
                           router.push("/Home/message");
+                           togglePanel("messages");
                         } else if (item.title === "Notifications") {
                           togglePanel("notifications");
                         } else if (item.title === "Profile") {

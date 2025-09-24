@@ -72,12 +72,12 @@ export default function HomeLayout({
     >
       <SidebarProvider>
         <FeedProvider>
+            <userContext.Provider value={userData}>
           <AppSidebar />
           <SidebarTrigger />
-          <userContext.Provider value={userData}>
             {children}
-          </userContext.Provider>
           <Toaster richColors />
+                 </userContext.Provider>
         </FeedProvider>
       </SidebarProvider>
     </ThemeProvider>
